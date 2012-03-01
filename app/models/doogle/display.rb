@@ -1,4 +1,5 @@
 require 'active_hash_setter'
+require 'acts_as_list'
 
 class Doogle::Display < ApplicationModel
   self.inheritance_column = '_disabled'
@@ -6,7 +7,6 @@ class Doogle::Display < ApplicationModel
     read_attribute(:type)
   end
 
-  include ActsAsList
   belongs_to :status
   belongs_to :source, :class_name => 'DisplaySource'
   belongs_to :timing_controller_type
@@ -28,12 +28,12 @@ class Doogle::Display < ApplicationModel
 
   scope :not_deleted, lambda {
     {
-      :conditions => ['displays.status_id != ?', Status.deleted.id]
+      :conditions => ['displays.status_id != ?', Doogle::Status.deleted.id]
     }
   }
   scope :published, lambda {
     {
-      :conditions => ['displays.status_id = ?', Status.published.id]
+      :conditions => ['displays.status_id = ?', Doogle::Status.published.id]
     }
   }
   scope :type_in, lambda { |*types|
@@ -121,7 +121,7 @@ class Doogle::Display < ApplicationModel
 
   # puts Display.unused_datasheets.join("\n")
   def self.unused_datasheets
-    Dir.glob(Rails.root + 'public/ds/*.pdf').select { |p| Display.count(:conditions => "data_sheet_path like '%#{File.basename(p)}'") == 0}
+    Dir.glob(Doogle::Engine.root + 'public/ds/*.pdf').select { |p| Display.count(:conditions => "data_sheet_path like '%#{File.basename(p)}'") == 0}
   end
 
   def source=(thing)
@@ -261,10 +261,10 @@ class Doogle::Display < ApplicationModel
   end
 
   include ActiveHashSetter
-  active_hash_setter(Status)
-  active_hash_setter(TouchPanelType)
-  active_hash_setter(TimingControllerType)
-  active_hash_setter(SpecificationType)
+  active_hash_setter(Doogle::Status)
+  active_hash_setter(Doogle::TouchPanelType)
+  active_hash_setter(Doogle::TimingControllerType)
+  active_hash_setter(Doogle::SpecificationType)
 end
 
 Paperclip.interpolates :model_number do |attachment, style|

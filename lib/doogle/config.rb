@@ -22,7 +22,7 @@ unless defined?(::DoogleConfig)
     end
   end
   config_hash = {}
-  config_file = File.join(Rails.root.to_s, 'config', 'doogle_config.yml')
+  config_file = File.join(Doogle::Engine.root, 'config', 'doogle_config.yml')
   if File.exist?(config_file)
     if (contents = YAML::load(ERB.new(IO.read(config_file)).result)) and (not contents.nil?)  
       if contents.has_key? Rails.env.downcase

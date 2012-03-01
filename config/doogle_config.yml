@@ -125,7 +125,7 @@ shared_config: &shared_config
   display_types:
     <<: *display_types
     
-<% local_config = File.join(Rails.root, 'config/app_config_local.yml') %>
+<% local_config = File.join(Doogle::Engine.root, 'config/doogle_config_local.yml') %>
 <% if File.exists?(local_config) %>
 <%= File.open(local_config).read %>
 <% else %>

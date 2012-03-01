@@ -1,11 +1,12 @@
+require 'doogle/config'
 class Doogle::DisplaysController < ApplicationController
   filter_access_to :all
 
   def index
     search_params = params[:search]
-    @search = Display::DisplaySearch.new(search_params)
+    @search = Doogle::Search.new(search_params)
     if search_params
-      @displays = @search.filter(Display.not_deleted.by_resolution).paginate(:page => params[:page], :per_page => 50)
+      @displays = @search.filter(Doogle::Display.not_deleted.by_resolution).paginate(:page => params[:page], :per_page => 50)
     end
     if request.xhr?
       render :action => '_search_results', :layout => false
@@ -93,9 +94,9 @@ class Doogle::DisplaysController < ApplicationController
     def current_object
       if @current_object.nil?
         if params[:id].to_i.to_s == params[:id].to_s
-          @current_object = Display.find(params[:id])
+          @current_object = Doogle::Display.find(params[:id])
         else
-          @current_object = Display.find_by_model_number(params[:id]) || (raise ActiveRecord::RecordNotFound)
+          @current_object = Doogle::Display.find_by_model_number(params[:id]) || (raise ActiveRecord::RecordNotFound)
         end
       end
       @current_object
@@ -107,7 +108,7 @@ class Doogle::DisplaysController < ApplicationController
         if display_params
           type = display_params.delete(:type)
         end
-        @current_object = Display.new(display_params)
+        @current_object = Doogle::Display.new(display_params)
         if type
           @current_object.write_attribute(:type, type)
         end
