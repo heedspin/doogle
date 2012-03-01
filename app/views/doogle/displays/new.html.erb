@@ -1,0 +1,12 @@
+<% title 'New Display' %>
+
+<%= render 'displays/submenu' %>
+
+<%= semantic_form_for @display, :as => :display, :url => displays_url do |f| %>
+  <%= f.error_messages %>
+  <%= render :partial=>'form', :locals =>{:f=>f} %>
+  <%= f.buttons do %>
+    <%= f.commit_button 'Save' %>
+    <li class="link"><%= link_to 'Cancel', (params[:return_to] || displays_url) %></li>
+  <% end %>
+<% end %>

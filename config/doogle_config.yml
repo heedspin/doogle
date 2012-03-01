@@ -1,0 +1,149 @@
+display_fields: &display_fields
+  source_model_number:
+    aliases: Manufacturer Part Number
+    ignored: true
+  ignored:
+    ignored: true
+    aliases: Chip Location, Customer, Customer Use or Application, Brochure
+  specification_type:
+    system: true
+  status:
+    aliases: Status
+    system: true
+  model_number:
+    aliases:
+  diagonal_size:
+    aliases: Diagonal Size
+  colors:
+    aliases:
+  panel_size:
+    aliases:
+  dot_format:
+    aliases:
+  dot_size:
+    aliases:
+  dot_pitch:
+    aliases:
+  thickness:
+    aliases:
+  integrated_circuit:
+    aliases:
+  brightness:
+    aliases: Brightness
+  contrast:
+    aliases:
+  backlight_type:
+    aliases:
+  viewing_angle:
+    aliases:
+  operational_temperature:
+    aliases: Operational Temperature (°C)
+  storage_temperature:
+    aliases: Storage Temperature (°C)
+  interface:
+    aliases:
+  active_area:
+    aliases:
+  backlight_color:
+    aliases:
+  bonding_type:
+    aliases:
+  configuration:
+    aliases: Configuration
+  controller:
+    aliases:
+  digit_height:
+    aliases:
+  lcd_type:
+    aliases:
+  module_dimensions:
+    aliases:
+  number_of_digits:
+    aliases:
+  number_of_pins:
+    aliases:
+  operating_voltage:
+    aliases:
+  outline_dimensions:
+    aliases:
+  pixel_configuration:
+    aliases: Pixel Configuration
+  polarizer_mode:
+    aliases:
+  power_consumption:
+    aliases:
+  resolution:
+    aliases:
+  technology_type:
+    aliases: Technology Type
+  view_direction:
+    aliases:
+  viewing_dimensions:
+    aliases:
+  weight:
+    aliases:
+  touch_panel_type:
+    aliases:
+  timing_controller_type:
+    aliases:
+
+display_types: &display_types
+  tft_displays:
+    aliases: digital_tft_displays, analog_tft_displays, Display::DigitalTftDisplay, Display::AnalogTftDisplay
+    tab_names: TFT
+    name: Digital TFT Display
+    optional: model_number, diagonal_size, resolution, active_area, outline_dimensions, backlight_type, operational_temperature, storage_temperature, interface, colors, touch_panel_type, timing_controller_type
+  sunlight_tft_displays:
+    tab_names: Sunlight TFT
+    name: Sunlight-Readable TFT Display
+    optional: model_number, diagonal_size, resolution, active_area, outline_dimensions, backlight_type, interface, colors, touch_panel_type, brightness, viewing_angle
+  small_tft_displays:
+    aliases: Display::SmallTftDisplay
+    tab_names: Small TFT
+    name: Small Portable TFT Display
+    optional: model_number, diagonal_size, resolution, active_area, outline_dimensions, backlight_type, operational_temperature, storage_temperature, interface, colors, touch_panel_type
+  glass_displays:
+    aliases: Display::GlassDisplay
+    tab_names: Glass
+    name: Glass Display
+    optional: model_number, number_of_digits, technology_type, module_dimensions, digit_height, polarizer_mode, number_of_pins, operational_temperature
+  module_displays:
+    aliases: Display::ModuleDisplay
+    tab_names: Module
+    name: Module Display
+    optional: model_number, configuration, lcd_type, technology_type, module_dimensions, viewing_dimensions, polarizer_mode, backlight_type, backlight_color, operational_temperature, storage_temperature
+  oled_displays:
+    aliases: Display::OledDisplay
+    tab_names: OLED
+    name: OLED Display
+    optional: model_number, diagonal_size, pixel_configuration, colors, panel_size, active_area, interface
+  
+shared_config: &shared_config
+  company_name: LXD Research & Display
+  display_fields:
+    <<: *display_fields
+  display_types:
+    <<: *display_types
+    
+<% local_config = File.join(Rails.root, 'config/app_config_local.yml') %>
+<% if File.exists?(local_config) %>
+<%= File.open(local_config).read %>
+<% else %>
+local_config: &local_config
+  nothing: here
+<% end %>
+
+development:
+  <<: *local_config
+  <<: *shared_config
+  s3_bucket: 'lxd-ds'
+  # s3_bucket: 'lxd-devds'
+  
+production:
+  <<: *local_config
+  <<: *shared_config
+  s3_bucket: 'lxd-ds'
+  
+test:
+  <<: *local_config
+  <<: *shared_config

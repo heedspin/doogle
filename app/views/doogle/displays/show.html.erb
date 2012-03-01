@@ -1,0 +1,38 @@
+
+<% title @display.model_number %>
+
+<% if permitted_to?(:manage, :displays) %>
+<p>
+	<b><%= name(:status) %>:</b>
+	<%= @display.status.try(:name) %>
+</p>
+<p>
+	<b><%= name(:id) %>:</b>
+	<%= @display.id %>
+</p>
+<p>
+	<b><%= name(:source) %>:</b>
+	<%= @display.source.try(:name) %>
+</p>
+<p>
+	<b><%= name(:source_model_number) %>:</b>
+	<%= @display.source_model_number %>
+</p>
+<% end %>
+
+<% @display.display_config.fields.each do |field| %>
+<% if (value = @display.send(field.key)).present? %>
+<p>
+	<b><%= field.display_name %>:</b>
+	<%= value %>
+</p>
+<% end %>
+<% end %>
+
+<% links = [] %>
+<% if permitted_to?(:manage, :displays) %>
+  <% links.push link_to('<span></span>Edit'.html_safe, edit_product_path(display, :return_to => products_path), :class => 'btn edit') %>
+  <% links.push link_to('<span></span>Destroy'.html_safe, product_path(display), :confirm => 'Are you sure?', :method => :delete, :class => 'btn delete')  %>
+<% end %>
+<% links.push link_to('Back', displays_path) %>
+<%= links.join(' | ').html_safe %>

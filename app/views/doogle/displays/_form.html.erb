@@ -1,0 +1,34 @@
+<%= store_referrer_as_return_to %>
+<%= f.inputs do %>
+	<% unless @display.new_record? %>
+	<%= f.input :id, :input_html => { :readonly => 'readonly' } %>
+	<% end %>
+  <%= f.input :status, :collection => Status.all, :as => :select %>
+  <%= f.input :type, :as => :select, :collection => Doogle::DisplayConfig.options %>
+	<% Doogle::FieldConfig.not_ignored.each do |field| %>
+  <%= f.input field.key, :required => @display.display_config.required_field?(field) %>
+	<% end %>
+	<%= f.input :source, :collection => DisplaySource.all %>
+	<%= f.input :source_model_number %>
+<% end %>
+
+<% content_for :javascripts do %>
+<script type="text/javascript">
+$(function() {
+  $("select#display_type").change(function(e) {
+		var hide_fields = <%= Doogle::FieldConfig.not_ignored.map(&:key).to_json.html_safe %>;
+		var fields_for = <%= Doogle::DisplayConfig.key_to_field_keys.to_json.html_safe %>;
+		var display_type = $(this).children("option:selected").attr("value");
+		var show_fields = fields_for[display_type] || hide_fields;
+    if (show_fields) {
+			for (var i = 0; i < hide_fields.length; i++) {
+				$("li#display_"+hide_fields[i]+"_input").hide();
+			}
+			for (var i = 0; i < show_fields.length; i++) {
+				$("li#display_"+show_fields[i]+"_input").show();
+			}
+		}
+  }).trigger('change');
+})
+</script>
+<% end %>

@@ -1,0 +1,33 @@
+<div class="admintoolbar">
+<%= will_paginate @displays %>
+</div>
+
+<table class="data">
+  <thead>
+    <tr>
+      <th>Model</th>
+			<th>Resolution</th>
+			<th>Storage Temperature</th>
+			<th>Diagonal</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @displays.each do |display| %>
+      <tr class="<%= cycle('odd', 'even') %>">
+        <td><%= link_to display.model_number, product_url(display) %></td>
+				<td><%= display.resolution_xy %></td>
+				<td><%= display.storage_temperature_min_max %></td>
+				<td><%= display.module_diagonal_in_rounded %></td>
+			  <td>
+					<% if display.datasheet? %>
+						<%= link_to 'Datasheet', display_path(URI.escape(display.model_number, "/"), :format => 'pdf') %>
+					<% end %>
+				</td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<div class="admintoolbar">
+<%= will_paginate @displays %>
+</div>
