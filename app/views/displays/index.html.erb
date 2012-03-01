@@ -15,7 +15,7 @@ $(function() {
 
 <%= semantic_form_for @search, :as => :search, :url => displays_path, :html => {:method => :get} do |f| %>
 <%= f.inputs do %>
-	<%= f.input :type, :as => :select, :collection => Doogle::DisplayConfig.options, :label => 'Type' %>
+	<%= f.input :type, :as => :select, :collection => DisplayConfig.options, :label => 'Type' %>
 	<%= f.input :resolution_x_range_id, :as => :select, :collection => Doogle::ResolutionXRange.all, :label => 'X Resolution' %>
 	<%= f.input :storage_temperature_min_range_id, :as => :select, :collection => Doogle::StorageTemperatureMinRange.all, :label => 'Min Storage Temperature' %>
 	<%= f.input :diagonal_inches_range_id, :as => :select, :collection => Doogle::DiagonalInchesRange.all, :label => 'Diagonal' %>

@@ -1,8 +1,10 @@
-require 'doogle/config'
-class Doogle::DisplaysController < ApplicationController
+require 'doogle_config'
+
+class DisplaysController < ApplicationController
   filter_access_to :all
 
   def index
+    DisplayConfig.all
     search_params = params[:search]
     @search = Doogle::Search.new(search_params)
     if search_params
@@ -88,7 +90,7 @@ class Doogle::DisplaysController < ApplicationController
 
     helper_method :name
     def name(key)
-      Display.human_attribute_name(key)
+      Doogle::Display.human_attribute_name(key)
     end
 
     def current_object

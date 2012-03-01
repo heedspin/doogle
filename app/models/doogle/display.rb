@@ -7,18 +7,25 @@ class Doogle::Display < ApplicationModel
     read_attribute(:type)
   end
 
-  belongs_to :status
-  belongs_to :source, :class_name => 'DisplaySource'
-  belongs_to :timing_controller_type
-  belongs_to :touch_panel_type
-  belongs_to :specification_type
+  # belongs_to :source, :class_name => 'DisplaySource'
+  # belongs_to_active_hash :status
+  # belongs_to :touch_panel_type
+  # belongs_to :specification_type
+  # belongs_to :timing_controller_type
   validates_uniqueness_of :model_number
+
+  include ActiveHashSetter
+  active_hash_setter(Doogle::Status)
+  active_hash_setter(Doogle::TouchPanelType)
+  active_hash_setter(Doogle::TimingControllerType)
+  active_hash_setter(Doogle::SpecificationType)
+  active_hash_setter(Doogle::Source)
 
   has_attached_file( :datasheet,
                      :storage => :s3,
-                     :s3_credentials => "#{Rails.root}/config/s3.yml",
+                     :s3_credentials => { :access_key_id => CompanyConfig.doogle_access_key_id, :secret_access_key => CompanyConfig.doogle_secret_access_key },
                      :url => ':s3_domain_url',
-                     :bucket => 'lxd-ds',
+                     :bucket => CompanyConfig.doogle_bucket,
                      :path => "displays/:basename.:extension" )
 
   acts_as_list
@@ -37,7 +44,7 @@ class Doogle::Display < ApplicationModel
     }
   }
   scope :type_in, lambda { |*types|
-    type_keys = types.flatten.map { |t| t.is_a?(Doogle::DisplayConfig) ? t.key : t.to_s }
+    type_keys = types.flatten.map { |t| t.is_a?(DisplayConfig) ? t.key : t.to_s }
     {
       :conditions => [ 'displays.type in (?)', type_keys ]
     }
@@ -112,7 +119,7 @@ class Doogle::Display < ApplicationModel
 
   def display_config
     t = self.read_attribute(:type)
-    Doogle::DisplayConfig.find_by_key(t) || (raise "No display config for #{t}")
+    DisplayConfig.find_by_key(t) || (raise "No display config for #{t}")
   end
 
   def is_display_of?(dc)
@@ -259,12 +266,6 @@ class Doogle::Display < ApplicationModel
     self.guess_module_dimensions
     self.save if self.changed?
   end
-
-  include ActiveHashSetter
-  active_hash_setter(Doogle::Status)
-  active_hash_setter(Doogle::TouchPanelType)
-  active_hash_setter(Doogle::TimingControllerType)
-  active_hash_setter(Doogle::SpecificationType)
 end
 
 Paperclip.interpolates :model_number do |attachment, style|

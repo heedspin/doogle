@@ -33,6 +33,3 @@ unless defined?(::DoogleConfig)
   end
   ::DoogleConfig = DoogleConfigStruct.new(config_hash)
 end
-
-require 'doogle/display_config'
-require 'doogle/field_config'

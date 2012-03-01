@@ -1,4 +1,4 @@
-class Doogle::FieldConfig
+class FieldConfig
   attr_reader :key, :config, :field_type
   
   def initialize(key, config)
@@ -11,7 +11,7 @@ class Doogle::FieldConfig
     if @all.nil?
       @all = []
       DoogleConfig.display_fields.each_pair do |k, c|
-        @all.push Doogle::FieldConfig.new(k, c)
+        @all.push FieldConfig.new(k, c)
       end
     end
     @all
@@ -42,7 +42,7 @@ class Doogle::FieldConfig
     if @name_map.nil?
       @name_map = {}
       self.all.each do |config|
-        @name_map[Display.human_attribute_name(config.key).downcase] = config
+        @name_map[Doogle::Display.human_attribute_name(config.key).downcase] = config
         config.aliases.each do |alias_name|
           puts "Added alias #{alias_name} for #{config.key}"
           @name_map[alias_name.downcase] = config
@@ -77,7 +77,7 @@ class Doogle::FieldConfig
   end
   
   def display_name
-    Display.human_attribute_name(self.key)
+    Doogle::Display.human_attribute_name(self.key)
   end
 
 end

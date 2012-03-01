@@ -1,5 +1,4 @@
-class Doogle::DisplayConfig
-  
+class DisplayConfig
   def self.for_keys(*args)
     if @map.nil?
       @map = {}
@@ -29,7 +28,7 @@ class Doogle::DisplayConfig
     if @all.nil?
       @all = []
       DoogleConfig.display_types.each_pair do |k, c|
-        @all.push Doogle::DisplayConfig.new(k, c)
+        @all.push DisplayConfig.new(k, c)
       end
     end
     @all
@@ -71,16 +70,16 @@ class Doogle::DisplayConfig
   end
   
   def fields
-    @fields ||= (required_field_keys + optional_field_keys).map { |k| Doogle::FieldConfig.for_key(k) }
+    @fields ||= (required_field_keys + optional_field_keys).map { |k| FieldConfig.for_key(k) }
   end
 
   def export_fields
     # Remove type since it's implicit in the spreadsheet tab name.
-    Doogle::FieldConfig.system_fields + fields# - [ 'type' ]
+    FieldConfig.system_fields + fields# - [ 'type' ]
   end
   
   def active_field?(field)
-    key = field.is_a?(Doogle::FieldConfig) ? field.key.to_s : field.to_s
+    key = field.is_a?(FieldConfig) ? field.key.to_s : field.to_s
     required_field_keys.include?(key) or optional_field_keys.include?(key)
   end
   

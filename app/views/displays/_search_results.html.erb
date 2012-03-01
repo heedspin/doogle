@@ -14,7 +14,7 @@
   <tbody>
     <% @displays.each do |display| %>
       <tr class="<%= cycle('odd', 'even') %>">
-        <td><%= link_to display.model_number, product_url(display) %></td>
+        <td><%= link_to display.model_number, display_url(display) %></td>
 				<td><%= display.resolution_xy %></td>
 				<td><%= display.storage_temperature_min_max %></td>
 				<td><%= display.module_diagonal_in_rounded %></td>
