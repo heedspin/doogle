@@ -6,23 +6,39 @@
   <thead>
     <tr>
       <th>Model</th>
+      <th>Type</th>
+      <th>Graphics</th>
 			<th>Resolution</th>
 			<th>Storage Temperature</th>
 			<th>Diagonal</th>
+			<th>Bonding Type</th>
+			<th>Backlight Color</th>
+			<th>Luminance</th>
     </tr>
   </thead>
   <tbody>
     <% @displays.each do |display| %>
       <tr class="<%= cycle('odd', 'even') %>">
         <td><%= link_to display.model_number, display_url(display) %></td>
-				<td><%= display.resolution_xy %></td>
-				<td><%= display.storage_temperature_min_max %></td>
-				<td><%= display.module_diagonal_in_rounded %></td>
-			  <td>
-					<% if display.datasheet? %>
-						<%= link_to 'Datasheet', display_path(URI.escape(display.model_number, "/"), :format => 'pdf') %>
+				<td><%= display.display_config.short_name %></td>
+				<td><%= display.graphic_type.try(:name) %></td>
+				<td>
+					<% if display.graphic_type.try(:graphic?) %>
+						<%= display.resolution_xy %>
+					<% else %>
+						<%= display.resolution_character %>
 					<% end %>
 				</td>
+				<td><%= display.storage_temperature_min_max %></td>
+				<td><%= display.module_diagonal_in_rounded %></td>
+				<td><%= display.bonding_type.try(:name) %></td>
+				<td><%= display.backlight_color.try(:name) %></td>
+				<td><%= display.luminance_nits %></td>
+				<% if display.datasheet? %>
+			  <td>
+					<%= link_to 'Datasheet', display_path(URI.escape(display.model_number, "/"), :format => 'pdf') %>
+				</td>
+				<% end %>
       </tr>
     <% end %>
   </tbody>

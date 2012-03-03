@@ -96,6 +96,10 @@ class DisplayConfig
     @tab_names ||= (self.config['tab_names'] || '').split(',').map(&:strip)
   end
   
+  def short_name
+    tab_names.first
+  end
+  
   def tab_name?(txt)
     self.tab_names.map(&:downcase).include?(txt.downcase)
   end

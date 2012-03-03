@@ -7,11 +7,6 @@ class Doogle::Display < ApplicationModel
     read_attribute(:type)
   end
 
-  # belongs_to :source, :class_name => 'DisplaySource'
-  # belongs_to_active_hash :status
-  # belongs_to :touch_panel_type
-  # belongs_to :specification_type
-  # belongs_to :timing_controller_type
   validates_uniqueness_of :model_number
 
   include ActiveHashSetter
@@ -20,6 +15,9 @@ class Doogle::Display < ApplicationModel
   active_hash_setter(Doogle::TimingControllerType)
   active_hash_setter(Doogle::SpecificationType)
   active_hash_setter(Doogle::Source)
+  active_hash_setter(Doogle::BondingType)
+  active_hash_setter(Doogle::BacklightColor)
+  active_hash_setter(Doogle::GraphicType)
 
   has_attached_file( :datasheet,
                      :storage => :s3,
@@ -32,6 +30,38 @@ class Doogle::Display < ApplicationModel
   def scope_condition
     "type = '#{type}'"
   end
+  
+  def self.range_scope(*attributes)
+    attributes.each do |attribute|
+      self.class_eval <<-RUBY
+      scope :#{attribute}_range, lambda { |range|
+        if range.exact?
+          {
+            :conditions => { :#{attribute} => range.exact }
+          }
+        elsif range.no_max?
+          {
+            :conditions => [ 'displays.#{attribute} >= ?', range.min ]
+          }
+        elsif range.no_min?
+          {
+            :conditions => [ 'displays.#{attribute} <= ?', range.max ]
+          }
+        else
+          {
+            :conditions => [ 'displays.#{attribute} >= ? AND displays.#{attribute} <= ?', range.min, range.max ]
+          }
+        end
+      }
+      RUBY
+    end
+  end
+  range_scope :resolution_x
+  range_scope :storage_temperature_min, :storage_temperature_max
+  range_scope :operational_temperature_min, :operational_temperature_max
+  range_scope :character_columns
+  range_scope :module_diagonal_in
+  range_scope :luminance_nits
 
   scope :not_deleted, lambda {
     {
@@ -49,59 +79,18 @@ class Doogle::Display < ApplicationModel
       :conditions => [ 'displays.type in (?)', type_keys ]
     }
   }
+  scope :type_key, lambda { |key|
+    {
+      :conditions => { :type => key }
+    }
+  }
   scope :for_model, lambda { |model_number|
     {
       :conditions => { :model_number => model_number }
     }
   }
   scope :by_model_number, :order => :model_number
-  scope :resolution_x, lambda { |x_range|
-    if x_range.exact?
-      {
-        :conditions => { :resolution_x => x_range.exact }
-      }
-    else
-      {
-        :conditions => [ 'displays.resolution_x >= ? and displays.resolution_x <= ?', x_range.min, x_range.max ]
-      }
-    end
-  }
   scope :by_resolution, :order => [ :resolution_x, :resolution_y ]
-  scope :storage_temperature_min, lambda { |val|
-    {
-      :conditions => [ 'displays.storage_temperature_min <= ?', val ]
-    }
-  }
-  scope :storage_temperature_max, lambda { |val|
-    {
-      :conditions => [ 'displays.storage_temperature_max >= ?', val ]
-    }
-  }
-  scope :operational_temperature_min, lambda { |val|
-    {
-      :conditions => [ 'displays.operational_temperature_min <= ?', val ]
-    }
-  }
-  scope :operational_temperature_max, lambda { |val|
-    {
-      :conditions => [ 'displays.operational_temperature_max >= ?', val ]
-    }
-  }
-  scope :diagonal_inches, lambda { |diagonal_inches_range|
-    if diagonal_inches_range.exact?
-      {
-        :conditions => { :module_diagonal_in => diagonal_inches_range.exact }
-      }
-    elsif diagonal_inches_range.no_max?
-      {
-        :conditions => [ 'displays.module_diagonal_in >= ?', diagonal_inches_range.min ]
-      }
-    else
-      {
-        :conditions => [ 'displays.module_diagonal_in >= ? AND displays.module_diagonal_in <= ?', diagonal_inches_range.min, diagonal_inches_range.max ]
-      }
-    end
-  }
 
   def destroy
     self.update_attributes(:status_id => Status.deleted.id)
@@ -174,7 +163,7 @@ class Doogle::Display < ApplicationModel
       nil
     end
   end
-
+  
   # rails console
   # Display.find_each { |d| d.guess_resolutions ; d.save if d.changed? }
   def guess_resolutions
@@ -217,7 +206,7 @@ class Doogle::Display < ApplicationModel
       self.operational_temperature_max ||= $2
     end
   end
-  
+
   MM_PER_INCH = 25.4
   def guess_module_dimensions
     if self.diagonal_size.present? and !self.diagonal_size.include?('WIDE')
@@ -225,12 +214,19 @@ class Doogle::Display < ApplicationModel
     else
       self.module_diagonal_in = nil
     end
-    if self.module_dimensions and ((numbers = self.module_dimensions.scan(/(?:\d+\.\d+)|(?:\d+)/)).size > 1)
+    numbers = nil
+    if self.module_dimensions.present?
+      numbers = self.module_dimensions.scan(/(?:\d+\.\d+)|(?:\d+)/)
+    end
+    if (numbers.nil? or (numbers.size <= 1)) and self.outline_dimensions.present?
+      numbers = self.outline_dimensions.scan(/(?:\d+\.\d+)|(?:\d+)/)
+    end
+    if numbers and (numbers.size > 1)
       width = numbers[0].to_f
       height = numbers[1].to_f
       thickness = numbers[2].to_f
       is_in_inches = width <= 10
-      doit = Proc.new { |n| 
+      doit = Proc.new { |n|
         if n == 0
           nil
         elsif is_in_inches
@@ -249,7 +245,7 @@ class Doogle::Display < ApplicationModel
       end
     end
   end
-  
+
   def module_diagonal_in_rounded
     if self.module_diagonal_in > 0
       sprintf("%.1f",self.module_diagonal_in) + '"'
@@ -258,12 +254,60 @@ class Doogle::Display < ApplicationModel
     end
   end
 
+  def guess_bonding_type
+    if (bt = read_attribute(:bonding_type) and bt.present?) or (bt = self.configuration).present?
+      self.bonding_type = Doogle::BondingType.find_by_name(bt[0..2])
+    end
+  end
+
+  def guess_backlight_color
+    if bc = read_attribute(:backlight_color) and bc.present?
+      self.backlight_color = Doogle::BacklightColor.find_by_name_or_alias(bc)
+    end
+  end
+
+  def guess_graphic_type
+    self.graphic_type = if (self.display_config.key == :glass_displays) or (self.lcd_type and self.lcd_type.include?('Char'))
+      Doogle::GraphicType.character
+    else
+      Doogle::GraphicType.graphic
+    end
+  end
+
+  def resolution_character
+    if self.character_rows && self.character_columns
+      "#{self.character_columns} x #{self.character_rows}"
+    else
+      nil
+    end
+  end
+
+  def guess_character_resolutions
+    if self.lcd_type.present? and (self.lcd_type =~ /(\d+)[^\d]+(\d+)/)
+      # Assume there are always more columns than rows.
+      columns, rows = $1 > $2 ? [$1, $2] : [$2, $1]
+      self.character_columns = columns
+      self.character_rows = rows
+    end
+  end
+  
+  def guess_luminance
+    if self.brightness.present?
+      self.luminance_nits ||= self.brightness.to_i
+    end
+  end
+
   # rails console
-  # Display.find_each { |d| d.guess_ranges! }
+  # Doogle::Display.find_each { |d| d.guess_ranges! }
   def guess_ranges!
     self.guess_resolutions
     self.guess_temperatures
     self.guess_module_dimensions
+    self.guess_bonding_type
+    self.guess_backlight_color
+    self.guess_graphic_type
+    self.guess_character_resolutions
+    self.guess_luminance
     self.save if self.changed?
   end
 end
@@ -271,6 +315,9 @@ end
 Paperclip.interpolates :model_number do |attachment, style|
   attachment.instance.model_number
 end
+
+# tim@concerto:~/Dropbox/p/lxd_m2mhub$ bundle exec annotate --model-dir ../doogle/app/models
+#
 
 # == Schema Information
 #
@@ -339,5 +386,10 @@ end
 #  module_height_mm            :float
 #  module_thickness_mm         :float
 #  module_diagonal_in          :float
+#  bonding_type_id             :integer(4)
+#  backlight_color_id          :integer(4)
+#  graphic_type_id             :integer(4)
+#  character_rows              :integer(4)
+#  character_columns           :integer(4)
+#  luminance_nits              :integer(4)
 #
-
