@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
   s.version     = Doogle::VERSION
   s.authors     = ["Tim Harrison"]
   s.email       = ["heedspin@gmail.com"]
-  s.homepage    = "www.heedspin.com"
+  s.homepage    = "https://github.com/heedspin/doogle"
   s.summary     = "Searchable database of LCDs for LXD"
   s.description = ""
 
