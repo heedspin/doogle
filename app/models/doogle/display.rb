@@ -91,6 +91,11 @@ class Doogle::Display < ApplicationModel
   }
   scope :by_model_number, :order => :model_number
   scope :by_resolution, :order => [ :resolution_x, :resolution_y ]
+  scope :model_number, lambda { |text|
+    {
+      :conditions => [ 'displays.model_number like ?', '%' + (text.strip.upcase || '') + '%' ]
+    }
+  }
 
   def destroy
     self.update_attributes(:status_id => Status.deleted.id)

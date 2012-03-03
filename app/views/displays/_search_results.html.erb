@@ -19,7 +19,7 @@
   <tbody>
     <% @displays.each do |display| %>
       <tr class="<%= cycle('odd', 'even') %>">
-        <td><%= link_to display.model_number, display_url(display) %></td>
+        <td><%= link_to search_excerpt(display.model_number.strip, @search.model_number), display_url(display) %></td>
 				<td><%= display.display_config.short_name %></td>
 				<td><%= display.graphic_type.try(:name) %></td>
 				<td>

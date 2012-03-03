@@ -1,7 +1,16 @@
 <% content_for :javascripts do %>
 <script type="text/javascript">
 var options = {
-	target: '#search_results'
+	target: '#search_results',
+	beforeSubmit: function(arr, $form, options) { 
+		$("#search_results").html("");
+		$("#inprogress").show();
+		return true;
+	},
+	success: function() {
+		$("#inprogress").hide();
+		return true;
+	}
 };
 $(function() {
   $("form#search_new").change(function() {
@@ -11,10 +20,11 @@ $(function() {
 </script>
 <% end %>
 
-<% title 'Product Search' %>
+<% title 'Display Search' %>
 
 <%= semantic_form_for @search, :as => :search, :url => displays_path, :html => {:method => :get} do |f| %>
 <%= f.inputs do %>
+	<%= f.input :model_number %>
 	<%= f.input :type_key, :as => :select, :collection => DisplayConfig.options, :label => 'Type' %>
 	<%= f.input :graphic_type_id, :as => :select, :collection => Doogle::GraphicType.all, :label => 'Graphics' %>
 	<%= f.input :resolution_x_range_id, :as => :select, :collection => Doogle::ResolutionXRange.all, :label => 'X Resolution' %>
@@ -26,6 +36,10 @@ $(function() {
 	<%= f.input :luminance_nits_range_id, :as => :select, :collection => Doogle::LuminanceRange.all, :label => 'Luminance' %>
 <% end %>
 <% end %>
+
+<div id="inprogress" class="hide display_search">
+	Searching... <%= image_tag 'inprogress.gif' %>
+</div>
 
 <div id="search_results">
 <% if @displays %>

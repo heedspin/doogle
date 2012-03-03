@@ -18,6 +18,7 @@ class Doogle::Search
     end
   end
   add_attribute :type_key
+  add_attribute :model_number
   add_attribute :resolution_x_range, 'Doogle::ResolutionXRange'
   add_attribute :storage_temperature_min_range, 'Doogle::StorageTemperatureMinRange'
   add_attribute :module_diagonal_in_range, 'Doogle::DiagonalInchesRange'
