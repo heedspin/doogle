@@ -3,12 +3,12 @@
 	<% unless @display.new_record? %>
 	<%= f.input :id, :input_html => { :readonly => 'readonly' } %>
 	<% end %>
-  <%= f.input :status, :collection => Status.all, :as => :select %>
+  <%= f.input :status, :collection => Doogle::Status.all, :as => :select %>
   <%= f.input :type, :as => :select, :collection => DisplayConfig.options %>
 	<% FieldConfig.not_ignored.each do |field| %>
   <%= f.input field.key, :required => @display.display_config.required_field?(field) %>
 	<% end %>
-	<%= f.input :source, :collection => DisplaySource.all %>
+	<%= f.input :source, :collection => Doogle::Source.all %>
 	<%= f.input :source_model_number %>
 <% end %>
 

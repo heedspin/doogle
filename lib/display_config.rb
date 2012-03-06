@@ -27,8 +27,8 @@ class DisplayConfig
   def self.all
     if @all.nil?
       @all = []
-      DoogleConfig.display_types.each_pair do |k, c|
-        @all.push DisplayConfig.new(k, c)
+      DoogleConfig.display_types.each do |config_hash|
+        @all.push DisplayConfig.new(config_hash)
       end
     end
     @all
@@ -40,8 +40,8 @@ class DisplayConfig
   
   attr_reader :key
   attr_reader :config
-  def initialize(key, config)
-    @key = key.to_sym
+  def initialize(config)
+    @key = (config['key'] || (raise "missing display config key in #{config.inspect}")).to_sym
     @config = config
   end
   
@@ -60,17 +60,21 @@ class DisplayConfig
       []
     end
   end
-  
+
   def optional_field_keys
-    @optional_field_keys ||= if optional = @config['optional']
-      optional.split(',').map(&:strip)
+    @optional_field_keys ||= self.field_keys - self.required_field_keys
+  end
+
+  def field_keys
+    @field_keys ||= if field_keys = @config['fields']
+      field_keys.split(',').map(&:strip)
     else
       []
     end
-  end
-  
+  end  
+    
   def fields
-    @fields ||= (required_field_keys + optional_field_keys).map { |k| FieldConfig.for_key(k) }
+    @fields ||= self.field_keys.map { |k| FieldConfig.for_key(k) }
   end
 
   def export_fields

@@ -1,7 +1,7 @@
 <% title 'Editing Display' %>
 <%= semantic_form_for @display, :as => :display, :url => display_path(@display) do |f| %>
   <%= hidden_field_tag :_method, :put %>
-  <%= f.error_messages %>
+  <%= f.semantic_errors %>
   <%= render :partial=>'form', :locals =>{:f=>f} %>
   <%= f.buttons do %>
 	  <%= f.commit_button 'Save' %>

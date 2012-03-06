@@ -1,8 +1,8 @@
 class FieldConfig
   attr_reader :key, :config, :field_type
   
-  def initialize(key, config)
-    @key = key.to_sym
+  def initialize(config)
+    @key = (config['key'] || (raise "missing field config key in #{config.inspect}")).to_sym
     @config = config
     @field_type = field_type
   end
@@ -10,8 +10,8 @@ class FieldConfig
   def self.all
     if @all.nil?
       @all = []
-      DoogleConfig.display_fields.each_pair do |k, c|
-        @all.push FieldConfig.new(k, c)
+      DoogleConfig.display_fields.each do |config_hash|
+        @all.push FieldConfig.new(config_hash)
       end
     end
     @all
@@ -59,7 +59,7 @@ class FieldConfig
   def self.not_ignored
     self.all.select { |f| !f.ignored? }
   end
-
+  
   def aliases
     @alias ||= (self.config['aliases'] || '').split(',').map(&:strip)
   end
