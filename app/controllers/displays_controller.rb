@@ -4,7 +4,7 @@ class DisplaysController < ApplicationController
   filter_access_to :all
 
   def index
-    DisplayConfig.all
+    Doogle::DisplayConfig.all
     search_params = params[:search]
     @search = Doogle::Search.new(search_params)
     if search_params

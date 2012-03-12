@@ -16,8 +16,13 @@ class Doogle::Display < ApplicationModel
   active_hash_setter(Doogle::SpecificationType)
   active_hash_setter(Doogle::Source)
   active_hash_setter(Doogle::BondingType)
-  active_hash_setter(Doogle::BacklightColor)
+  active_hash_setter(Doogle::Color, :backlight_color)
+  active_hash_setter(Doogle::Color, :filter_color)
   active_hash_setter(Doogle::GraphicType)
+  active_hash_setter(Doogle::TwistType)
+  active_hash_setter(Doogle::DisplayMode)
+  active_hash_setter(Doogle::PolarizerMode)
+  active_hash_setter(Doogle::CharacterType)
 
   has_attached_file( :datasheet,
                      :storage => :s3,
@@ -74,7 +79,7 @@ class Doogle::Display < ApplicationModel
     }
   }
   scope :type_in, lambda { |*types|
-    type_keys = types.flatten.map { |t| t.is_a?(DisplayConfig) ? t.key : t.to_s }
+    type_keys = types.flatten.map { |t| t.is_a?(Doogle::DisplayConfig) ? t.key : t.to_s }
     {
       :conditions => [ 'displays.type in (?)', type_keys ]
     }
@@ -113,7 +118,7 @@ class Doogle::Display < ApplicationModel
 
   def display_config
     t = self.read_attribute(:type)
-    DisplayConfig.find_by_key(t) || (raise "No display config for #{t}")
+    Doogle::DisplayConfig.find_by_key(t) || (raise "No display config for #{t}")
   end
 
   def is_display_of?(dc)
@@ -226,6 +231,9 @@ class Doogle::Display < ApplicationModel
     if (numbers.nil? or (numbers.size <= 1)) and self.outline_dimensions.present?
       numbers = self.outline_dimensions.scan(/(?:\d+\.\d+)|(?:\d+)/)
     end
+    if (numbers.nil? or (numbers.size <= 1)) and self.panel_size.present?
+      numbers = self.panel_size.scan(/(?:\d+\.\d+)|(?:\d+)/)
+    end
     if numbers and (numbers.size > 1)
       width = numbers[0].to_f
       height = numbers[1].to_f
@@ -250,6 +258,20 @@ class Doogle::Display < ApplicationModel
       end
     end
   end
+  
+  def guess_viewing_dimensions
+    width = height = nil
+    if self.viewing_dimensions.present? and (self.viewing_dimensions =~ /(\d+\.\d+)[^\d]+(\d+\.\d+)/)
+      width = $1.to_f
+      height = $2.to_f
+      if width <= 10
+        width = width * MM_PER_INCH
+        height = height * MM_PER_INCH
+      end
+    end
+    self.viewing_width_mm = width
+    self.viewing_height_mm = height
+  end
 
   def module_diagonal_in_rounded
     if self.module_diagonal_in > 0
@@ -267,7 +289,7 @@ class Doogle::Display < ApplicationModel
 
   def guess_backlight_color
     if bc = read_attribute(:backlight_color) and bc.present?
-      self.backlight_color = Doogle::BacklightColor.find_by_name_or_alias(bc)
+      self.backlight_color = Doogle::Color.find_by_name_or_alias(bc)
     end
   end
 
@@ -288,12 +310,18 @@ class Doogle::Display < ApplicationModel
   end
 
   def guess_character_resolutions
-    if self.lcd_type.present? and (self.lcd_type =~ /(\d+)[^\d]+(\d+)/)
+    columns = rows = nil
+    if self.graphic_type.character? and self.lcd_type.present? and (self.lcd_type =~ /(\d+)[^\d]+(\d+)/)
       # Assume there are always more columns than rows.
-      columns, rows = $1 > $2 ? [$1, $2] : [$2, $1]
-      self.character_columns = columns
-      self.character_rows = rows
+      x = $1.to_f
+      y = $2.to_f
+      columns, rows = x > y ? [x, y] : [y, x]
+    elsif self.number_of_digits.present? and ((num = self.number_of_digits.to_f) > 0)
+      columns = num
+      rows = 1.0
     end
+    self.character_columns = columns
+    self.character_rows = rows
   end
   
   def guess_luminance
@@ -301,7 +329,81 @@ class Doogle::Display < ApplicationModel
       self.luminance_nits ||= self.brightness.to_i
     end
   end
-
+  
+  def guess_filter_color
+    result = nil
+    if self.technology_type.present?
+      result = if self.technology_type.include?('Gray') or self.technology_type.include?('Grey')
+        Doogle::Color.gray
+      elsif self.technology_type.include?('Blue')
+        Doogle::Color.blue
+      elsif self.technology_type.include?('Y/G')
+        Doogle::Color.yellow_green
+      else
+        nil
+      end
+    end
+    self.filter_color = result    
+  end
+  
+  def guess_twist_type
+    result = nil
+    if self.technology_type.present?
+      # Go in reverse so that FSTN matches before TN.
+      Doogle::TwistType.all.reverse.each do |tt|
+        if self.technology_type.include?(tt.name)
+          result = tt
+          break
+        end
+      end
+    end
+    self.twist_type = result
+  end
+  
+  def guess_display_mode
+    if (pm = read_attribute(:polarizer_mode)) and pm.present?
+      if pm == 'Pos'
+        self.display_mode = Doogle::DisplayMode.positive
+      elsif pm == 'Neg'
+        self.display_mode = Doogle::DisplayMode.negative
+      end
+    end
+  end
+  
+  def guess_polarizer_mode
+    if (pm = read_attribute(:polarizer_mode)) and pm.present?
+      self.polarizer_mode = Doogle::PolarizerMode.all.detect { |p| p.name == pm }
+    end
+  end
+  
+  def guess_active_area
+    width = height = nil
+    if self.active_area.present? and (self.active_area =~ /(\d+\.\d+)[^\d]+(\d+\.\d+)/)
+      width = $1.to_f
+      height = $2.to_f
+      if width <= 10
+        width = width * MM_PER_INCH
+        height = height * MM_PER_INCH
+      end
+    end
+    self.active_area_width_mm = width
+    self.active_area_height_mm = height
+  end
+  
+  def guess_module_type
+    result = nil
+    if self.lcd_type.present?
+      if self.lcd_type.include?('Char')
+        result = 'character_module_displays'
+      elsif self.lcd_type.include?('Graph')
+        result = 'graphic_module_displays'
+      end
+    end
+    if result
+      self.type = result
+    end
+  end
+  
   # rails console
   # Doogle::Display.find_each { |d| d.guess_ranges! }
   def guess_ranges!
@@ -313,6 +415,13 @@ class Doogle::Display < ApplicationModel
     self.guess_graphic_type
     self.guess_character_resolutions
     self.guess_luminance
+    self.guess_filter_color
+    self.guess_twist_type
+    self.guess_viewing_dimensions
+    self.guess_display_mode
+    self.guess_polarizer_mode
+    self.guess_active_area
+    self.guess_module_type
     self.save if self.changed?
   end
 end
@@ -394,7 +503,17 @@ end
 #  bonding_type_id             :integer(4)
 #  backlight_color_id          :integer(4)
 #  graphic_type_id             :integer(4)
-#  character_rows              :integer(4)
-#  character_columns           :integer(4)
 #  luminance_nits              :integer(4)
+#  twist_type_id               :integer(4)
+#  filter_color_id             :integer(4)
+#  display_mode_id             :integer(4)
+#  viewing_width_mm            :float
+#  viewing_height_mm           :float
+#  polarizer_mode_id           :integer(4)
+#  character_type_id           :integer(4)
+#  active_area_width_mm        :float
+#  active_area_height_mm       :float
+#  character_rows              :float
+#  character_columns           :float
 #
+

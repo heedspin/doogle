@@ -1,0 +1,5 @@
+<li class="string input optional stringish doogle_dimensions" id="display_<%= field.key %>_input" style="display: block; "><label class=" label" for="display_<%= field.key %>"><%= Doogle::Display.human_attribute_name(field.key) %></label>
+	<% field.dimensions.each do |dimension| %>
+	<span><%= dimension.label %></span><%= f.text_field dimension.key %>
+	<% end %>
+</li>

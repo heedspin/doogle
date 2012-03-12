@@ -13,80 +13,76 @@ _display_fields: &_display_fields
       system: true
     - key: model_number
       aliases:
-    - key: diagonal_size
-      aliases: Diagonal Size
     - key: colors
       aliases:
-    - key: panel_size
-      aliases:
-    - key: dot_format
-      aliases:
-    - key: dot_size
-      aliases:
-    - key: dot_pitch
-      aliases:
-    - key: thickness
-      aliases:
-    - key: integrated_circuit
-      aliases:
-    - key: brightness
-      aliases: Brightness
-    - key: contrast
-      aliases:
     - key: backlight_type
-      aliases:
     - key: viewing_angle
-      aliases:
+    - key: interface
+    - key: active_area
+      dimension: active_area_width_mm, active_area_height_mm
+    - key: active_area_width_mm
+      label: Width
+    - key: active_area_height_mm
+      label: Height
+    - key: backlight_color
+      collection: Color
+    - key: bonding_type
+      collection: true
+    - key: digit_height
+    - key: module_dimensions
+      dimension: module_width_mm, module_height_mm, module_thickness_mm
+    - key: module_width_mm
+      label: Width
+    - key: module_height_mm
+      label: Height
+    - key: module_thickness_mm
+      label: Thickness
+    - key: number_of_pins
+    - key: resolution
+      dimension: resolution_x, resolution_y
+    - key: resolution_x
+      label: X
+    - key: resolution_y
+      label: Y
+    - key: viewing_dimensions
+      dimension: viewing_width_mm, viewing_height_mm
+    - key: viewing_width_mm
+      label: Width
+    - key: viewing_height_mm
+      label: Height
+    - key: touch_panel_type
+      collection: true
+    - key: timing_controller_type
+      collection: true
+    - key: filter_color
+      collection: Color
+    - key: twist_type
+      collection: true
+    - key: display_mode
+      collection: true
+    - key: polarizer_mode
+      collection: true
     - key: operational_temperature
       aliases: Operational Temperature (°C)
+      range: operational_temperature_min, operational_temperature_max
+    - key: operational_temperature_min
+      label: Min
+    - key: operational_temperature_max
+      label: Max
     - key: storage_temperature
       aliases: Storage Temperature (°C)
-    - key: interface
-      aliases:
-    - key: active_area
-      aliases:
-    - key: backlight_color
-      aliases:
-    - key: bonding_type
-      aliases:
-    - key: configuration
-      aliases: Configuration
-    - key: controller
-      aliases:
-    - key: digit_height
-      aliases:
-    - key: lcd_type
-      aliases:
-    - key: module_dimensions
-      aliases:
-    - key: number_of_digits
-      aliases:
-    - key: number_of_pins
-      aliases:
-    - key: operating_voltage
-      aliases:
-    - key: outline_dimensions
-      aliases:
-    - key: pixel_configuration
-      aliases: Pixel Configuration
-    - key: polarizer_mode
-      aliases:
-    - key: power_consumption
-      aliases:
-    - key: resolution
-      aliases:
-    - key: technology_type
-      aliases: Technology Type
-    - key: view_direction
-      aliases:
-    - key: viewing_dimensions
-      aliases:
-    - key: weight
-      aliases:
-    - key: touch_panel_type
-      aliases:
-    - key: timing_controller_type
-      aliases:
+      range: storage_temperature_min, storage_temperature_max
+    - key: storage_temperature_min
+      label: Min
+    - key: storage_temperature_max
+      label: Max
+    - key: character_resolution
+      dimension: character_columns, character_rows
+    - key: character_columns
+      label: Cols
+    - key: character_rows
+      label: Rows
+    - key: luminance_nits
 
 display_types: &_display_types
   display_types:
@@ -94,31 +90,35 @@ display_types: &_display_types
       aliases: digital_tft_displays, analog_tft_displays, Display::DigitalTftDisplay, Display::AnalogTftDisplay
       tab_names: TFT
       name: Digital TFT Display
-      fields: model_number, diagonal_size, resolution, active_area, outline_dimensions, backlight_type, operational_temperature, storage_temperature, interface, colors, touch_panel_type, timing_controller_type
+      fields: model_number, bonding_type, module_dimensions, resolution, active_area, backlight_type, operational_temperature, storage_temperature, interface, colors, touch_panel_type, timing_controller_type
     - key: sunlight_tft_displays
       tab_names: Sunlight TFT
       name: Sunlight-Readable TFT Display
-      fields: model_number, diagonal_size, resolution, active_area, outline_dimensions, backlight_type, interface, colors, touch_panel_type, brightness, viewing_angle
+      fields: model_number, bonding_type, module_dimensions, resolution, active_area, backlight_type, interface, colors, touch_panel_type, luminance_nits, viewing_angle
     - key: small_tft_displays
       aliases: Display::SmallTftDisplay
       tab_names: Small TFT
       name: Small Portable TFT Display
-      fields: model_number, diagonal_size, resolution, active_area, outline_dimensions, backlight_type, operational_temperature, storage_temperature, interface, colors, touch_panel_type
+      fields: model_number, module_dimensions, resolution, active_area, backlight_type, operational_temperature, storage_temperature, interface, colors, touch_panel_type
     - key: glass_displays
       aliases: Display::GlassDisplay
       tab_names: Glass
       name: Glass Display
-      fields: model_number, number_of_digits, technology_type, module_dimensions, digit_height, polarizer_mode, number_of_pins, operational_temperature
-    - key: module_displays
-      aliases: Display::ModuleDisplay
-      tab_names: Module
-      name: Module Display
-      fields: model_number, configuration, lcd_type, technology_type, module_dimensions, viewing_dimensions, polarizer_mode, backlight_type, backlight_color, operational_temperature, storage_temperature
+      fields: model_number, character_resolution, filter_color, twist_type, module_dimensions, digit_height, polarizer_mode, number_of_pins, operational_temperature
+    - key: graphic_module_displays
+      tab_names: Graphic Displays
+      name: Graphic Display
+      fields: model_number, resolution, bonding_type, filter_color, twist_type, module_dimensions, viewing_dimensions, display_mode, polarizer_mode, backlight_type, backlight_color, operational_temperature, storage_temperature, backlight_type
+    - key: character_module_displays
+      tab_names: Character Modules
+      name: Character Module Display
+      fields: model_number, character_resolution, bonding_type, filter_color, twist_type, module_dimensions, viewing_dimensions, display_mode, polarizer_mode, backlight_type, backlight_color, operational_temperature, storage_temperature, backlight_type
     - key: oled_displays
       aliases: Display::OledDisplay
       tab_names: OLED
       name: OLED Display
-      fields: model_number, diagonal_size, pixel_configuration, colors, panel_size, active_area, interface
+      fields: model_number, module_dimensions, resolution, colors, active_area, interface
+    - key: module_displays
   
 shared_config: &shared_config
   company_name: LXD Research & Display

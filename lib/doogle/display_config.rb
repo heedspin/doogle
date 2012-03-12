@@ -1,4 +1,4 @@
-class DisplayConfig
+class Doogle::DisplayConfig
   def self.for_keys(*args)
     if @map.nil?
       @map = {}
@@ -28,7 +28,7 @@ class DisplayConfig
     if @all.nil?
       @all = []
       DoogleConfig.display_types.each do |config_hash|
-        @all.push DisplayConfig.new(config_hash)
+        @all.push Doogle::DisplayConfig.new(config_hash)
       end
     end
     @all
@@ -38,19 +38,15 @@ class DisplayConfig
     self.all.sort_by(&:name).map { |dc| [ dc.name, dc.key ] }
   end
   
-  attr_reader :key
-  attr_reader :config
+  attr_reader :key, :config, :name
   def initialize(config)
     @key = (config['key'] || (raise "missing display config key in #{config.inspect}")).to_sym
     @config = config
+    @name = config['name'] || self.key.to_s.humanize.titleize
   end
   
   def aliases
     @alias ||= (self.config['alias'] || '').split(',').map(&:strip)
-  end
-  
-  def name
-    @name ||= config['name']
   end
   
   def required_field_keys
@@ -74,16 +70,16 @@ class DisplayConfig
   end  
     
   def fields
-    @fields ||= self.field_keys.map { |k| FieldConfig.for_key(k) }
+    @fields ||= self.field_keys.map { |k| Doogle::FieldConfig.for_key(k) }
   end
 
   def export_fields
     # Remove type since it's implicit in the spreadsheet tab name.
-    FieldConfig.system_fields + fields# - [ 'type' ]
+    Doogle::FieldConfig.system_fields + fields# - [ 'type' ]
   end
   
   def active_field?(field)
-    key = field.is_a?(FieldConfig) ? field.key.to_s : field.to_s
+    key = field.is_a?(Doogle::FieldConfig) ? field.key.to_s : field.to_s
     required_field_keys.include?(key) or optional_field_keys.include?(key)
   end
   

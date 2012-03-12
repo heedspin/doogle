@@ -1,5 +1,5 @@
 require 'active_hash_methods'
-class Doogle::BacklightColor < ActiveHash::Base
+class Doogle::Color < ActiveHash::Base
   self.data = [
     {:id => 1, :name => 'None', :aliases => %w(n/a na)},
     {:id => 2, :name => 'Amber'},
@@ -7,7 +7,8 @@ class Doogle::BacklightColor < ActiveHash::Base
     {:id => 4, :name => 'Green', :aliases => %w(grn)},
     {:id => 5, :name => 'RGB'},
     {:id => 6, :name => 'White', :aliases => %w(wht)},
-    {:id => 7, :name => 'Yellow-Green', :aliases => %w(y/g)}
+    {:id => 7, :name => 'Yellow-Green', :aliases => %w(y/g)},
+    {:id => 8, :name => 'Gray'}
   ]
   include ActiveHashMethods
   

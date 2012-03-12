@@ -4,5 +4,5 @@ module Doogle
 end
 
 require 'doogle_config'
-require 'display_config'
-require 'field_config'
+require 'doogle/display_config'
+require 'doogle/field_config'

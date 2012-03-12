@@ -23,7 +23,7 @@ class Doogle::Search
   add_attribute :storage_temperature_min_range, 'Doogle::StorageTemperatureMinRange'
   add_attribute :module_diagonal_in_range, 'Doogle::DiagonalInchesRange'
   add_attribute :bonding_type, 'Doogle::BondingType'
-  add_attribute :backlight_color, 'Doogle::BacklightColor'
+  add_attribute :backlight_color, 'Doogle::Color'
   add_attribute :graphic_type, 'Doogle::GraphicType'
   add_attribute :character_columns_range, 'Doogle::CharacterColumnRange'
   add_attribute :luminance_nits_range, 'Doogle::LuminanceRange'

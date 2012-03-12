@@ -4,9 +4,17 @@
 	<%= f.input :id, :input_html => { :readonly => 'readonly' } %>
 	<% end %>
   <%= f.input :status, :collection => Doogle::Status.all, :as => :select %>
-  <%= f.input :type, :as => :select, :collection => DisplayConfig.options %>
-	<% FieldConfig.not_ignored.each do |field| %>
-  <%= f.input field.key, :required => @display.display_config.required_field?(field) %>
+  <%= f.input :type, :as => :select, :collection => Doogle::DisplayConfig.options %>
+	<% Doogle::FieldConfig.main.each do |field| %>
+		<% if field.select? %>
+		<%= f.input field.key, :as => :select, :collection => field.collection %>
+		<% elsif field.dimension? %>
+		<%= render 'dimension', :f => f, :field => field %>
+		<% elsif field.range? %>
+		<%= render 'range', :f => f, :field => field %>
+		<% else %>
+	  <%= f.input field.key %>
+		<% end %>
 	<% end %>
 	<%= f.input :source, :collection => Doogle::Source.all %>
 	<%= f.input :source_model_number %>
@@ -16,8 +24,8 @@
 <script type="text/javascript">
 $(function() {
   $("select#display_type").change(function(e) {
-		var hide_fields = <%= FieldConfig.not_ignored.map(&:key).to_json.html_safe %>;
-		var fields_for = <%= DisplayConfig.key_to_field_keys.to_json.html_safe %>;
+		var hide_fields = <%= Doogle::FieldConfig.not_ignored.map(&:key).to_json.html_safe %>;
+		var fields_for = <%= Doogle::DisplayConfig.key_to_field_keys.to_json.html_safe %>;
 		var display_type = $(this).children("option:selected").attr("value");
 		var show_fields = fields_for[display_type] || hide_fields;
     if (show_fields) {
