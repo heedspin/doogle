@@ -1,0 +1,20 @@
+<% content_for :javascripts do %>
+<script type="text/javascript">
+$(function() {
+  $("select#display_type").change(function(e) {
+		var hide_fields = <%= Doogle::FieldConfig.main.map(&:key).to_json.html_safe %>;
+		var fields_for = <%= Doogle::DisplayConfig.key_to_field_keys.to_json.html_safe %>;
+		var display_type = $(this).children("option:selected").attr("value");
+		var show_fields = fields_for[display_type] || hide_fields;
+    if (show_fields) {
+			for (var i = 0; i < hide_fields.length; i++) {
+				$("li#display_"+hide_fields[i]+"_input").hide();
+			}
+			for (var i = 0; i < show_fields.length; i++) {
+				$("li#display_"+show_fields[i]+"_input").show();
+			}
+		}
+  }).trigger('change');
+})
+</script>
+<% end %>

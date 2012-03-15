@@ -42,7 +42,11 @@ class Doogle::DisplayConfig
   def initialize(config)
     @key = (config['key'] || (raise "missing display config key in #{config.inspect}")).to_sym
     @config = config
-    @name = config['name'] || self.key.to_s.humanize.titleize
+    @name = config['name'] || self.key.to_s.humanize.titleize.singularize
+  end
+  
+  def id
+    self.key
   end
   
   def aliases

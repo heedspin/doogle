@@ -12,18 +12,19 @@ class Doogle::Display < ApplicationModel
   include ActiveHashSetter
   active_hash_setter(Doogle::Status)
   active_hash_setter(Doogle::TouchPanelType)
-  active_hash_setter(Doogle::TimingControllerType)
-  active_hash_setter(Doogle::SpecificationType)
-  active_hash_setter(Doogle::Source)
   active_hash_setter(Doogle::BondingType)
   active_hash_setter(Doogle::Color, :backlight_color)
-  active_hash_setter(Doogle::Color, :filter_color)
-  active_hash_setter(Doogle::GraphicType)
-  active_hash_setter(Doogle::TwistType)
+  active_hash_setter(Doogle::Color, :pixel_color)
   active_hash_setter(Doogle::DisplayMode)
+  active_hash_setter(Doogle::DisplayImage)
   active_hash_setter(Doogle::PolarizerMode)
   active_hash_setter(Doogle::CharacterType)
-
+  active_hash_setter(Doogle::BacklightType)
+  active_hash_setter(Doogle::TargetEnvironment)
+  active_hash_setter(Doogle::ViewingDirection)
+  has_many :display_interface_types, :class_name => 'Doogle::DisplayInterfaceType', :dependent => :destroy
+  has_many :interface_types, :through => :display_interface_types, :source => :interface_type
+  
   has_attached_file( :datasheet,
                      :storage => :s3,
                      :s3_credentials => { :access_key_id => CompanyConfig.doogle_access_key_id, :secret_access_key => CompanyConfig.doogle_secret_access_key },
@@ -36,38 +37,6 @@ class Doogle::Display < ApplicationModel
     "type = '#{type}'"
   end
   
-  def self.range_scope(*attributes)
-    attributes.each do |attribute|
-      self.class_eval <<-RUBY
-      scope :#{attribute}_range, lambda { |range|
-        if range.exact?
-          {
-            :conditions => { :#{attribute} => range.exact }
-          }
-        elsif range.no_max?
-          {
-            :conditions => [ 'displays.#{attribute} >= ?', range.min ]
-          }
-        elsif range.no_min?
-          {
-            :conditions => [ 'displays.#{attribute} <= ?', range.max ]
-          }
-        else
-          {
-            :conditions => [ 'displays.#{attribute} >= ? AND displays.#{attribute} <= ?', range.min, range.max ]
-          }
-        end
-      }
-      RUBY
-    end
-  end
-  range_scope :resolution_x
-  range_scope :storage_temperature_min, :storage_temperature_max
-  range_scope :operational_temperature_min, :operational_temperature_max
-  range_scope :character_columns
-  range_scope :module_diagonal_in
-  range_scope :luminance_nits
-
   scope :not_deleted, lambda {
     {
       :conditions => ['displays.status_id != ?', Doogle::Status.deleted.id]
@@ -78,7 +47,7 @@ class Doogle::Display < ApplicationModel
       :conditions => ['displays.status_id = ?', Doogle::Status.published.id]
     }
   }
-  scope :type_in, lambda { |*types|
+  scope :type, lambda { |*types|
     type_keys = types.flatten.map { |t| t.is_a?(Doogle::DisplayConfig) ? t.key : t.to_s }
     {
       :conditions => [ 'displays.type in (?)', type_keys ]
@@ -101,9 +70,20 @@ class Doogle::Display < ApplicationModel
       :conditions => [ 'displays.model_number like ?', '%' + (text.strip.upcase || '') + '%' ]
     }
   }
+  scope :controller, lambda { |text|
+    {
+      :conditions => [ 'LOWER(displays.controller) like ?', '%' + (text.strip.downcase || '') + '%' ]
+    }
+  }
+  scope :interface_types, lambda { |itypes|
+    {
+      :joins => :display_interface_types,
+      :conditions => [ 'display_interface_types.interface_type_id in (?)', itypes.map(&:id) ]
+    }
+  }
 
   def destroy
-    self.update_attributes(:status_id => Status.deleted.id)
+    self.update_attributes(:status_id => Doogle::Status.deleted.id)
   end
 
   def model_and_id
@@ -166,12 +146,38 @@ class Doogle::Display < ApplicationModel
     end
   end
 
-  def resolution_xy
-    if self.resolution_x && self.resolution_y
-      "#{self.resolution_x} x #{self.resolution_y}"
-    else
-      nil
-    end
+  # range_scope :resolution_x
+  # range_scope :storage_temperature_min, :storage_temperature_max
+  # range_scope :operational_temperature_min, :operational_temperature_max
+  # range_scope :character_columns
+  # range_scope :module_diagonal_in
+  # range_scope :luminance_nits
+
+  Doogle::FieldConfig.search_ranges.each do |field|
+    active_hash_setter(field.search_range_class)
+    self.class_eval <<-RUBY
+    attr_accessor :#{field.search_range_attribute}_id
+    # attr_accessible :#{field.search_range_attribute}, :#{field.search_range_attribute}_id
+    scope :#{field.search_range_attribute}, lambda { |range|
+      if range.exact?
+        {
+          :conditions => { :#{field.key} => range.exact }
+        }
+      elsif range.no_max?
+        {
+          :conditions => [ 'displays.#{field.key} >= ?', range.min ]
+        }
+      elsif range.no_min?
+        {
+          :conditions => [ 'displays.#{field.key} <= ?', range.max ]
+        }
+      else
+        {
+          :conditions => [ 'displays.#{field.key} >= ? AND displays.#{field.key} <= ?', range.min, range.max ]
+        }
+      end
+    }
+    RUBY
   end
   
   # rails console
@@ -193,14 +199,6 @@ class Doogle::Display < ApplicationModel
         self.resolution_x ||= $1
         self.resolution_y ||= $2
       end
-    end
-  end
-
-  def storage_temperature_min_max
-    if self.storage_temperature_min and self.storage_temperature_max
-      "#{self.storage_temperature_min}&deg; to #{self.storage_temperature_max}&deg;C".html_safe
-    else
-      nil
     end
   end
 
@@ -259,7 +257,7 @@ class Doogle::Display < ApplicationModel
     end
   end
   
-  def guess_viewing_dimensions
+  def guess_viewing_area
     width = height = nil
     if self.viewing_dimensions.present? and (self.viewing_dimensions =~ /(\d+\.\d+)[^\d]+(\d+\.\d+)/)
       width = $1.to_f
@@ -271,14 +269,6 @@ class Doogle::Display < ApplicationModel
     end
     self.viewing_width_mm = width
     self.viewing_height_mm = height
-  end
-
-  def module_diagonal_in_rounded
-    if self.module_diagonal_in > 0
-      sprintf("%.1f",self.module_diagonal_in) + '"'
-    else
-      nil
-    end
   end
 
   def guess_bonding_type
@@ -330,7 +320,7 @@ class Doogle::Display < ApplicationModel
     end
   end
   
-  def guess_filter_color
+  def guess_pixel_color
     result = nil
     if self.technology_type.present?
       result = if self.technology_type.include?('Gray') or self.technology_type.include?('Grey')
@@ -343,29 +333,29 @@ class Doogle::Display < ApplicationModel
         nil
       end
     end
-    self.filter_color = result    
+    self.pixel_color = result    
   end
   
-  def guess_twist_type
+  def guess_display_mode
     result = nil
     if self.technology_type.present?
       # Go in reverse so that FSTN matches before TN.
-      Doogle::TwistType.all.reverse.each do |tt|
+      Doogle::DisplayMode.all.reverse.each do |tt|
         if self.technology_type.include?(tt.name)
           result = tt
           break
         end
       end
     end
-    self.twist_type = result
+    self.display_mode = result
   end
   
-  def guess_display_mode
+  def guess_display_image
     if (pm = read_attribute(:polarizer_mode)) and pm.present?
       if pm == 'Pos'
-        self.display_mode = Doogle::DisplayMode.positive
+        self.display_image = Doogle::DisplayImage.positive
       elsif pm == 'Neg'
-        self.display_mode = Doogle::DisplayMode.negative
+        self.display_image = Doogle::DisplayImage.negative
       end
     end
   end
@@ -404,24 +394,71 @@ class Doogle::Display < ApplicationModel
     end
   end
   
+  def guess_backlight_type
+    result = nil
+    if (btype = self.read_attribute(:backlight_type)).present?
+      Doogle::BacklightType.all.each do |bt|
+        if btype.include?(bt.name)
+          result = bt
+          break
+        end
+      end
+    end
+    self.backlight_type = result
+  end
+  
+  def guess_target_environment
+    if self.display_config.key == :sunlight_tft_displays
+      self.type = :tft_displays
+      self.target_environment = Doogle::TargetEnvironment.sunlight_readable
+    elsif self.display_config.key == :small_tft_displays
+      self.type = :tft_displays
+      self.target_environment = Doogle::TargetEnvironment.indoor
+    elsif (self.display_config.key == :tft_displays) and self.target_environment.nil?
+      self.target_environment = Doogle::TargetEnvironment.indoor
+    end
+  end
+  
+  def guess_digit_height
+    if self.digit_height.present?
+      self.digit_height_mm = self.digit_height.to_f
+    end
+  end
+  
+  def guess_viewing_direction
+    if self.view_direction.present?
+      self.viewing_direction = if self.view_direction.include?('6')
+        Doogle::ViewingDirection.six
+      elsif self.view_direction.include?('12')
+        Doogle::ViewingDirection.twelve
+      else
+        nil
+      end
+    end
+  end
+  
   # rails console
   # Doogle::Display.find_each { |d| d.guess_ranges! }
   def guess_ranges!
-    self.guess_resolutions
-    self.guess_temperatures
-    self.guess_module_dimensions
-    self.guess_bonding_type
-    self.guess_backlight_color
-    self.guess_graphic_type
-    self.guess_character_resolutions
-    self.guess_luminance
-    self.guess_filter_color
-    self.guess_twist_type
-    self.guess_viewing_dimensions
-    self.guess_display_mode
-    self.guess_polarizer_mode
-    self.guess_active_area
-    self.guess_module_type
+    # self.guess_resolutions
+    # self.guess_temperatures
+    # self.guess_module_dimensions
+    # self.guess_bonding_type
+    # self.guess_backlight_color
+    # self.guess_graphic_type
+    # self.guess_character_resolutions
+    # self.guess_luminance
+    # self.guess_pixel_color
+    # self.guess_display_mode
+    # self.guess_viewing_area
+    # self.guess_display_image
+    # self.guess_polarizer_mode
+    # self.guess_active_area
+    # self.guess_module_type
+    # self.guess_backlight_type
+    # self.guess_target_environment
+    # self.guess_digit_height
+    self.guess_viewing_direction
     self.save if self.changed?
   end
 end
@@ -504,9 +541,9 @@ end
 #  backlight_color_id          :integer(4)
 #  graphic_type_id             :integer(4)
 #  luminance_nits              :integer(4)
-#  twist_type_id               :integer(4)
-#  filter_color_id             :integer(4)
 #  display_mode_id             :integer(4)
+#  pixel_color_id              :integer(4)
+#  display_image_id            :integer(4)
 #  viewing_width_mm            :float
 #  viewing_height_mm           :float
 #  polarizer_mode_id           :integer(4)
@@ -515,5 +552,16 @@ end
 #  active_area_height_mm       :float
 #  character_rows              :float
 #  character_columns           :float
+#  backlight_type_id           :integer(4)
+#  interface_id                :integer(4)
+#  icon_type_id                :integer(4)
+#  comments                    :text
+#  standard_type_id            :integer(4)
+#  mask_type_id                :integer(4)
+#  background_color_id         :integer(4)
+#  logic_operating_voltage     :float
+#  target_environment_id       :integer(4)
+#  viewing_direction_id        :integer(4)
+#  digit_height_mm             :float
 #
 

@@ -1,5 +1,0 @@
-<li class="string input optional stringish doogle_range" id="display_<%= field.key %>_input" style="display: block; "><label class=" label" for="display_<%= field.key %>"><%= Doogle::Display.human_attribute_name(field.key) %></label>
-	<% field.ranges.each do |range| %>
-	<span><%= range.label %></span><%= f.text_field range.key %>
-	<% end %>
-</li>

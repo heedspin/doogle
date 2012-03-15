@@ -1,0 +1,20 @@
+<%= f.inputs do %>
+  <%#= f.input :type, :as => :select, :collection => Doogle::DisplayConfig.options %>
+	<% Doogle::FieldConfig.searchable.each do |field| %>
+		<% if field.search_range? %>
+		<li class="select input optional" id="display_<%= field.key %>_input" style="display: block; "><label class=" label" for="display_<%= field.key %>"><%= field.label %></label>
+			<%= range_select_tag @search, field %>
+		</li>
+		<% elsif field.has_many? %>
+		<%= f.input field.key, :as => :check_boxes, :collection => field.collection %>
+		<% elsif field.select? %>
+		<%= f.input field.key, :as => :select, :collection => field.collection %>
+		<% elsif field.dimension? %>
+		<%= render 'dimension', :f => f, :display => @search, :field => field, :search => true %>
+		<% else %>
+	  <%= f.input field.key %>
+		<% end %>
+	<% end %>
+<% end %>
+
+<%= render 'dynamic_form' %>

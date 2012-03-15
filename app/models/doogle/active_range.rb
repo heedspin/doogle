@@ -30,5 +30,9 @@ class Doogle::ActiveRange < ActiveHash::Base
       value_to_s(min) + ' to ' +  value_to_s(max)
     end.html_safe
   end
+  
+  def self.find_by_name(name)
+    self.all.detect { |v| v.name == name }
+  end
 end
 

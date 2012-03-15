@@ -2,13 +2,26 @@ require 'doogle_config'
 
 class DisplaysController < ApplicationController
   filter_access_to :all
+  # helper :range_select_tag
 
   def index
-    Doogle::DisplayConfig.all
+    # Doogle::DisplayConfig.all
     search_params = params[:search]
-    @search = Doogle::Search.new(search_params)
+    @search = Doogle::Display.new(search_params)
+    # Rails.logger.debug "#{search_params.inspect} #{@search.inspect}"
     if search_params
-      @displays = @search.filter(Doogle::Display.not_deleted.by_resolution).paginate(:page => params[:page], :per_page => 50)
+      @field_keys = Set.new ; @field_keys.add :model_number ; @field_keys.add :type
+      display_scope = Doogle::Display
+      Doogle::FieldConfig.all.select { |f| f.searchable? and !f.composite? }.each do |field|
+        value_key = field.search_range? ? field.search_range_attribute : field.key
+        if (value = @search.send(value_key)).present?
+          @field_keys.add field.composite_parent.key
+          # Rails.logger.debug "Scoping #{value_key} to #{value}"
+          display_scope = display_scope.send(value_key, value)
+        end
+      end
+      @displays = display_scope.paginate(:page => params[:page], :per_page => 50)
+      @fields = Doogle::FieldConfig.top_level.select { |f| @field_keys.member?(f.key) }
     end
     if request.xhr?
       render :action => '_search_results', :layout => false

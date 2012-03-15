@@ -10,31 +10,32 @@ var options = {
 	success: function() {
 		$("#inprogress").hide();
 		return true;
+	},
+	error: function() {
+		$("#inprogress").hide();
+		$("#search_results").html("<h2>Sorry, the report failed to run.</h2>")
+		return true;
 	}
 };
 $(function() {
   $("form#search_new").change(function() {
     $(this).ajaxSubmit(options);
   });
+	$("a.clear_form").click(function() {
+		$('form#search_new').clearForm();
+		$("#search_results").html("");
+		return false;
+	})
 });
 </script>
 <% end %>
 
 <% title 'Display Search' %>
 
+<%= link_to 'Clear Form', '#', :class => 'clear_form' %>
+
 <%= semantic_form_for @search, :as => :search, :url => displays_path, :html => {:method => :get} do |f| %>
-<%= f.inputs do %>
-	<%= f.input :model_number %>
-	<%= f.input :type_key, :as => :select, :collection => Doogle::DisplayConfig.options, :label => 'Type' %>
-	<%= f.input :graphic_type_id, :as => :select, :collection => Doogle::GraphicType.all, :label => 'Graphics' %>
-	<%= f.input :resolution_x_range_id, :as => :select, :collection => Doogle::ResolutionXRange.all, :label => 'X Resolution' %>
-	<%= f.input :character_columns_range_id, :as => :select, :collection => Doogle::CharacterColumnRange.all, :label => 'Character Columns' %>
-	<%= f.input :storage_temperature_min_range_id, :as => :select, :collection => Doogle::StorageTemperatureMinRange.all, :label => 'Min Storage Temperature' %>
-	<%= f.input :module_diagonal_in_range_id, :as => :select, :collection => Doogle::DiagonalInchesRange.all, :label => 'Diagonal' %>
-	<%= f.input :bonding_type_id, :as => :select, :collection => Doogle::BondingType.all, :label => 'Bonding' %>
-	<%= f.input :backlight_color_id, :as => :select, :collection => Doogle::Color.all, :label => 'Backlight' %>
-	<%= f.input :luminance_nits_range_id, :as => :select, :collection => Doogle::LuminanceRange.all, :label => 'Luminance' %>
-<% end %>
+<%= render :partial=>'search_form', :locals =>{:f=>f} %>
 <% end %>
 
 <div id="inprogress" class="hide display_search">

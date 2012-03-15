@@ -1,5 +1,10 @@
-<li class="string input optional stringish doogle_dimensions" id="display_<%= field.key %>_input" style="display: block; "><label class=" label" for="display_<%= field.key %>"><%= Doogle::Display.human_attribute_name(field.key) %></label>
+<li class="<%= search && field.dimensions.any?(&:search_range?) ? 'select' : 'string stringish' %> input optional doogle_dimensions" id="display_<%= field.key %>_input" style="display: block; "><label class=" label" for="display_<%= field.key %>"><%= field.label %></label>
 	<% field.dimensions.each do |dimension| %>
-	<span><%= dimension.label %></span><%= f.text_field dimension.key %>
+	<span><%= dimension.label %></span>
+	<% if search and dimension.search_range? %>
+	<%= range_select_tag display, dimension %>
+	<% else %>
+	<%= f.text_field dimension.key %>
+	<% end %>
 	<% end %>
 </li>
