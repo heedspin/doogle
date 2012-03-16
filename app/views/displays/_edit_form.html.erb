@@ -3,11 +3,11 @@
 	<% unless @display.new_record? %>
 	<%= f.input :id, :input_html => { :readonly => 'readonly' } %>
 	<% end %>
-  <%= f.input :status, :collection => Doogle::Status.all, :as => :select %>
-  <%= f.input :type, :as => :select, :collection => Doogle::DisplayConfig.options %>
 	<% Doogle::FieldConfig.main.each do |field| %>
-		<% if field.select? %>
-		<%= f.input field.key, :as => :select, :collection => field.collection %>
+		<% if field.has_many? %>
+		<%= f.input field.key, :as => :check_boxes, :collection => field.has_many_class.all %>
+		<% elsif field.belongs_to? %>
+		<%= f.input field.key, :as => :select, :collection => field.belongs_to_class.all %>
 		<% elsif field.dimension? %>
 		<%= render 'dimension', :f => f, :display => @display, :field => field, :search => false %>
 		<% else %>

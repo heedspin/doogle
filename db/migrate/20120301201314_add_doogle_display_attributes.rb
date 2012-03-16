@@ -1,5 +1,15 @@
 class AddDoogleDisplayAttributes < ActiveRecord::Migration
   def up
+    add_column :displays, :resolution_x, :integer
+    add_column :displays, :resolution_y, :integer
+    add_column :displays, :storage_temperature_min, :integer
+    add_column :displays, :storage_temperature_max, :integer
+    add_column :displays, :operational_temperature_min, :integer
+    add_column :displays, :operational_temperature_max, :integer
+    add_column :displays, :module_width_mm, :float
+    add_column :displays, :module_height_mm, :float
+    add_column :displays, :module_thickness_mm, :float
+    add_column :displays, :module_diagonal_in, :float
     add_column :displays, :bonding_type_id, :integer
     add_column :displays, :backlight_color_id, :integer
     add_column :displays, :graphic_type_id, :integer
@@ -19,13 +29,17 @@ class AddDoogleDisplayAttributes < ActiveRecord::Migration
     add_column :displays, :interface_id, :integer
     add_column :displays, :icon_type_id, :integer
     add_column :displays, :comments, :text
-    add_column :displays, :standard_type_id, :integer
+    add_column :displays, :standard_classification_id, :integer
     add_column :displays, :mask_type_id, :integer
     add_column :displays, :background_color_id, :integer
     add_column :displays, :logic_operating_voltage, :float
     add_column :displays, :target_environment_id, :integer
     add_column :displays, :viewing_direction_id, :integer
     add_column :displays, :digit_height_mm, :float
+    add_column :displays, :total_power_consumption, :float
+    add_column :displays, :no_of_pins, :integer
+    add_column :displays, :contrast_ratio, :integer
+    add_column :displays, :field_of_view, :integer
   end
 
   def down

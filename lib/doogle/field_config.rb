@@ -69,15 +69,6 @@ class Doogle::FieldConfig
     @alias ||= (self.config['aliases'] || '').split(',').map(&:strip)
   end
   
-  def has_many?
-    if @has_many.nil?
-      @has_many = config['has_many']
-    end
-    @has_many
-  end
-  
-  
-    
   def system?
     if @system.nil?
       @system = config['system']
@@ -87,7 +78,7 @@ class Doogle::FieldConfig
   
   def searchable
     if @searchable.nil?
-      @searchable = config['searchable']
+      @searchable = config['search']
     end
     @searchable
   end
@@ -109,12 +100,16 @@ class Doogle::FieldConfig
   end
   
   def search_range_attribute
-    c = config['search_range']
-    c.is_a?(String) ? c : "#{self.key}_range"
+    "#{self.key}_range"
   end
   
   def search_range_class
-    "Doogle::#{self.search_range_attribute.to_s.classify}".constantize
+    if @search_range_class.nil?
+      c = config['search_range']
+      class_name = c.is_a?(String) ? c : self.search_range_attribute.to_s.classify
+      @search_range_class = "Doogle::#{class_name}".constantize
+    end
+    @search_range_class
   end
   
   def search_range_collection
@@ -156,23 +151,38 @@ class Doogle::FieldConfig
     Doogle::Display.human_attribute_name(self.key)
   end
   
-  def select?
-    config['select']
-  end
-  
-  def collection_class
-    if @collection_class.nil?
-      collection_class_name = config['collection']
-      collection_class_name = collection_class_name.nil? ? self.key.to_s.classify : collection_class_name
-      @collection_class = "Doogle::#{collection_class_name}".constantize
+  def belongs_to?
+    if @belongs_to.nil?
+      @belongs_to = config['belongs_to'].present?
     end
-    @collection_class
+    @belongs_to
   end
   
-  def collection
-    @collection ||= self.collection_class.all
+  def belongs_to_class
+    if @belongs_to_class.nil?
+      collection_class_name = config['belongs_to']
+      collection_class_name = collection_class_name.is_a?(String) ? collection_class_name : self.key.to_s.classify
+      @belongs_to_class = "Doogle::#{collection_class_name}".constantize
+    end
+    @belongs_to_class
   end
-  
+
+  def has_many?
+    if @has_many.nil?
+      @has_many = config['has_many']
+    end
+    @has_many
+  end
+    
+  def has_many_class
+    if @has_many_class.nil?
+      collection_class_name = config['has_many_class']
+      collection_class_name = collection_class_name.is_a?(String) ? collection_class_name : self.key.to_s.classify
+      @has_many_class = "Doogle::#{collection_class_name}".constantize
+    end
+    @has_many_class
+  end
+      
   def dimension?
     config.member? 'dimension'
   end
@@ -187,6 +197,17 @@ class Doogle::FieldConfig
   
   def short_label
     config['short_label'] || self.label
+  end
+  
+  def search_as
+    config['search_as']
+  end
+  
+  def units
+    @units ||= config['units']
+  end
+  def units_short
+    @units_short ||= config['units_short']
   end
 
   # Allows stuff like this:

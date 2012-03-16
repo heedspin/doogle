@@ -1,4 +1,4 @@
-class Doogle::ResolutionXRange < Doogle::ActiveRange
+class Doogle::ResolutionRange < Doogle::ActiveRange
   self.data = [
     {:id => 1, :max => 128 },
     {:id => 2, :min => 128, :max => 256},

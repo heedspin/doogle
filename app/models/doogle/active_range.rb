@@ -19,8 +19,12 @@ class Doogle::ActiveRange < ActiveHash::Base
     value.to_s
   end
   
+  def units_short
+    nil
+  end
+  
   def name
-    if self.exact?
+    result = if self.exact?
      value_to_s(self.exact) 
     elsif self.no_min?
       '< ' + value_to_s(self.max)
@@ -28,7 +32,8 @@ class Doogle::ActiveRange < ActiveHash::Base
       '> ' + value_to_s(self.min)
     else
       value_to_s(min) + ' to ' +  value_to_s(max)
-    end.html_safe
+    end
+    "#{result} #{self.units_short}".strip.html_safe
   end
   
   def self.find_by_name(name)

@@ -53,16 +53,6 @@ class CreateDoogleDisplays < ActiveRecord::Migration
       t.integer  "touch_panel_type_id"
       t.integer  "timing_controller_type_id"
       t.integer  "specification_type_id"
-      t.integer  "resolution_x"
-      t.integer  "resolution_y"
-      t.integer  "storage_temperature_min"
-      t.integer  "storage_temperature_max"
-      t.integer  "operational_temperature_min"
-      t.integer  "operational_temperature_max"
-      t.float    "module_width_mm"
-      t.float    "module_height_mm"
-      t.float    "module_thickness_mm"
-      t.float    "module_diagonal_in"
     end
   end
 

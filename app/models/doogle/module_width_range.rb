@@ -6,8 +6,8 @@ class Doogle::ModuleWidthRange < Doogle::ActiveRange
     { :id => 4, :min => 200 },
   ]
   
-  def value_to_s(value)
-    "#{value}mm"
+  def units_short
+    'mm'
   end
 end
 

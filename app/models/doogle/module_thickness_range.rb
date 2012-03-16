@@ -5,8 +5,8 @@ class Doogle::ModuleThicknessRange < Doogle::ActiveRange
     { :id => 3, :min => 10 },
   ]
   
-  def value_to_s(value)
-    "#{value}mm"
+  def units_short
+    'mm'
   end
 end
 

@@ -4,6 +4,9 @@ class CreateDoogleDisplayInterfaceTypes < ActiveRecord::Migration
       t.references :display
       t.references :interface_type
     end
+    create_table :doogle_interface_types, :force => true do |t|
+      t.string :name
+    end
   end
 
   def down

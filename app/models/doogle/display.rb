@@ -15,6 +15,7 @@ class Doogle::Display < ApplicationModel
   active_hash_setter(Doogle::BondingType)
   active_hash_setter(Doogle::Color, :backlight_color)
   active_hash_setter(Doogle::Color, :pixel_color)
+  active_hash_setter(Doogle::Color, :background_color)
   active_hash_setter(Doogle::DisplayMode)
   active_hash_setter(Doogle::DisplayImage)
   active_hash_setter(Doogle::PolarizerMode)
@@ -22,6 +23,9 @@ class Doogle::Display < ApplicationModel
   active_hash_setter(Doogle::BacklightType)
   active_hash_setter(Doogle::TargetEnvironment)
   active_hash_setter(Doogle::ViewingDirection)
+  active_hash_setter(Doogle::IconType)
+  active_hash_setter(Doogle::MaskType)
+  active_hash_setter(Doogle::StandardClassification)
   has_many :display_interface_types, :class_name => 'Doogle::DisplayInterfaceType', :dependent => :destroy
   has_many :interface_types, :through => :display_interface_types, :source => :interface_type
   
@@ -67,7 +71,7 @@ class Doogle::Display < ApplicationModel
   scope :by_resolution, :order => [ :resolution_x, :resolution_y ]
   scope :model_number, lambda { |text|
     {
-      :conditions => [ 'displays.model_number like ?', '%' + (text.strip.upcase || '') + '%' ]
+      :conditions => [ 'LOWER(displays.model_number) like ?', '%' + (text.strip.downcase || '') + '%' ]
     }
   }
   scope :controller, lambda { |text|
@@ -79,6 +83,11 @@ class Doogle::Display < ApplicationModel
     {
       :joins => :display_interface_types,
       :conditions => [ 'display_interface_types.interface_type_id in (?)', itypes.map(&:id) ]
+    }
+  }
+  scope :comments, lambda { |text|
+    {
+      :conditions => [ 'LOWER(displays.comments) like ?', '%' + (text.strip.downcase || '') + '%' ]
     }
   }
 
@@ -146,15 +155,8 @@ class Doogle::Display < ApplicationModel
     end
   end
 
-  # range_scope :resolution_x
-  # range_scope :storage_temperature_min, :storage_temperature_max
-  # range_scope :operational_temperature_min, :operational_temperature_max
-  # range_scope :character_columns
-  # range_scope :module_diagonal_in
-  # range_scope :luminance_nits
-
   Doogle::FieldConfig.search_ranges.each do |field|
-    active_hash_setter(field.search_range_class)
+    active_hash_setter(field.search_range_class, field.search_range_attribute)
     self.class_eval <<-RUBY
     attr_accessor :#{field.search_range_attribute}_id
     # attr_accessible :#{field.search_range_attribute}, :#{field.search_range_attribute}_id
@@ -301,7 +303,7 @@ class Doogle::Display < ApplicationModel
 
   def guess_character_resolutions
     columns = rows = nil
-    if self.graphic_type.character? and self.lcd_type.present? and (self.lcd_type =~ /(\d+)[^\d]+(\d+)/)
+    if self.lcd_type.present? and self.lcd_type.include?('Char') and (self.lcd_type =~ /(\d+)[^\d]+(\d+)/)
       # Assume there are always more columns than rows.
       x = $1.to_f
       y = $2.to_f
@@ -426,39 +428,70 @@ class Doogle::Display < ApplicationModel
   end
   
   def guess_viewing_direction
+    result = nil
     if self.view_direction.present?
-      self.viewing_direction = if self.view_direction.include?('6')
+      result = if self.view_direction.include?('6')
         Doogle::ViewingDirection.six
       elsif self.view_direction.include?('12')
         Doogle::ViewingDirection.twelve
-      else
-        nil
+      end
+    elsif self.viewing_angle.present?
+      result = if self.viewing_angle == '6:00'
+        Doogle::ViewingDirection.six
+      elsif self.viewing_angle == '12:00'
+        Doogle::ViewingDirection.twelve
       end
     end
+    self.viewing_direction = result if result
+  end
+  
+  def guess_total_power_consumption
+    if self.power_consumption.present?
+      self.total_power_consumption = self.power_consumption.to_f
+    end
+  end
+  
+  def guess_number_of_pins
+    if self.number_of_pins.present?
+      self.no_of_pins = self.number_of_pins.to_i
+    end
+  end
+  
+  def guess_contrast_ratio
+    if self.contrast.present?
+      self.contrast_ratio = self.contrast.to_i
+    end
+  end
+  
+  def guess_standard_classification
+    self.standard_classification = Doogle::StandardClassification.standard_part
   end
   
   # rails console
   # Doogle::Display.find_each { |d| d.guess_ranges! }
   def guess_ranges!
-    # self.guess_resolutions
-    # self.guess_temperatures
-    # self.guess_module_dimensions
-    # self.guess_bonding_type
-    # self.guess_backlight_color
-    # self.guess_graphic_type
-    # self.guess_character_resolutions
-    # self.guess_luminance
-    # self.guess_pixel_color
-    # self.guess_display_mode
-    # self.guess_viewing_area
-    # self.guess_display_image
-    # self.guess_polarizer_mode
-    # self.guess_active_area
-    # self.guess_module_type
-    # self.guess_backlight_type
-    # self.guess_target_environment
-    # self.guess_digit_height
+    self.guess_resolutions
+    self.guess_temperatures
+    self.guess_module_dimensions
+    self.guess_bonding_type
+    self.guess_backlight_color
+    self.guess_character_resolutions
+    self.guess_luminance
+    self.guess_pixel_color
+    self.guess_display_mode
+    self.guess_viewing_area
+    self.guess_display_image
+    self.guess_polarizer_mode
+    self.guess_active_area
+    self.guess_module_type
+    self.guess_backlight_type
+    self.guess_target_environment
+    self.guess_digit_height
     self.guess_viewing_direction
+    self.guess_total_power_consumption
+    self.guess_number_of_pins
+    self.guess_contrast_ratio
+    self.guess_standard_classification
     self.save if self.changed?
   end
 end
@@ -556,12 +589,15 @@ end
 #  interface_id                :integer(4)
 #  icon_type_id                :integer(4)
 #  comments                    :text
-#  standard_type_id            :integer(4)
+#  standard_classification_id  :integer(4)
 #  mask_type_id                :integer(4)
 #  background_color_id         :integer(4)
 #  logic_operating_voltage     :float
 #  target_environment_id       :integer(4)
 #  viewing_direction_id        :integer(4)
 #  digit_height_mm             :float
+#  total_power_consumption     :float
+#  no_of_pins                  :integer(4)
+#  contrast_ratio              :integer(4)
 #
 

@@ -1,32 +1,11 @@
 
 <% title @display.model_number %>
 
-<% if permitted_to?(:manage, :displays) %>
-<p>
-	<b><%= name(:status) %>:</b>
-	<%= @display.status.try(:name) %>
-</p>
-<p>
-	<b><%= name(:id) %>:</b>
-	<%= @display.id %>
-</p>
-<p>
-	<b><%= name(:source) %>:</b>
-	<%= @display.source.try(:name) %>
-</p>
-<p>
-	<b><%= name(:source_model_number) %>:</b>
-	<%= @display.source_model_number %>
-</p>
-<% end %>
-
 <% @display.display_config.fields.each do |field| %>
-<% if (value = @display.send(field.key)).present? %>
 <p>
 	<b><%= field.display_name %>:</b>
-	<%= value %>
+	<%= render_field(@display, field) %>
 </p>
-<% end %>
 <% end %>
 
 <% links = [] %>
