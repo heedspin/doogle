@@ -18,6 +18,6 @@ Gem::Specification.new do |s|
 
   s.add_dependency "rails", "~> 3.1.3"
   s.add_dependency "acts_as_list"
-  s.add_dependency 'aws-s3', '~> 0.6.2' #, :require => 'aws/s3'
+  s.add_dependency 'aws-sdk', '~> 1.3.4' #, :require => 'aws/s3'
   # s.add_development_dependency "sqlite3"
 end

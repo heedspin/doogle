@@ -34,7 +34,7 @@ $(function() {
 
 <%= link_to 'Clear Form', '#', :class => 'clear_form' %>
 
-<%= semantic_form_for @search, :as => :search, :url => displays_path, :html => {:method => :get} do |f| %>
+<%= semantic_form_for @search, :as => :search, :url => doogle_displays_path, :html => {:method => :get} do |f| %>
 <%= render :partial=>'search_form', :locals =>{:f=>f} %>
 <% end %>
 

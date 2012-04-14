@@ -40,6 +40,14 @@ class AddDoogleDisplayAttributes < ActiveRecord::Migration
     add_column :displays, :no_of_pins, :integer
     add_column :displays, :contrast_ratio, :integer
     add_column :displays, :field_of_view, :integer
+    add_column :displays, :current_revision, :boolean
+    add_column :displays, :revision, :string
+    add_column :displays, :approval_status_id, :integer
+    add_column :displays, :publish_to_erp, :boolean
+    add_column :displays, :erp_id, :integer
+    add_column :displays, :publish_to_web, :boolean
+    add_column :displays, :web_id, :integer
+    add_column :displays, :needs_pushed_to_web, :boolean
   end
 
   def down

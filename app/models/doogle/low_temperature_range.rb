@@ -1,4 +1,4 @@
-class Doogle::StorageTemperatureMinRange < Doogle::ActiveRange
+class Doogle::LowTemperatureRange < Doogle::ActiveRange
   self.data = [
     {:id => 1, :max => 20},
     {:id => 2, :min => 20, :max => 25},
@@ -7,7 +7,7 @@ class Doogle::StorageTemperatureMinRange < Doogle::ActiveRange
     {:id => 5, :min => 40},
   ]
 
-  def value_to_s(value)
-    "#{value}&deg;C"
+  def units_short
+    '&deg;C'
   end
 end

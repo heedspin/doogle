@@ -1,6 +1,6 @@
 require 'doogle_config'
 
-class DisplaysController < ApplicationController
+class Doogle::DisplaysController < ApplicationController
   filter_access_to :all
   # helper :range_select_tag
 
@@ -8,7 +8,7 @@ class DisplaysController < ApplicationController
     # Doogle::DisplayConfig.all
     search_params = params[:search]
     @search = Doogle::Display.new(search_params)
-    # Rails.logger.debug "#{search_params.inspect} #{@search.inspect}"
+    Rails.logger.debug "Search params: #{search_params.inspect}\nSearch object: #{@search.inspect}"
     if search_params
       @field_keys = Set.new ; @field_keys.add :model_number ; @field_keys.add :type
       display_scope = Doogle::Display
@@ -16,7 +16,7 @@ class DisplaysController < ApplicationController
         value_key = field.search_range? ? field.search_range_attribute : field.key
         if (value = @search.send(value_key)).present?
           @field_keys.add field.composite_parent.key
-          # Rails.logger.debug "Scoping #{value_key} to #{value}"
+          Rails.logger.debug "Scoping #{value_key} to #{value.to_s}"
           display_scope = display_scope.send(value_key, value)
         end
       end
@@ -50,9 +50,9 @@ class DisplaysController < ApplicationController
     if @display.save
       flash[:notice] = 'Display was successfully created.'
       if params[:commit] == 'Save & Edit'
-        redirect_to(edit_display_url(@display, :return_to => params[:return_to]))
+        redirect_to(edit_doogle_display_url(@display, :return_to => params[:return_to]))
       else
-        redirect_back_or_default(display_url(@display))
+        redirect_back_or_default(doogle_display_url(@display))
       end
     else
       render :action => "new"
@@ -71,9 +71,9 @@ class DisplaysController < ApplicationController
         flash[:notice] = 'Display was successfully updated.'
         format.html {
           if params[:commit] == 'Save & Edit'
-            redirect_to(edit_display_url(@display, :return_to => params[:return_to]))
+            redirect_to(edit_doogle_display_url(@display, :return_to => params[:return_to]))
           else
-            redirect_back_or_default(display_url(@display))
+            redirect_back_or_default(doogle_display_url(@display))
           end
         }
       else

@@ -1,5 +1,5 @@
 require 'active_hash_methods'
-class Doogle::Status < ActiveHash::Base
+class Doogle::ApprovalStatus < ActiveHash::Base
   self.data = [
     {:id => 1, :name => 'Draft'},
     {:id => 2, :name => 'Published'},

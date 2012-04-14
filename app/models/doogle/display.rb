@@ -2,13 +2,9 @@ require 'active_hash_setter'
 require 'acts_as_list'
 
 class Doogle::Display < ApplicationModel
-  self.inheritance_column = '_disabled'
-  def type
-    read_attribute(:type)
-  end
-
   validates_uniqueness_of :model_number
 
+  attr_accessor :display_type
   include ActiveHashSetter
   active_hash_setter(Doogle::Status)
   active_hash_setter(Doogle::TouchPanelType)
@@ -17,6 +13,7 @@ class Doogle::Display < ApplicationModel
   active_hash_setter(Doogle::Color, :pixel_color)
   active_hash_setter(Doogle::Color, :background_color)
   active_hash_setter(Doogle::DisplayMode)
+  active_hash_setter(Doogle::DisplaySource, :source)
   active_hash_setter(Doogle::DisplayImage)
   active_hash_setter(Doogle::PolarizerMode)
   active_hash_setter(Doogle::CharacterType)
@@ -31,14 +28,14 @@ class Doogle::Display < ApplicationModel
   
   has_attached_file( :datasheet,
                      :storage => :s3,
-                     :s3_credentials => { :access_key_id => CompanyConfig.doogle_access_key_id, :secret_access_key => CompanyConfig.doogle_secret_access_key },
+                     :s3_credentials => { :access_key_id => AppConfig.doogle_access_key_id, :secret_access_key => AppConfig.doogle_secret_access_key },
                      :url => ':s3_domain_url',
-                     :bucket => CompanyConfig.doogle_bucket,
+                     :bucket => AppConfig.doogle_bucket,
                      :path => "displays/:basename.:extension" )
 
   acts_as_list
   def scope_condition
-    "type = '#{type}'"
+    "type_key = '#{type_key}'"
   end
   
   scope :not_deleted, lambda {
@@ -51,15 +48,15 @@ class Doogle::Display < ApplicationModel
       :conditions => ['displays.status_id = ?', Doogle::Status.published.id]
     }
   }
-  scope :type, lambda { |*types|
+  scope :display_type, lambda { |*types|
     type_keys = types.flatten.map { |t| t.is_a?(Doogle::DisplayConfig) ? t.key : t.to_s }
     {
-      :conditions => [ 'displays.type in (?)', type_keys ]
+      :conditions => [ 'displays.type_key in (?)', type_keys ]
     }
   }
   scope :type_key, lambda { |key|
     {
-      :conditions => { :type => key }
+      :conditions => { :type_key => key }
     }
   }
   scope :for_model, lambda { |model_number|
@@ -74,9 +71,9 @@ class Doogle::Display < ApplicationModel
       :conditions => [ 'LOWER(displays.model_number) like ?', '%' + (text.strip.downcase || '') + '%' ]
     }
   }
-  scope :controller, lambda { |text|
+  scope :integrated_controller, lambda { |text|
     {
-      :conditions => [ 'LOWER(displays.controller) like ?', '%' + (text.strip.downcase || '') + '%' ]
+      :conditions => [ 'LOWER(displays.integrated_controller) like ?', '%' + (text.strip.downcase || '') + '%' ]
     }
   }
   scope :interface_types, lambda { |itypes|
@@ -90,6 +87,7 @@ class Doogle::Display < ApplicationModel
       :conditions => [ 'LOWER(displays.comments) like ?', '%' + (text.strip.downcase || '') + '%' ]
     }
   }
+  scope :web, :conditions => { :publish_to_web => true }
 
   def destroy
     self.update_attributes(:status_id => Doogle::Status.deleted.id)
@@ -102,37 +100,36 @@ class Doogle::Display < ApplicationModel
   # **********************************
 
   def display_name
-    self.display_config.name
+    self.display_type.name
   end
 
-  def display_config
-    t = self.read_attribute(:type)
-    Doogle::DisplayConfig.find_by_key(t) || (raise "No display config for #{t}")
+  def display_type
+    t = self.type_key
+    Doogle::DisplayConfig.find_by_key(t)
+  end
+  def display_type=(thing)
+    if thing.is_a?(Doogle::DisplayConfig)
+      write_attribute(:type_key, thing.key)
+    elsif thing.is_a?(String) and thing.present?
+      if dt = Doogle::DisplayConfig.find_by_key(thing)
+        write_attribute(:type_key, dt.key)
+      else
+        raise "#{thing} is not a valid Doogle::DisplayConfig"
+      end
+    elsif !thing.present?
+      write_attribute(:type_key, nil)
+    else
+      raise ActiveRecord::AssociationTypeMismatch.new('Expected Doogle::DisplayConfig, got ' + thing.class.name + ' ' + thing.to_s)
+    end
   end
 
   def is_display_of?(dc)
-    self.display_config.key == dc.key
+    self.display_type.key == dc.key
   end
 
   # puts Display.unused_datasheets.join("\n")
   def self.unused_datasheets
     Dir.glob(Doogle::Engine.root + 'public/ds/*.pdf').select { |p| Display.count(:conditions => "data_sheet_path like '%#{File.basename(p)}'") == 0}
-  end
-
-  def source=(thing)
-    if thing.is_a?(DisplaySource)
-      write_attribute(:source_id, thing.id)
-    elsif thing.is_a?(String)
-      if new_source = DisplaySource.find_by_name(thing)
-        write_attribute(:source_id, new_source.id)
-      else
-        raise "#{thing} is not a valid #{Display.human_attribute_name(:source)}"
-      end
-    elsif thing.nil?
-      write_attribute(:source_id, nil)
-    else
-      raise ActiveRecord::AssociationTypeMismatch.new("Expected DisplaySource, got #{thing.class.name} #{thing.to_s}")
-    end
   end
 
   def lcd_type_index
@@ -145,7 +142,7 @@ class Doogle::Display < ApplicationModel
   end
 
   def graphic_display?
-    case self.display_config.key
+    case self.display_type.key
     when :glass_displays
       false
     when :module_displays
@@ -182,6 +179,34 @@ class Doogle::Display < ApplicationModel
     RUBY
   end
   
+  def web_sync!
+    dr = if self.web_id
+      Doogle::DisplayResource.find(self.web_id)
+    else
+      Doogle::DisplayResource.new
+    end
+    Doogle::FieldConfig.non_composites.each do |field|
+      if field.web?
+        dr.send("#{field.column}=", self.send(field.column))
+      end
+    end
+    if dr.save
+      self.web_id = dr.id
+      if self.changed?
+        self.save
+      else
+        true
+      end
+    else
+      logger.error "Doogle::Display.web_sync! failed: " + dr.errors.full_messages.join("\n")
+      false
+    end
+  end
+  
+  def self.web_sync
+    self.web.each(&:web_sync!)
+  end
+  
   # rails console
   # Display.find_each { |d| d.guess_resolutions ; d.save if d.changed? }
   def guess_resolutions
@@ -189,12 +214,12 @@ class Doogle::Display < ApplicationModel
       self.resolution_x ||= nil
       self.resolution_y ||= nil
     else
-      search_attribute = if self.display_config.active_field?(:resolution)
-        self.resolution
-      elsif self.display_config.active_field?(:pixel_configuration)
-        self.pixel_configuration
-      elsif self.display_config.active_field?(:lcd_type)
-        self.lcd_type
+      search_attribute = if self.display_type.active_field?(:resolution)
+        self._resolution
+      elsif self.display_type.active_field?(:pixel_configuration)
+        self._pixel_configuration
+      elsif self.display_type.active_field?(:lcd_type)
+        self._lcd_type
       end
       return unless search_attribute
       if search_attribute =~ /(\d+)[^\d]+(\d+)/
@@ -207,11 +232,11 @@ class Doogle::Display < ApplicationModel
   # rails console
   # Display.find_each { |d| d.guess_temperatures ; d.save if d.changed? }
   def guess_temperatures
-    if self.storage_temperature =~ /(\d+)[^\d]+(\d+)/
+    if self._storage_temperature =~ /(\d+)[^\d]+(\d+)/
       self.storage_temperature_min ||= $1
       self.storage_temperature_max ||= $2
     end
-    if self.operational_temperature =~ /(\d+)[^\d]+(\d+)/
+    if self._operational_temperature =~ /(\d+)[^\d]+(\d+)/
       self.operational_temperature_min ||= $1
       self.operational_temperature_max ||= $2
     end
@@ -219,20 +244,20 @@ class Doogle::Display < ApplicationModel
 
   MM_PER_INCH = 25.4
   def guess_module_dimensions
-    if self.diagonal_size.present? and !self.diagonal_size.include?('WIDE')
-      self.module_diagonal_in = self.diagonal_size.to_f
+    if self._diagonal_size.present? and !self._diagonal_size.include?('WIDE')
+      self.module_diagonal_in = self._diagonal_size.to_f
     else
       self.module_diagonal_in = nil
     end
     numbers = nil
-    if self.module_dimensions.present?
-      numbers = self.module_dimensions.scan(/(?:\d+\.\d+)|(?:\d+)/)
+    if self._module_dimensions.present?
+      numbers = self._module_dimensions.scan(/(?:\d+\.\d+)|(?:\d+)/)
     end
-    if (numbers.nil? or (numbers.size <= 1)) and self.outline_dimensions.present?
-      numbers = self.outline_dimensions.scan(/(?:\d+\.\d+)|(?:\d+)/)
+    if (numbers.nil? or (numbers.size <= 1)) and self._outline_dimensions.present?
+      numbers = self._outline_dimensions.scan(/(?:\d+\.\d+)|(?:\d+)/)
     end
-    if (numbers.nil? or (numbers.size <= 1)) and self.panel_size.present?
-      numbers = self.panel_size.scan(/(?:\d+\.\d+)|(?:\d+)/)
+    if (numbers.nil? or (numbers.size <= 1)) and self._panel_size.present?
+      numbers = self._panel_size.scan(/(?:\d+\.\d+)|(?:\d+)/)
     end
     if numbers and (numbers.size > 1)
       width = numbers[0].to_f
@@ -261,7 +286,7 @@ class Doogle::Display < ApplicationModel
   
   def guess_viewing_area
     width = height = nil
-    if self.viewing_dimensions.present? and (self.viewing_dimensions =~ /(\d+\.\d+)[^\d]+(\d+\.\d+)/)
+    if self._viewing_dimensions.present? and (self._viewing_dimensions =~ /(\d+\.\d+)[^\d]+(\d+\.\d+)/)
       width = $1.to_f
       height = $2.to_f
       if width <= 10
@@ -274,19 +299,19 @@ class Doogle::Display < ApplicationModel
   end
 
   def guess_bonding_type
-    if (bt = read_attribute(:bonding_type) and bt.present?) or (bt = self.configuration).present?
+    if (bt = read_attribute(:_bonding_type) and bt.present?) or (bt = self._configuration).present?
       self.bonding_type = Doogle::BondingType.find_by_name(bt[0..2])
     end
   end
 
   def guess_backlight_color
-    if bc = read_attribute(:backlight_color) and bc.present?
+    if bc = read_attribute(:_backlight_color) and bc.present?
       self.backlight_color = Doogle::Color.find_by_name_or_alias(bc)
     end
   end
 
   def guess_graphic_type
-    self.graphic_type = if (self.display_config.key == :glass_displays) or (self.lcd_type and self.lcd_type.include?('Char'))
+    self.graphic_type = if (self.display_type.key == :glass_displays) or (self._lcd_type and self._lcd_type.include?('Char'))
       Doogle::GraphicType.character
     else
       Doogle::GraphicType.graphic
@@ -303,12 +328,12 @@ class Doogle::Display < ApplicationModel
 
   def guess_character_resolutions
     columns = rows = nil
-    if self.lcd_type.present? and self.lcd_type.include?('Char') and (self.lcd_type =~ /(\d+)[^\d]+(\d+)/)
+    if self._lcd_type.present? and self._lcd_type.include?('Char') and (self._lcd_type =~ /(\d+)[^\d]+(\d+)/)
       # Assume there are always more columns than rows.
       x = $1.to_f
       y = $2.to_f
       columns, rows = x > y ? [x, y] : [y, x]
-    elsif self.number_of_digits.present? and ((num = self.number_of_digits.to_f) > 0)
+    elsif self._number_of_digits.present? and ((num = self._number_of_digits.to_f) > 0)
       columns = num
       rows = 1.0
     end
@@ -317,19 +342,19 @@ class Doogle::Display < ApplicationModel
   end
   
   def guess_luminance
-    if self.brightness.present?
-      self.luminance_nits ||= self.brightness.to_i
+    if self._brightness.present?
+      self.luminance_nits ||= self._brightness.to_i
     end
   end
   
   def guess_pixel_color
     result = nil
-    if self.technology_type.present?
-      result = if self.technology_type.include?('Gray') or self.technology_type.include?('Grey')
+    if self._technology_type.present?
+      result = if self._technology_type.include?('Gray') or self._technology_type.include?('Grey')
         Doogle::Color.gray
-      elsif self.technology_type.include?('Blue')
+      elsif self._technology_type.include?('Blue')
         Doogle::Color.blue
-      elsif self.technology_type.include?('Y/G')
+      elsif self._technology_type.include?('Y/G')
         Doogle::Color.yellow_green
       else
         nil
@@ -340,10 +365,10 @@ class Doogle::Display < ApplicationModel
   
   def guess_display_mode
     result = nil
-    if self.technology_type.present?
+    if self._technology_type.present?
       # Go in reverse so that FSTN matches before TN.
       Doogle::DisplayMode.all.reverse.each do |tt|
-        if self.technology_type.include?(tt.name)
+        if self._technology_type.include?(tt.name)
           result = tt
           break
         end
@@ -353,7 +378,7 @@ class Doogle::Display < ApplicationModel
   end
   
   def guess_display_image
-    if (pm = read_attribute(:polarizer_mode)) and pm.present?
+    if (pm = read_attribute(:_polarizer_mode)) and pm.present?
       if pm == 'Pos'
         self.display_image = Doogle::DisplayImage.positive
       elsif pm == 'Neg'
@@ -363,14 +388,14 @@ class Doogle::Display < ApplicationModel
   end
   
   def guess_polarizer_mode
-    if (pm = read_attribute(:polarizer_mode)) and pm.present?
+    if (pm = read_attribute(:_polarizer_mode)) and pm.present?
       self.polarizer_mode = Doogle::PolarizerMode.all.detect { |p| p.name == pm }
     end
   end
   
   def guess_active_area
     width = height = nil
-    if self.active_area.present? and (self.active_area =~ /(\d+\.\d+)[^\d]+(\d+\.\d+)/)
+    if self._active_area.present? and (self._active_area =~ /(\d+\.\d+)[^\d]+(\d+\.\d+)/)
       width = $1.to_f
       height = $2.to_f
       if width <= 10
@@ -384,21 +409,21 @@ class Doogle::Display < ApplicationModel
   
   def guess_module_type
     result = nil
-    if self.lcd_type.present?
-      if self.lcd_type.include?('Char')
+    if self._lcd_type.present?
+      if self._lcd_type.include?('Char')
         result = 'character_module_displays'
-      elsif self.lcd_type.include?('Graph')
+      elsif self._lcd_type.include?('Graph')
         result = 'graphic_module_displays'
       end
     end
     if result
-      self.type = result
+      self.type_key = result
     end
   end
   
   def guess_backlight_type
     result = nil
-    if (btype = self.read_attribute(:backlight_type)).present?
+    if (btype = self.read_attribute(:_backlight_type)).present?
       Doogle::BacklightType.all.each do |bt|
         if btype.include?(bt.name)
           result = bt
@@ -410,35 +435,35 @@ class Doogle::Display < ApplicationModel
   end
   
   def guess_target_environment
-    if self.display_config.key == :sunlight_tft_displays
-      self.type = :tft_displays
+    if self.display_type.key == :sunlight_tft_displays
+      self.type_key = :tft_displays
       self.target_environment = Doogle::TargetEnvironment.sunlight_readable
-    elsif self.display_config.key == :small_tft_displays
-      self.type = :tft_displays
+    elsif self.display_type.key == :small_tft_displays
+      self.type_key = :tft_displays
       self.target_environment = Doogle::TargetEnvironment.indoor
-    elsif (self.display_config.key == :tft_displays) and self.target_environment.nil?
+    elsif (self.display_type.key == :tft_displays) and self.target_environment.nil?
       self.target_environment = Doogle::TargetEnvironment.indoor
     end
   end
   
   def guess_digit_height
-    if self.digit_height.present?
-      self.digit_height_mm = self.digit_height.to_f
+    if self._digit_height.present?
+      self.digit_height_mm = self._digit_height.to_f
     end
   end
   
   def guess_viewing_direction
     result = nil
-    if self.view_direction.present?
-      result = if self.view_direction.include?('6')
+    if self._view_direction.present?
+      result = if self._view_direction.include?('6')
         Doogle::ViewingDirection.six
-      elsif self.view_direction.include?('12')
+      elsif self._view_direction.include?('12')
         Doogle::ViewingDirection.twelve
       end
-    elsif self.viewing_angle.present?
-      result = if self.viewing_angle == '6:00'
+    elsif self._viewing_angle.present?
+      result = if self._viewing_angle == '6:00'
         Doogle::ViewingDirection.six
-      elsif self.viewing_angle == '12:00'
+      elsif self._viewing_angle == '12:00'
         Doogle::ViewingDirection.twelve
       end
     end
@@ -446,25 +471,38 @@ class Doogle::Display < ApplicationModel
   end
   
   def guess_total_power_consumption
-    if self.power_consumption.present?
-      self.total_power_consumption = self.power_consumption.to_f
+    if self._power_consumption.present?
+      self.total_power_consumption = self._power_consumption.to_f
     end
   end
   
   def guess_number_of_pins
-    if self.number_of_pins.present?
-      self.no_of_pins = self.number_of_pins.to_i
+    if self._number_of_pins.present?
+      self.no_of_pins = self._number_of_pins.to_i
     end
   end
   
   def guess_contrast_ratio
-    if self.contrast.present?
-      self.contrast_ratio = self.contrast.to_i
+    if self._contrast.present?
+      self.contrast_ratio = self._contrast.to_i
     end
   end
   
   def guess_standard_classification
     self.standard_classification = Doogle::StandardClassification.standard_part
+  end
+  
+  def guess_interface_types
+    if self._interface.present?
+      txt = self._interface.downcase
+      self.interface_types = Doogle::InterfaceType.all.select { |it| txt.include?(it.name.downcase) }
+    end
+  end
+  
+  def guess_viewing_cone
+    if self._viewing_angle.present? and !self._viewing_angle.include?(':')
+      self.viewing_cone = self._viewing_angle.split(' ').first.to_i
+    end
   end
   
   # rails console
@@ -492,6 +530,10 @@ class Doogle::Display < ApplicationModel
     self.guess_number_of_pins
     self.guess_contrast_ratio
     self.guess_standard_classification
+    self.publish_to_web = true
+    self.publish_to_erp = true
+    self.guess_interface_types
+    self.guess_viewing_cone
     self.save if self.changed?
   end
 end
@@ -508,37 +550,37 @@ end
 # Table name: displays
 #
 #  id                          :integer(4)      not null, primary key
-#  type                        :string(255)
+#  type_key                    :string(255)
 #  model_number                :string(255)
-#  number_of_digits            :string(255)
-#  technology_type             :string(255)
-#  module_dimensions           :string(255)
-#  digit_height                :string(255)
-#  polarizer_mode              :string(255)
-#  number_of_pins              :string(255)
-#  configuration               :string(255)
-#  lcd_type                    :string(255)
-#  viewing_dimensions          :string(255)
-#  diagonal_size               :string(255)
-#  dot_format                  :string(255)
-#  brightness                  :string(255)
-#  contrast                    :string(255)
-#  backlight_type              :string(255)
-#  backlight_color             :string(255)
-#  viewing_angle               :string(255)
-#  operational_temperature     :string(255)
-#  storage_temperature         :string(255)
-#  interface                   :string(255)
-#  resolution                  :string(255)
-#  weight                      :string(255)
-#  power_consumption           :string(255)
-#  active_area                 :string(255)
-#  outline_dimensions          :string(255)
-#  view_direction              :string(255)
-#  bonding_type                :string(255)
-#  pixel_configuration         :string(255)
-#  controller                  :string(255)
-#  operating_voltage           :string(255)
+#  _number_of_digits           :string(255)
+#  _technology_type            :string(255)
+#  _module_dimensions          :string(255)
+#  _digit_height               :string(255)
+#  _polarizer_mode             :string(255)
+#  _number_of_pins             :string(255)
+#  _configuration              :string(255)
+#  _lcd_type                   :string(255)
+#  _viewing_dimensions         :string(255)
+#  _diagonal_size              :string(255)
+#  _dot_format                 :string(255)
+#  _brightness                 :string(255)
+#  _contrast                   :string(255)
+#  _backlight_type             :string(255)
+#  _backlight_color            :string(255)
+#  _viewing_angle              :string(255)
+#  _operational_temperature    :string(255)
+#  _storage_temperature        :string(255)
+#  _interface                  :string(255)
+#  _resolution                 :string(255)
+#  _weight                     :string(255)
+#  _power_consumption          :string(255)
+#  _active_area                :string(255)
+#  _outline_dimensions         :string(255)
+#  _view_direction             :string(255)
+#  _bonding_type               :string(255)
+#  _pixel_configuration        :string(255)
+#  integrated_controller       :string(255)
+#  _operating_voltage          :string(255)
 #  status_id                   :integer(4)
 #  creator_id                  :integer(4)
 #  updater_id                  :integer(4)
@@ -546,11 +588,11 @@ end
 #  updated_at                  :datetime
 #  position                    :integer(4)
 #  colors                      :string(255)
-#  dot_size                    :string(255)
-#  dot_pitch                   :string(255)
-#  thickness                   :string(255)
-#  integrated_circuit          :string(255)
-#  panel_size                  :string(255)
+#  _dot_size                   :string(255)
+#  _dot_pitch                  :string(255)
+#  _thickness                  :string(255)
+#  _integrated_circuit         :string(255)
+#  _panel_size                 :string(255)
 #  source_id                   :integer(4)
 #  source_model_number         :string(255)
 #  datasheet_file_name         :string(255)
@@ -573,6 +615,8 @@ end
 #  bonding_type_id             :integer(4)
 #  backlight_color_id          :integer(4)
 #  graphic_type_id             :integer(4)
+#  character_rows              :float
+#  character_columns           :float
 #  luminance_nits              :integer(4)
 #  display_mode_id             :integer(4)
 #  pixel_color_id              :integer(4)
@@ -583,8 +627,6 @@ end
 #  character_type_id           :integer(4)
 #  active_area_width_mm        :float
 #  active_area_height_mm       :float
-#  character_rows              :float
-#  character_columns           :float
 #  backlight_type_id           :integer(4)
 #  interface_id                :integer(4)
 #  icon_type_id                :integer(4)
@@ -599,5 +641,15 @@ end
 #  total_power_consumption     :float
 #  no_of_pins                  :integer(4)
 #  contrast_ratio              :integer(4)
+#  field_of_view               :integer(4)
+#  current_revision            :boolean(1)
+#  revision                    :string(255)
+#  approval_status_id          :integer(4)
+#  publish_to_erp              :boolean(1)
+#  erp_id                      :integer(4)
+#  publish_to_web              :boolean(1)
+#  web_id                      :integer(4)
+#  needs_pushed_to_web         :boolean(1)
+#  viewing_cone                :integer(4)
 #
 

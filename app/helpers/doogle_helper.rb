@@ -9,26 +9,27 @@ module DoogleHelper
   end
   
   def render_field(display, field)
-    value = if field.dimension?
+    value = if field.model_number?
+      link_to search_excerpt(display.model_number, @search.try(:model_number)), doogle_display_url(display)
+    elsif field.comment?
+      search_excerpt(display.comment, @search.try(:comment))
+    elsif field.integrated_controller?
+      search_excerpt(display.integrated_controller, @search.try(:integrated_controller))
+    elsif field.display_type?
+      display.display_type.name
+    elsif field.character_rows? or field.character_columns?
+      cm(display.send(field.key),:trim_decimals)
+    elsif field.has_many?
+      display.send(field.key).map(&:name).join(', ')
+    elsif field.dimension?
       dimension_values = []
       field.dimensions.each do |child_field|
         child_value = render_field(display, child_field)
         break unless child_value.present?
         dimension_values.push child_value
       end
-      dimension_values.join(' x ')
-    elsif field.model_number?
-      link_to search_excerpt(display.model_number, @search.try(:model_number)), display_url(display)
-    elsif field.comment?
-      search_excerpt(display.comment, @search.try(:comment))
-    elsif field.controller?
-      search_excerpt(display.controller, @search.try(:controller))
-    elsif field.type?
-      display.display_config.name
-    elsif field.character_rows? or field.character_columns?
-      cm(display.send(field.key),:trim_decimals)
-    elsif field.has_many?
-      display.send(field.key).map(&:name).join(', ')
+      dimension_joiner = field.key.to_s.include?('temperature') ? ' to ' : ' x '
+      default_render_value field, dimension_values.join(dimension_joiner)
     else
       default_render_field(display, field)
     end
@@ -43,6 +44,11 @@ module DoogleHelper
     else
       val.try(:to_s)
     end
+    default_render_value field, val
+    val
+  end
+  
+  def default_render_value(field, val)
     if field.units_short
       val = "#{val} #{field.units_short}"
     end

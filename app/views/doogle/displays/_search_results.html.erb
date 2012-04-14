@@ -18,7 +18,12 @@
 				<% end %>
 				<% if display.datasheet? %>
 			  <td>
-					<%= link_to 'Datasheet', display_path(URI.escape(display.model_number, "/"), :format => 'pdf') %>
+					<%= link_to 'Datasheet', doogle_display_path(URI.escape(display.model_number, "/"), :format => 'pdf') %>
+				</td>
+				<% end %>
+				<% if permitted_to? :edit, display %>
+				<td>
+					<%= link_to 'Edit', edit_doogle_display_path(display) %>
 				</td>
 				<% end %>
       </tr>
