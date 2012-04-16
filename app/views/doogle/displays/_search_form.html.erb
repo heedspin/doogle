@@ -1,7 +1,9 @@
 <%= f.inputs do %>
   <%#= f.input :type, :as => :select, :collection => Doogle::DisplayConfig.options %>
 	<% Doogle::FieldConfig.searchable.each do |field| %>
-		<% if field.search_range? %>
+		<% if field.display_type? %>
+		<%= f.input :type_key, :as => :select, :collection => Doogle::DisplayConfig.all, :label => 'Type' %>
+		<% elsif field.search_range? %>
 		<li class="select input optional" id="display_<%= field.key %>_input" style="display: block; "><label class=" label" for="display_<%= field.key %>"><%= field.label %></label>
 			<%= range_select_tag @search, field %>
 		</li>
@@ -19,4 +21,4 @@
 	<% end %>
 <% end %>
 
-<%= render 'dynamic_form' %>
+<%= render 'dynamic_form', :object_name => 'search' %>

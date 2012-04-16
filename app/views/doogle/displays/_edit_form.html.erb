@@ -4,16 +4,20 @@
 	<%= f.input :id, :input_html => { :readonly => 'readonly' } %>
 	<% end %>
 	<% Doogle::FieldConfig.main.each do |field| %>
-		<% if field.has_many? %>
+		<% if field.display_type? %>
+		<%= f.input :type_key, :as => :select, :collection => Doogle::DisplayConfig.all, :label => 'Type' %>
+		<% elsif field.has_many? %>
 		<%= f.input field.key, :as => :check_boxes, :collection => field.has_many_class.all %>
 		<% elsif field.belongs_to? %>
 		<%= f.input field.key, :as => :select, :collection => field.belongs_to_class.all %>
 		<% elsif field.dimension? %>
 		<%= render 'dimension', :f => f, :display => @display, :field => field, :search => false %>
+		<% elsif field.attachment? %>
+		<%= f.input field.key, :as => :attachment %>
 		<% else %>
 	  <%= f.input field.key %>
 		<% end %>
 	<% end %>
 <% end %>
 
-<%= render 'dynamic_form' %>
+<%= render 'dynamic_form', :object_name => 'display' %>

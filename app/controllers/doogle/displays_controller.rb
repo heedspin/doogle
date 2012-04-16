@@ -8,6 +8,7 @@ class Doogle::DisplaysController < ApplicationController
     # Doogle::DisplayConfig.all
     search_params = params[:search]
     @search = Doogle::Display.new(search_params)
+    @search.status ||= Doogle::Status.published
     Rails.logger.debug "Search params: #{search_params.inspect}\nSearch object: #{@search.inspect}"
     if search_params
       @field_keys = Set.new ; @field_keys.add :model_number ; @field_keys.add :type
@@ -30,9 +31,22 @@ class Doogle::DisplaysController < ApplicationController
 
   def show
     @display = current_object
-    respond_to do |format|
-      format.html# { redirect_to root_url }
-      format.pdf  { redirect_to URI.encode(@display.datasheet.url), :status => 307 }
+    if asset = params[:asset]
+      # Basic security check; make sure it's at least a field.
+      if Doogle::FieldConfig.for_key(asset).nil?
+        not_found
+      else
+        asset_is_public = @display.asset_public?(asset)
+        if asset_is_public or permitted_to?(:manage, :doogle_displays)
+          if attachment = @display.send(asset)
+            redirect_to attachment.expiring_url(10), :status => 307
+          else
+            not_found
+          end
+        else
+          not_authorized
+        end
+      end
     end
   end
 

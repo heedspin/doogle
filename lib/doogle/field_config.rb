@@ -11,6 +11,10 @@ class Doogle::FieldConfig
   def column
     @column ||= config['column'] || (self.belongs_to? ? "#{self.key}_id" : self.key)
   end
+  
+  def display_type?
+    self.key == :display_type
+  end
 
   def self.all
     if @all.nil?
@@ -44,7 +48,7 @@ class Doogle::FieldConfig
   end
 
   def self.for_key(key)
-    (self.for_keys(key) || []).first # || (raise "No field config for #{key}")
+    (self.for_keys(key) || []).first || (raise "No field config for #{key}")
   end
 
   def self.for_name(name)
@@ -96,7 +100,11 @@ class Doogle::FieldConfig
   end
 
   def searchable?
-    self.searchable.nil? ? true : (self.searchable.is_a?(String) ? true : self.searchable)
+    if self.searchable.nil?
+      !self.attachment?
+    else
+      self.searchable.is_a?(String) ? true : self.searchable
+    end
   end
 
   def self.searchable
@@ -165,6 +173,13 @@ class Doogle::FieldConfig
 
   def display_name
     Doogle::Display.human_attribute_name(self.key)
+  end
+  
+  def attachment?
+    if @attachment.nil?
+      @attachment = config['attachment'].present?
+    end
+    @attachment
   end
 
   def belongs_to?

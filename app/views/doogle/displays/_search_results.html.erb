@@ -16,14 +16,14 @@
 				<% @fields.each do |field| %>
 				<td class="<%= field_td_class(display, field) %>"><%= render_field(display, field) %></td>
 				<% end %>
-				<% if display.datasheet? %>
-			  <td>
-					<%= link_to 'Datasheet', doogle_display_path(URI.escape(display.model_number, "/"), :format => 'pdf') %>
-				</td>
-				<% end %>
-				<% if permitted_to? :edit, display %>
+				<% if permitted_to? :edit, :doogle_displays %>
 				<td>
 					<%= link_to 'Edit', edit_doogle_display_path(display) %>
+				</td>
+				<% end %>
+				<% if display.datasheet? %>
+			  <td>
+					<%= link_to 'Datasheet', doogle_asset_path(display, :datasheet) %>
 				</td>
 				<% end %>
       </tr>

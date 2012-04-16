@@ -46,7 +46,7 @@ class Doogle::DisplayConfig
   end
   
   def id
-    self.key
+    self.key.to_s
   end
   
   def aliases

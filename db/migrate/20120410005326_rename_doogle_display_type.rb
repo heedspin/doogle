@@ -36,6 +36,7 @@ class RenameDoogleDisplayType < ActiveRecord::Migration
     rename_column :displays, :integrated_circuit, :_integrated_circuit
     rename_column :displays, :panel_size, :_panel_size
     add_column :displays, :viewing_cone, :integer
+    add_column :displays, :digit_height_mm, :integer
   end
 
   def down

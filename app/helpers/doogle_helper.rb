@@ -30,6 +30,8 @@ module DoogleHelper
       end
       dimension_joiner = field.key.to_s.include?('temperature') ? ' to ' : ' x '
       default_render_value field, dimension_values.join(dimension_joiner)
+    elsif field.attachment?
+      link_to display.send("#{field.key}_file_name"), doogle_asset_path(display, field.key)
     else
       default_render_field(display, field)
     end
@@ -53,5 +55,9 @@ module DoogleHelper
       val = "#{val} #{field.units_short}"
     end
     val
+  end
+  
+  def doogle_asset_path(display, asset)
+    doogle_display_path URI.escape(display.model_number, "/"), :asset => asset
   end
 end
