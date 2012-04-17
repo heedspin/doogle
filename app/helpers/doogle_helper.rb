@@ -8,17 +8,28 @@ module DoogleHelper
     'centered'
   end
   
+  def doogle_search_excerpt(txt, search_txt)
+    result = if txt.present? and search_txt.present? 
+      txt.gsub(/(#{search_txt})/i).each do |token|
+        '<span class="search_match">' + $1 + '</span>'
+      end
+    else
+      txt
+    end
+    result.html_safe
+  end
+  
   def render_field(display, field)
     value = if field.model_number?
-      link_to search_excerpt(display.model_number, @search.try(:model_number)), doogle_display_url(display)
+      link_to doogle_search_excerpt(display.model_number, @search.try(:model_number)), doogle_display_url(display)
     elsif field.comment?
-      search_excerpt(display.comment, @search.try(:comment))
+      doogle_search_excerpt(display.comment, @search.try(:comment))
     elsif field.integrated_controller?
-      search_excerpt(display.integrated_controller, @search.try(:integrated_controller))
+      doogle_search_excerpt(display.integrated_controller, @search.try(:integrated_controller))
     elsif field.display_type?
       display.display_type.name
     elsif field.character_rows? or field.character_columns?
-      cm(display.send(field.key),:trim_decimals)
+      cm(display.send(field.key))
     elsif field.has_many?
       display.send(field.key).map(&:name).join(', ')
     elsif field.dimension?
@@ -31,7 +42,11 @@ module DoogleHelper
       dimension_joiner = field.key.to_s.include?('temperature') ? ' to ' : ' x '
       default_render_value field, dimension_values.join(dimension_joiner)
     elsif field.attachment?
-      link_to display.send("#{field.key}_file_name"), doogle_asset_path(display, field.key)
+      if display.send("#{field.key}?")
+        link_to display.send("#{field.key}_file_name"), doogle_asset_path(display, field.key)
+      else
+        ''
+      end
     else
       default_render_field(display, field)
     end
@@ -51,7 +66,7 @@ module DoogleHelper
   end
   
   def default_render_value(field, val)
-    if field.units_short
+    if field.units_short and val.present?
       val = "#{val} #{field.units_short}"
     end
     val

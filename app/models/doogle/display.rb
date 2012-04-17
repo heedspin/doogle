@@ -265,21 +265,10 @@ class Doogle::Display < ApplicationModel
     Dir.glob(Doogle::Engine.root + 'public/ds/*.pdf').select { |p| Display.count(:conditions => "data_sheet_path like '%#{File.basename(p)}'") == 0}
   end
 
-  def lcd_type_index
-    if self.lcd_type =~ /^[^\d]*(\d+)[^\d]*(\d+)[^\d]*$/
-      char_graphic_index = self.lcd_type.downcase.include?('char') ? 1 : 2
-      [char_graphic_index, $1.to_i, $2.to_i]
-    else
-      self.lcd_type
-    end
-  end
-
   def graphic_display?
     case self.display_type.key
-    when :glass_displays
+    when :character_module_displays, :glass_displays
       false
-    when :module_displays
-      self.lcd_type.include?('Graph')
     else
       true
     end
@@ -324,7 +313,7 @@ class Doogle::Display < ApplicationModel
     end
     dr ||= Doogle::DisplayResource.new(:id => self.id)
     Doogle::FieldConfig.non_composites.each do |field|
-      if field.web? or [:status, :display_type].include?(field.key)
+      if field.sync_to_web?
         if field.has_many?
           ids_method = field.column.to_s.singularize
           dr.send("#{ids_method}_ids=", self.send("#{ids_method}_ids"))
@@ -351,21 +340,19 @@ class Doogle::Display < ApplicationModel
   end
 
   def self.web_sync
-    self.web.each(&:web_sync!)
+    self.all.each(&:web_sync!)
   end
 
-  # rails console
-  # Display.find_each { |d| d.guess_resolutions ; d.save if d.changed? }
   def guess_resolutions
     if !self.graphic_display?
       self.resolution_x ||= nil
       self.resolution_y ||= nil
     else
-      search_attribute = if self.display_type.active_field?(:resolution)
+      search_attribute = if self._resolution.present?
         self._resolution
-      elsif self.display_type.active_field?(:pixel_configuration)
+      elsif self._pixel_configuration.present?
         self._pixel_configuration
-      elsif self.display_type.active_field?(:lcd_type)
+      elsif self._lcd_type.present?
         self._lcd_type
       end
       return unless search_attribute
@@ -659,6 +646,7 @@ class Doogle::Display < ApplicationModel
     find_each { |d| d.guess_ranges! }
   end
   def guess_ranges!
+    self.guess_module_type
     self.guess_resolutions
     self.guess_temperatures
     self.guess_module_dimensions
@@ -672,7 +660,6 @@ class Doogle::Display < ApplicationModel
     self.guess_display_image
     self.guess_polarizer_mode
     self.guess_active_area
-    self.guess_module_type
     self.guess_backlight_type
     self.guess_target_environment
     self.guess_viewing_direction

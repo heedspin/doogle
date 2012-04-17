@@ -31,23 +31,6 @@ class Doogle::DisplaysController < ApplicationController
 
   def show
     @display = current_object
-    if asset = params[:asset]
-      # Basic security check; make sure it's at least a field.
-      if Doogle::FieldConfig.for_key(asset).nil?
-        not_found
-      else
-        asset_is_public = @display.asset_public?(asset)
-        if asset_is_public or permitted_to?(:manage, :doogle_displays)
-          if attachment = @display.send(asset)
-            redirect_to attachment.expiring_url(10), :status => 307
-          else
-            not_found
-          end
-        else
-          not_authorized
-        end
-      end
-    end
   end
 
   def new

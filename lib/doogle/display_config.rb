@@ -80,7 +80,7 @@ class Doogle::DisplayConfig
   def web_fields
     if @web_fields.nil?
       fields = if keys = @config['web_fields']
-        keys.map { |k| Doogle::FieldConfig.for_key(k) }
+        keys.split(',').map { |k| Doogle::FieldConfig.for_key(k.strip) }
       else
         self.fields
       end
@@ -89,6 +89,18 @@ class Doogle::DisplayConfig
     @web_fields
   end
 
+  def web_list_fields
+    if @web_list_fields.nil?
+      fields = if keys = @config['web_list']
+        keys.split(',').map { |k| Doogle::FieldConfig.for_key(k.strip) }
+      else
+        self.web_fields
+      end
+      @web_list_fields = fields.select { |f| f.web? }
+    end
+    @web_list_fields
+  end
+  
   def export_fields
     # Remove type since it's implicit in the spreadsheet tab name.
     Doogle::FieldConfig.system_fields + fields# - [ 'type' ]

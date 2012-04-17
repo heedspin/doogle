@@ -25,9 +25,9 @@ _display_fields: &_display_fields
       dimension: active_area_width_mm, active_area_height_mm
       search: false
     - key: active_area_width_mm
-      label: Width
+      name: Width
     - key: active_area_height_mm
-      label: Height
+      name: Height
     - key: backlight_color
       belongs_to: Color
     - key: background_color
@@ -40,33 +40,36 @@ _display_fields: &_display_fields
       dimension: module_width_mm, module_height_mm, module_thickness_mm
       units_short: mm
     - key: module_width_mm
-      label: Width
+      name: Width
       search_range: ModuleWidthRange
     - key: module_height_mm
-      label: Height
+      name: Height
       search_range: ModuleHeightRange
     - key: module_thickness_mm
-      label: Thickness
+      name: Thickness
       search_range: ModuleThicknessRange
+    - key: module_diagonal_in
+      name: Diagonal
     - key: no_of_pins
       search: false
     - key: contrast_ratio
       search: false
     - key: resolution
       dimension: resolution_x, resolution_y
+      table_name: Reso-lution
     - key: resolution_x
-      label: X
+      name: X
       search_range: ResolutionRange
     - key: resolution_y
-      label: Y
+      name: Y
       search_range: ResolutionRange
     - key: viewing_area
       dimension: viewing_width_mm, viewing_height_mm
       search: false
     - key: viewing_width_mm
-      label: Width
+      name: Width
     - key: viewing_height_mm
-      label: Height
+      name: Height
     - key: touch_panel_type
       belongs_to: true
     - key: pixel_color
@@ -80,32 +83,34 @@ _display_fields: &_display_fields
     - key: polarizer_mode
       belongs_to: true
     - key: operational_temperature
-      label: Operational Temperature (°C)
+      name: Operational Temperature (°C)
+      table_name: Operational Temp (°C)
       dimension: operational_temperature_min, operational_temperature_max
       units_short: °C
     - key: operational_temperature_min
-      label: Min
+      name: Min
       search_range: LowTemperatureRange
     - key: operational_temperature_max
-      label: Max
+      name: Max
       search_range: HighTemperatureRange
     - key: storage_temperature
-      label: Storage Temperature (°C)
+      name: Storage Temperature (°C)
       dimension: storage_temperature_min, storage_temperature_max
       units_short: °C
     - key: storage_temperature_min
-      label: Min
+      name: Min
       search_range: LowTemperatureRange
     - key: storage_temperature_max
-      label: Max
+      name: Max
       search_range: HighTemperatureRange
     - key: character_resolution
       dimension: character_columns, character_rows
+      table_name: Char Reso-lution
     - key: character_columns
-      label: Cols
+      name: Cols
       search_range: true
     - key: character_rows
-      label: Rows
+      name: Rows
       search_range: true
     - key: character_type
       belongs_to: true
@@ -114,7 +119,7 @@ _display_fields: &_display_fields
       belongs_to: true
     - key: logic_operating_voltage
       search_range: true
-      label: Logic Operating Voltage
+      name: Logic Operating Voltage
     - key: integrated_controller
     - key: interface_types
       has_many: InterfaceType
@@ -136,43 +141,49 @@ _display_fields: &_display_fields
       units_short: &deg;
     - key: datasheet
       attachment: pdf
+      web: sync_only
     - key: datasheet_public
-      web: false
+      web: sync_only
     - key: specification
       attachment: pdf
-      web: false
+      web: sync_only
     - key: source_specification
       attachment: pdf
-      web: false
+      web: sync_only
     - key: drawing
       attachment: image
+      web: sync_only
 
 display_types: &_display_types
   display_types:
     - key: tft_displays
       tab_names: TFT
       name: Digital TFT Display
-      fields: status, display_type, model_number, bonding_type, module_dimensions, viewing_area, active_area, resolution, active_area, backlight_type, operational_temperature, storage_temperature, interface_types, colors, touch_panel_type, viewing_cone, datasheet, datasheet_public, specification, source_specification, drawing
+      fields: status, display_type, model_number, bonding_type, module_diagonal_in, module_dimensions, viewing_area, active_area, resolution, active_area, backlight_type, operational_temperature, storage_temperature, interface_types, colors, touch_panel_type, viewing_cone, datasheet, datasheet_public, specification, source_specification, drawing, luminance_nits
+      web_list: model_number, module_diagonal_in, module_dimensions, active_area, resolution, active_area, backlight_type, operational_temperature, storage_temperature, interface_types, colors, touch_panel_type, luminance_nits
     - key: glass_displays
       aliases: Display::GlassDisplay
       tab_names: Glass
       name: Glass Display
-      fields: status, display_type, model_number, character_resolution, pixel_color, display_mode, module_dimensions, viewing_area, active_area, digit_height_mm, polarizer_mode, no_of_pins, operational_temperature, datasheet, specification, source_specification, drawing
+      fields: status, display_type, model_number, character_resolution, character_type, pixel_color, display_mode, module_dimensions, viewing_area, active_area, digit_height_mm, polarizer_mode, no_of_pins, operational_temperature, datasheet, datasheet_public, specification, source_specification, drawing
+      web_list: model_number, character_resolution, display_mode, module_dimensions, digit_height_mm, polarizer_mode, no_of_pins, operational_temperature
     - key: graphic_module_displays
       tab_names: Graphic Displays
       name: Graphic Display
-      fields: status, display_type, model_number, resolution, bonding_type, pixel_color, display_mode, module_dimensions, viewing_area, active_area, display_mode, polarizer_mode, backlight_type, backlight_color, operational_temperature, storage_temperature, backlight_type, datasheet, specification, source_specification, drawing
+      fields: status, display_type, model_number, resolution, bonding_type, pixel_color, display_mode, module_dimensions, viewing_area, active_area, display_mode, polarizer_mode, backlight_type, backlight_color, operational_temperature, storage_temperature, datasheet, datasheet_public, specification, source_specification, drawing
+      web_list: model_number, resolution, bonding_type, pixel_color, display_mode, module_dimensions, viewing_area, display_mode, polarizer_mode, backlight_type, backlight_color, operational_temperature, storage_temperature, datasheet, datasheet_public, specification, source_specification, drawing
     - key: character_module_displays
       tab_names: Character Modules
       name: Character Module Display
-      fields: status, display_type, model_number, character_resolution, bonding_type, pixel_color, display_mode, module_dimensions, viewing_area, active_area, display_mode, polarizer_mode, backlight_type, backlight_color, operational_temperature, storage_temperature, backlight_type, datasheet, specification, source_specification, drawing
+      fields: status, display_type, model_number, character_resolution, character_type, bonding_type, pixel_color, display_mode, module_dimensions, viewing_area, active_area, display_mode, polarizer_mode, backlight_type, backlight_color, operational_temperature, storage_temperature, datasheet, datasheet_public, specification, source_specification, drawing
+      web_list: model_number, character_resolution, bonding_type, pixel_color, display_mode, module_dimensions, viewing_area, display_mode, polarizer_mode, backlight_type, backlight_color, operational_temperature, storage_temperature, datasheet, datasheet_public, specification, source_specification, drawing
     - key: oled_displays
       aliases: Display::OledDisplay
       tab_names: OLED
       name: OLED Display
-      fields: display_type, model_number, module_dimensions, resolution, colors, active_area, interface_types
+      fields: display_type, model_number, module_diagonal_in, module_dimensions, resolution, colors, active_area, interface_types
     - key: shutters
-      fields: status, display_type, active_area, backlight_type, backlight_color, bonding_type, character_resolution, colors, display_image, pixel_color, luminance_nits, model_number, module_dimensions, no_of_pins, operational_temperature, polarizer_mode, storage_temperature, display_mode, viewing_direction, datasheet, specification, source_specification, drawing
+      fields: status, display_type, active_area, backlight_type, backlight_color, bonding_type, character_resolution, colors, display_image, pixel_color, luminance_nits, model_number, module_dimensions, no_of_pins, operational_temperature, polarizer_mode, storage_temperature, display_mode, viewing_direction, datasheet, datasheet_public, specification, source_specification, drawing
 
     - key: module_displays
       deprecated: yup

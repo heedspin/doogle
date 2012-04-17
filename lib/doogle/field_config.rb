@@ -11,7 +11,7 @@ class Doogle::FieldConfig
   def column
     @column ||= config['column'] || (self.belongs_to? ? "#{self.key}_id" : self.key)
   end
-  
+
   def display_type?
     self.key == :display_type
   end
@@ -51,19 +51,19 @@ class Doogle::FieldConfig
     (self.for_keys(key) || []).first || (raise "No field config for #{key}")
   end
 
-  def self.for_name(name)
-    if @name_map.nil?
-      @name_map = {}
-      self.all.each do |config|
-        @name_map[Doogle::Display.human_attribute_name(config.key).downcase] = config
-        config.aliases.each do |alias_name|
-          puts "Added alias #{alias_name} for #{config.key}"
-          @name_map[alias_name.downcase] = config
-        end
-      end
-    end
-    @name_map[name.try(:downcase).try(:strip)]
-  end
+  # def self.for_name(name)
+  #   if @name_map.nil?
+  #     @name_map = {}
+  #     self.all.each do |config|
+  #       @name_map[Doogle::Display.human_attribute_name(config.key).downcase] = config
+  #       config.aliases.each do |alias_name|
+  #         puts "Added alias #{alias_name} for #{config.key}"
+  #         @name_map[alias_name.downcase] = config
+  #       end
+  #     end
+  #   end
+  #   @name_map[name.try(:downcase).try(:strip)]
+  # end
 
   def self.system_fields
     self.all.select { |f| f.system? }
@@ -86,10 +86,17 @@ class Doogle::FieldConfig
 
   def web?
     if @web.nil?
-      @web = config['web']
-      @web = true if @web.nil?
+      v = config['web']
+      @web = v.is_a?(TrueClass) || v.nil?
     end
     @web
+  end
+
+  def sync_to_web?
+    if @sync_to_web.nil?
+      @sync_to_web = self.web? || (config['web'] == 'sync_only')
+    end
+    @sync_to_web
   end
 
   def searchable
@@ -171,10 +178,15 @@ class Doogle::FieldConfig
     @non_composites ||= self.all.select { |f| !f.composite? }
   end
 
-  def display_name
-    Doogle::Display.human_attribute_name(self.key)
+  def name
+    # Doogle::Display.human_attribute_name(self.key)
+    @name ||= (config['name'] || self.key.to_s.titleize)
   end
   
+  def table_name
+    @table_name ||= (config['table_name'] || self.name)
+  end
+
   def attachment?
     if @attachment.nil?
       @attachment = config['attachment'].present?
