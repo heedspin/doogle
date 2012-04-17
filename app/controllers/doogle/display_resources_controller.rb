@@ -53,4 +53,16 @@ class Doogle::DisplayResourcesController < ApplicationController
     def require_api_key
       (params[:api_key] == AppConfig.doogle_api_key)
     end
+
+    def build_object
+      if @current_object.nil?
+        id = nil
+        if display_params = params[:display_resource]
+          id = display_params.delete(:id)
+        end
+        @current_object = Doogle::Display.new(display_params)
+        @current_object.id = id if id
+      end
+      @current_object
+    end
 end

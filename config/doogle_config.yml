@@ -2,9 +2,11 @@ _display_fields: &_display_fields
   display_fields:
     - key: status
       belongs_to: Status
+      web: false
     - key: display_type
       belongs_to: DisplayConfig
       column: type_key
+      web: false
     - key: model_number
     - key: source_model_number
       web: false
@@ -135,10 +137,13 @@ _display_fields: &_display_fields
     - key: datasheet
       attachment: pdf
     - key: datasheet_public
+      web: false
     - key: specification
       attachment: pdf
+      web: false
     - key: source_specification
       attachment: pdf
+      web: false
     - key: drawing
       attachment: image
 

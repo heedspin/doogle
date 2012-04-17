@@ -76,6 +76,18 @@ class Doogle::DisplayConfig
   def fields
     @fields ||= self.field_keys.map { |k| Doogle::FieldConfig.for_key(k) }
   end
+  
+  def web_fields
+    if @web_fields.nil?
+      fields = if keys = @config['web_fields']
+        keys.map { |k| Doogle::FieldConfig.for_key(k) }
+      else
+        self.fields
+      end
+      @web_fields = fields.select { |f| f.web? }
+    end
+    @web_fields
+  end
 
   def export_fields
     # Remove type since it's implicit in the spreadsheet tab name.

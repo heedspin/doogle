@@ -132,16 +132,6 @@ class Doogle::DisplaysController < ApplicationController
     end
 
     def build_object
-      if @current_object.nil?
-        display_params = params[:display]
-        if display_params
-          type = display_params.delete(:type)
-        end
-        @current_object = Doogle::Display.new(display_params)
-        if type
-          @current_object.write_attribute(:type, type)
-        end
-      end
-      @current_object
+      @current_object ||= Doogle::Display.new(params[:display])
     end
 end

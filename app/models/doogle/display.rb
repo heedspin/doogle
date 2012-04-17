@@ -101,7 +101,6 @@
 #  publish_to_erp                    :boolean(1)
 #  erp_id                            :integer(4)
 #  publish_to_web                    :boolean(1)
-#  web_id                            :integer(4)
 #  needs_pushed_to_web               :boolean(1)
 #  viewing_cone                      :integer(4)
 #  datasheet_public                  :boolean(1)
@@ -318,13 +317,14 @@ class Doogle::Display < ApplicationModel
   end
 
   def web_sync!
-    dr = if self.web_id
-      Doogle::DisplayResource.find(self.web_id)
-    else
-      Doogle::DisplayResource.new
+    dr = nil
+    begin
+      dr = Doogle::DisplayResource.find(self.id)
+    rescue ActiveResource::ResourceNotFound
     end
+    dr ||= Doogle::DisplayResource.new(:id => self.id)
     Doogle::FieldConfig.non_composites.each do |field|
-      if field.web?
+      if field.web? or [:status, :display_type].include?(field.key)
         if field.has_many?
           ids_method = field.column.to_s.singularize
           dr.send("#{ids_method}_ids=", self.send("#{ids_method}_ids"))
@@ -339,7 +339,6 @@ class Doogle::Display < ApplicationModel
       end
     end
     if dr.save
-      self.web_id = dr.id
       if self.changed?
         self.save
       else

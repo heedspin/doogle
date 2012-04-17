@@ -46,7 +46,6 @@ class AddDoogleDisplayAttributes < ActiveRecord::Migration
     add_column :displays, :publish_to_erp, :boolean
     add_column :displays, :erp_id, :integer
     add_column :displays, :publish_to_web, :boolean
-    add_column :displays, :web_id, :integer
     add_column :displays, :needs_pushed_to_web, :boolean
   end
 
