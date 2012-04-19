@@ -3,7 +3,7 @@
 
 <% @display.display_type.fields.each do |field| %>
 <p>
-	<b><%= field.display_name %>:</b>
+	<b><%= field.name %>:</b>
 	<%= render_field(@display, field) %>
 </p>
 <% end %>

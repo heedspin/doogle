@@ -1,5 +1,5 @@
 class AddDoogleAssets < ActiveRecord::Migration
-  def up
+  def change
     add_column :displays, :datasheet_public, :boolean
     add_column :displays, :source_specification_file_name, :string
     add_column :displays, :source_specification_content_type, :string
@@ -15,8 +15,5 @@ class AddDoogleAssets < ActiveRecord::Migration
     add_column :displays, :drawing_file_size, :integer
     add_column :displays, :drawing_updated_at, :datetime
     add_column :displays, :drawing_public, :boolean    
-  end
-
-  def down
   end
 end

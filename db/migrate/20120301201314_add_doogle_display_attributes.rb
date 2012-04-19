@@ -1,5 +1,5 @@
 class AddDoogleDisplayAttributes < ActiveRecord::Migration
-  def up
+  def change
     add_column :displays, :resolution_x, :integer
     add_column :displays, :resolution_y, :integer
     add_column :displays, :storage_temperature_min, :integer
@@ -47,8 +47,5 @@ class AddDoogleDisplayAttributes < ActiveRecord::Migration
     add_column :displays, :erp_id, :integer
     add_column :displays, :publish_to_web, :boolean
     add_column :displays, :needs_pushed_to_web, :boolean
-  end
-
-  def down
   end
 end

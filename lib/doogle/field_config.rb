@@ -186,6 +186,14 @@ class Doogle::FieldConfig
   def table_name
     @table_name ||= (config['table_name'] || self.name)
   end
+  
+  def label
+    config['label'] || self.name
+  end
+
+  def short_label
+    config['short_label'] || self.label
+  end
 
   def attachment?
     if @attachment.nil?
@@ -232,14 +240,6 @@ class Doogle::FieldConfig
 
   def dimensions
     @dimensions ||= config['dimension'].split(',').map { |key| Doogle::FieldConfig.for_key(key) }
-  end
-
-  def label
-    config['label'] || Doogle::Display.human_attribute_name(self.key)
-  end
-
-  def short_label
-    config['short_label'] || self.label
   end
 
   def search_as

@@ -1,5 +1,5 @@
 class CreateDoogleDisplays < ActiveRecord::Migration
-  def self.up
+  def change
     create_table :displays, :force => true do |t|
       t.string   "type"
       t.string   "model_number"
@@ -54,9 +54,5 @@ class CreateDoogleDisplays < ActiveRecord::Migration
       t.integer  "timing_controller_type_id"
       t.integer  "specification_type_id"
     end
-  end
-
-  def self.down
-    drop_table :displays
   end
 end

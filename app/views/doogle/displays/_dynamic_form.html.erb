@@ -1,3 +1,6 @@
+<% unless defined?(trigger_change) %>
+<% trigger_change = false %>
+<% end %>
 <% content_for :javascripts do %>
 <script type="text/javascript">
 $(function() {
@@ -15,7 +18,7 @@ $(function() {
 				$("li#<%= object_name %>_"+show_fields[i]+"_input").show();
 			}
 		}
-  }).trigger('change');
+  })<%= trigger_change ? ".trigger('change');" : '' %>
 })
 </script>
 <% end %>

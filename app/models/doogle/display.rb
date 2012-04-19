@@ -151,10 +151,10 @@ class Doogle::Display < ApplicationModel
   has_many :display_interface_types, :class_name => 'Doogle::DisplayInterfaceType', :dependent => :destroy
   has_many :interface_types, :through => :display_interface_types, :source => :interface_type
 
-  [ [:datasheet, ':display_type/:model_number/:model_number_datasheet.:extension'],
-    [:specification, ':display_type/:model_number/:model_number_spec.:extension'],
-    [:source_specification, ':display_type/:model_number/:model_number_source_spec.:extension'],
-    [:drawing, ':display_type/:model_number/:model_number_drawing_:style.:extension', {:thumbnail => '100>', :medium => '400>', :large => '600>'}]
+  [ [:datasheet, ':display_type/:model_number/LXD-:model_number-datasheet.:extension'],
+    [:specification, ':display_type/:model_number/LXD-:model_number-spec.:extension'],
+    [:source_specification, ':display_type/:model_number/:model_number-source-spec.:extension'],
+    [:drawing, ':display_type/:model_number/LXD-:model_number-drawing-:style.:extension', {:thumbnail => '100>', :medium => '400>', :large => '600>'}]
   ].each do |key, path, image_styles|
     options = { :storage => :s3,
                 :s3_credentials => { :access_key_id => AppConfig.doogle_access_key_id,
@@ -222,6 +222,11 @@ class Doogle::Display < ApplicationModel
     }
   }
   scope :web, :conditions => { :publish_to_web => true }
+  scope :datasheet_public, lambda { |bool|
+    {
+      :conditions => { :datasheet_public => bool }
+    }
+  }
 
   def destroy
     self.update_attributes(:status_id => Doogle::Status.deleted.id)
@@ -232,10 +237,6 @@ class Doogle::Display < ApplicationModel
   end
 
   # **********************************
-
-  def display_name
-    self.display_type.name
-  end
 
   def display_type
     Doogle::DisplayConfig.find_by_key(self.type_key)
@@ -363,8 +364,6 @@ class Doogle::Display < ApplicationModel
     end
   end
 
-  # rails console
-  # Display.find_each { |d| d.guess_temperatures ; d.save if d.changed? }
   def guess_temperatures
     if self._storage_temperature =~ /(\d+)[^\d]+(\d+)/
       self.storage_temperature_min ||= $1
@@ -639,6 +638,27 @@ class Doogle::Display < ApplicationModel
       self.digit_height_mm = (self._digit_height.to_f * MM_PER_INCH).round(MM_PRECISION)
     end
   end
+  
+  def guess_datasheet
+    unless datasheet_exists = self.datasheet.exists?
+      location = File.join(AppConfig.doogle_datasheets_directory, "LXD-#{self.model_number.upcase}.pdf")
+      if !File.exists?(location)
+        location = File.join(AppConfig.doogle_datasheets_directory, "lxd-#{self.model_number.downcase}.pdf")
+        if !File.exists?(location)
+          self.datasheet = nil
+          self.datasheet_public = nil
+          return
+        end
+      end
+      file = File.open(location, 'r')
+      self.datasheet = file
+      file.close unless file.closed?
+      datasheet_exists = true
+    end
+    if datasheet_exists
+      self.datasheet_public = (self.type_key != 'tft_displays')
+    end
+  end
 
   # rails console
   # Doogle::Display.gr!
@@ -672,6 +692,7 @@ class Doogle::Display < ApplicationModel
     self.guess_interface_types
     self.guess_viewing_cone
     self.guess_digit_height
+    self.guess_datasheet
     self.save! if self.changed?
   end
 end

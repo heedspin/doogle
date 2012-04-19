@@ -144,6 +144,7 @@ _display_fields: &_display_fields
       web: sync_only
     - key: datasheet_public
       web: sync_only
+      search_as: select
     - key: specification
       attachment: pdf
       web: sync_only

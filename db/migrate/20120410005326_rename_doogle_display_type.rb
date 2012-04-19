@@ -1,5 +1,5 @@
 class RenameDoogleDisplayType < ActiveRecord::Migration
-  def up
+  def change
     rename_column :displays, :type, :type_key
     rename_column :displays, :controller, :integrated_controller
     rename_column :displays, :bonding_type, :_bonding_type
@@ -39,42 +39,4 @@ class RenameDoogleDisplayType < ActiveRecord::Migration
     add_column :displays, :digit_height_mm, :integer
   end
 
-  def down
-    rename_column :displays, :_number_of_digits, :number_of_digits
-    rename_column :displays, :_module_dimensions, :module_dimensions
-    rename_column :displays, :_digit_height, :digit_height
-    rename_column :displays, :_number_of_pins, :number_of_pins
-    rename_column :displays, :_configuration, :configuration
-    rename_column :displays, :_lcd_type, :lcd_type
-    rename_column :displays, :_viewing_dimensions, :viewing_dimensions
-    rename_column :displays, :_diagonal_size, :diagonal_size
-    rename_column :displays, :_dot_format, :dot_format
-    rename_column :displays, :_brightness, :brightness
-    rename_column :displays, :_contrast, :contrast
-    rename_column :displays, :_viewing_angle, :viewing_angle
-    rename_column :displays, :_operational_temperature, :operational_temperature
-    rename_column :displays, :_storage_temperature, :storage_temperature
-    rename_column :displays, :_interface, :interface
-    rename_column :displays, :_resolution, :resolution
-    rename_column :displays, :_weight, :weight
-    rename_column :displays, :_power_consumption, :power_consumption
-    rename_column :displays, :_active_area, :active_area
-    rename_column :displays, :_outline_dimensions, :outline_dimensions
-    rename_column :displays, :_view_direction, :view_direction
-    rename_column :displays, :_pixel_configuration, :pixel_configuration
-    rename_column :displays, :_operating_voltage, :operating_voltage
-    rename_column :displays, :_dot_size, :dot_size
-    rename_column :displays, :_dot_pitch, :dot_pitch
-    rename_column :displays, :_thickness, :thickness
-    rename_column :displays, :_integrated_circuit, :integrated_circuit
-    rename_column :displays, :_panel_size, :panel_size
-    rename_column :displays, :_interface, :interface
-    rename_column :displays, :_backlight_type, :backlight_type
-    rename_column :displays, :_polarizer_mode, :polarizer_mode
-    rename_column :displays, :_backlight_color, :backlight_color
-    rename_column :displays, :_technology_type, :technology_type
-    rename_column :displays, :_bonding_type, :bonding_type
-    rename_column :displays, :integrated_controller, :controller
-    rename_column :displays, :type_key, :type
-  end
 end
