@@ -125,6 +125,7 @@
 
 require 'active_hash_setter'
 require 'acts_as_list'
+require 'doogle/web_synchronizer'
 
 class Doogle::Display < ApplicationModel
   validates_uniqueness_of :model_number
@@ -309,6 +310,12 @@ class Doogle::Display < ApplicationModel
   def asset_public?(key)
     key = "#{key}_public"
     self.respond_to?(key) && self.send(key)
+  end
+  
+  def maybe_sync_to_web
+    if self.status.published?
+      Doogle::WebSynchronizer.new(self).run_in_background!
+    end
   end
 
   def sync_to_web

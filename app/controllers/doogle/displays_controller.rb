@@ -22,7 +22,7 @@ class Doogle::DisplaysController < ApplicationController
           display_scope = display_scope.send(value_key, value)
         end
       end
-      @displays = display_scope.paginate(:page => params[:page], :per_page => 50)
+      @displays = display_scope.by_model_number.paginate(:page => params[:page], :per_page => 50)
       @fields = Doogle::FieldConfig.top_level.select { |f| @field_keys.member?(f.key) }
     end
     if request.xhr?
@@ -53,6 +53,7 @@ class Doogle::DisplaysController < ApplicationController
   def create
     @display = build_object
     @display.sync_to_erp
+    @display.maybe_sync_to_web
     if @display.save
       flash[:notice] = 'Display was successfully created.'
       if params[:commit] == 'Save & Edit'
@@ -74,6 +75,7 @@ class Doogle::DisplaysController < ApplicationController
         @display.type = type
       end
       if @display.update_attributes(display_params)
+        @display.maybe_sync_to_web
         flash[:notice] = 'Display was successfully updated.'
         format.html {
           if params[:commit] == 'Save & Edit'
