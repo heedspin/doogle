@@ -44,6 +44,7 @@ class Doogle::DisplaysController < ApplicationController
     else
       @display = build_object
       @display.status ||= Doogle::Status.draft
+      @display.publish_to_web = @display.publish_to_erp = true
     end
   end
 
