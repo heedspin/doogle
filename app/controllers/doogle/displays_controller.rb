@@ -52,9 +52,9 @@ class Doogle::DisplaysController < ApplicationController
 
   def create
     @display = build_object
-    @display.sync_to_erp
-    @display.maybe_sync_to_web
     if @display.save
+      @display.sync_to_erp
+      @display.maybe_sync_to_web
       flash[:notice] = 'Display was successfully created.'
       if params[:commit] == 'Save & Edit'
         redirect_to(edit_doogle_display_url(@display, :return_to => params[:return_to]))
@@ -75,13 +75,14 @@ class Doogle::DisplaysController < ApplicationController
         @display.type = type
       end
       if @display.update_attributes(display_params)
+        @display.sync_to_erp
         @display.maybe_sync_to_web
         flash[:notice] = 'Display was successfully updated.'
         format.html {
           if params[:commit] == 'Save & Edit'
             redirect_to(edit_doogle_display_url(@display, :return_to => params[:return_to]))
           else
-            redirect_back_or_default(doogle_display_url(@display))
+            redirect_to doogle_display_url(@display)
           end
         }
       else
@@ -93,9 +94,9 @@ class Doogle::DisplaysController < ApplicationController
   def destroy
     @display = current_object
     @display.destroy
-
+    @display.maybe_sync_to_web
     respond_to do |format|
-      format.html { redirect_to(displays_url) }
+      format.html { redirect_to(doogle_displays_url) }
     end
   end
 

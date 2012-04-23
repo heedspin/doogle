@@ -313,7 +313,8 @@ class Doogle::Display < ApplicationModel
   end
   
   def maybe_sync_to_web
-    if self.status.published?
+    # Ignore draft changes.  Deletes and publishes go live.
+    if !self.status.draft?
       Doogle::WebSynchronizer.new(self).run_in_background!
     end
   end

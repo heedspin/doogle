@@ -56,6 +56,7 @@ _display_fields: &_display_fields
       search_range: ModuleThicknessRange
     - key: module_diagonal_in
       name: Diagonal
+      search_range: ModuleDiagonalRange
     - key: no_of_pins
       search: false
     - key: contrast_ratio
