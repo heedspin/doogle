@@ -8,6 +8,14 @@ module DoogleHelper
     'centered'
   end
   
+  def doogle_cm(thing, nil_if_equals=nil)
+    if thing and (thing.to_f != nil_if_equals)
+      comma(thing)
+    else
+      nil
+    end
+  end
+  
   def doogle_search_excerpt(txt, search_txt)
     result = if txt.present? and search_txt.present? 
       txt.gsub(/(#{search_txt})/i).each do |token|
@@ -29,7 +37,7 @@ module DoogleHelper
     elsif field.display_type?
       display.display_type.name
     elsif field.character_rows? or field.character_columns?
-      cm(display.send(field.key))
+      doogle_cm(display.send(field.key))
     elsif field.has_many?
       display.send(field.key).map(&:name).join(', ')
     elsif field.dimension?
@@ -57,7 +65,7 @@ module DoogleHelper
 	  val = display.send(field.key)
     val = if val.is_a?(Numeric)
       val = sprintf("%.1f",val) if val.is_a?(Float)
-      cm(val)
+      doogle_cm(val)
     else
       val.try(:to_s)
     end
