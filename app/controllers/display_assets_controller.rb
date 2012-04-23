@@ -9,7 +9,7 @@ class DisplayAssetsController < ApplicationController
       asset_is_public = @display.asset_public?(asset)
       if asset_is_public or permitted_to?(:manage, :doogle_displays)
         if attachment = @display.send(asset)
-          redirect_to attachment.expiring_url(10), :status => 307
+          redirect_to attachment.expiring_url(60), :status => 307
         else
           not_found
         end
