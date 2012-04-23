@@ -10,6 +10,9 @@ module DoogleHelper
   
   def doogle_cm(thing, nil_if_equals=nil)
     if thing and (thing.to_f != nil_if_equals)
+      if (thing.is_a?(Float) or thing.is_a?(BigDecimal)) and (thing.to_i == thing)
+        thing = sprintf('%0.f', thing)
+      end
       comma(thing)
     else
       nil
