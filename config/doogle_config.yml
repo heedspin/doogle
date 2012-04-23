@@ -167,7 +167,7 @@ display_types: &_display_types
     - key: tft_displays
       tab_names: TFT
       name: Digital TFT Display
-      fields: status, display_type, model_number, publish_to_web, publish_to_erp, bonding_type, module_diagonal_in, module_dimensions, viewing_area, active_area, resolution, active_area, backlight_type, operational_temperature, storage_temperature, interface_types, colors, touch_panel_type, viewing_cone, datasheet, datasheet_public, specification, source_specification, drawing, luminance_nits
+      fields: status, display_type, model_number, publish_to_web, publish_to_erp, bonding_type, module_diagonal_in, module_dimensions, viewing_area, active_area, resolution, active_area, backlight_type, operational_temperature, storage_temperature, interface_types, colors, touch_panel_type, viewing_cone, datasheet, datasheet_public, specification, source_specification, drawing, luminance_nits, integrated_controller, logic_operating_voltage
       web_list: model_number, module_diagonal_in, module_dimensions, active_area, resolution, active_area, backlight_type, operational_temperature, storage_temperature, interface_types, colors, touch_panel_type, luminance_nits
       m2m_group_code: TFTS
       m2m_product_class: TFTS
@@ -175,7 +175,7 @@ display_types: &_display_types
       aliases: Display::GlassDisplay
       tab_names: Glass
       name: Glass Display
-      fields: status, display_type, model_number, publish_to_web, publish_to_erp, character_resolution, character_type, pixel_color, display_mode, module_dimensions, viewing_area, active_area, digit_height_mm, polarizer_mode, no_of_pins, operational_temperature, datasheet, datasheet_public, specification, source_specification, drawing
+      fields: status, display_type, model_number, publish_to_web, publish_to_erp, character_resolution, character_type, pixel_color, display_mode, viewing_direction, module_dimensions, viewing_area, active_area, digit_height_mm, polarizer_mode, no_of_pins, operational_temperature, datasheet, datasheet_public, specification, source_specification, drawing
       web_list: model_number, character_resolution, display_mode, module_dimensions, digit_height_mm, polarizer_mode, no_of_pins, operational_temperature
       m2m_group_code: GLASS
       m2m_product_class: GLASS
