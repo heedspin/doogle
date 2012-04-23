@@ -43,6 +43,7 @@ class Doogle::DisplaysController < ApplicationController
       @display.errors.add(:model_number, "New revision of #{source.model_number}")
     else
       @display = build_object
+      @display.status ||= Doogle::Status.draft
     end
   end
 
