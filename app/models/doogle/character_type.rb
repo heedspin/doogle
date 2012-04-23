@@ -5,6 +5,7 @@ class Doogle::CharacterType < ActiveHash::Base
     {:id => 2, :name => '14 Segment'},
     {:id => 3, :name => '16 Segment'},
     {:id => 4, :name => '5 x 7 Dot'},
+    {:id => 5, :name => '5 x 8 Dot'},
     {:id => 7, :name => 'Mosaic'},
     {:id => 8, :name => 'Bar Graph'},
   ]
