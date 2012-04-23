@@ -171,6 +171,7 @@ display_types: &_display_types
       web_list: model_number, module_diagonal_in, module_dimensions, active_area, resolution, active_area, backlight_type, operational_temperature, storage_temperature, interface_types, colors, touch_panel_type, luminance_nits
       m2m_group_code: TFTS
       m2m_product_class: TFTS
+      model_number_prefix: M7
     - key: glass_displays
       aliases: Display::GlassDisplay
       tab_names: Glass
@@ -179,6 +180,7 @@ display_types: &_display_types
       web_list: model_number, character_resolution, display_mode, module_dimensions, digit_height_mm, polarizer_mode, no_of_pins, operational_temperature
       m2m_group_code: GLASS
       m2m_product_class: GLASS
+      model_number_prefix: H4
     - key: graphic_module_displays
       tab_names: Graphic Displays
       name: Graphic Display
@@ -186,6 +188,7 @@ display_types: &_display_types
       web_list: model_number, resolution, bonding_type, pixel_color, display_mode, module_dimensions, viewing_area, display_mode, polarizer_mode, backlight_type, backlight_color, operational_temperature, storage_temperature, datasheet, datasheet_public, specification, source_specification, drawing
       m2m_group_code: MOD
       m2m_product_class: MODULES
+      model_number_prefix: M4
     - key: character_module_displays
       tab_names: Character Modules
       name: Character Module Display
@@ -193,6 +196,7 @@ display_types: &_display_types
       web_list: model_number, character_resolution, bonding_type, pixel_color, display_mode, module_dimensions, viewing_area, display_mode, polarizer_mode, backlight_type, backlight_color, operational_temperature, storage_temperature, datasheet, datasheet_public, specification, source_specification, drawing
       m2m_group_code: MOD
       m2m_product_class: MODULES
+      model_number_prefix: M4
     - key: oled_displays
       aliases: Display::OledDisplay
       tab_names: OLED
@@ -200,10 +204,12 @@ display_types: &_display_types
       fields: display_type, model_number, publish_to_web, publish_to_erp, module_diagonal_in, module_dimensions, resolution, colors, active_area, interface_types
       m2m_group_code: OLEDS
       m2m_product_class: OLEDS
+      model_number_prefix: L4
     - key: shutters
       fields: status, display_type, model_number, publish_to_web, publish_to_erp, active_area, backlight_type, backlight_color, bonding_type, character_resolution, colors, display_image, pixel_color, luminance_nits, module_dimensions, no_of_pins, operational_temperature, polarizer_mode, storage_temperature, display_mode, viewing_direction, datasheet, datasheet_public, specification, source_specification, drawing
       m2m_group_code: OTHER
       m2m_product_class: ACCESSORIES
+      model_number_prefix: A
       
     - key: module_displays
       deprecated: yup

@@ -33,6 +33,14 @@ class Doogle::DisplaysController < ApplicationController
   def show
     @display = current_object
   end
+  
+  def next_model_number
+    if (display_type = Doogle::DisplayConfig.find_by_key(params[:display_type])) and (next_model_number = Doogle::Display.next_model_number_for(display_type))
+      render :json => next_model_number
+    else
+      render :json => 'sorry failed'
+    end
+  end
 
   def new
     if dup_id = params[:dup]

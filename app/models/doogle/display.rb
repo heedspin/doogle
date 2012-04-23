@@ -535,6 +535,27 @@ class Doogle::Display < ApplicationModel
       nil
     end
   end
+  
+  def self.next_model_number_for(display_config)
+    result = self.connection.select_one <<-SQL
+    select max(model_number) from displays 
+    where type_key = '#{display_config.key}'
+    and model_number like '#{display_config.model_number_prefix}%'
+    SQL
+    model_number = result.values.first
+    if model_number.present?
+      if model_number =~ /(\w)(\d+)(\w)?/
+        prefix = $1
+        number = $2
+        revision = $3
+        prefix + number.succ + (revision || '')
+      else
+        model_number + ' + one'
+      end
+    else
+      display_config.model_number_prefix + '0000A' 
+    end
+  end
 
   def guess_character_resolutions
     columns = rows = nil

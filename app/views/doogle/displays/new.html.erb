@@ -10,3 +10,27 @@
     <li class="link"><%= link_to 'Cancel', (params[:return_to] || doogle_displays_url) %></li>
   <% end %>
 <% end %>
+
+<% content_for :javascripts do %>
+<script type="text/javascript">
+$(function() {
+  $("select#display_type_key").change(function(e) {
+		var display_type_value = $(this).children("option:selected").attr("value");
+		// console.log("display type: " + display_type_value);
+		$("input#display_model_number").val("Loading...");
+		$.ajax('<%= next_model_number_doogle_displays_url %>',
+			{
+				data: { display_type: display_type_value },
+				dataType: 'text',
+				success: function(d) {
+					$("input#display_model_number").val(d)
+				},
+				error: function(data) {
+					$("input#display_model_number").val(d)
+				}			
+			}
+		);
+  })
+})
+</script>
+<% end %>
