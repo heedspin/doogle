@@ -1,10 +1,10 @@
 <div class="submenu">
 	<ul>
-		<li class="<%= menu_selected(:controller => :doogle_displays) %>">
+		<li class="<%= menu_selected(:controller => :displays, :action => :index) %>">
 			<%= link_to 'Search', doogle_displays_url %>
 		</li>
 		<% if permitted_to?(:manage, :doogle_displays) %>
-		<li class="<%= menu_selected(:controller => :doogle_displays, :action => :new) %>">
+		<li class="<%= menu_selected(:controller => :displays, :action => :new) %>">
 			<%= link_to 'New Display', new_doogle_display_url %>
 		</li>
 		<% end %>
