@@ -1,10 +1,10 @@
 <% title 'New Display' %>
 
-<%= semantic_form_for @display, :as => :display, :url => displays_url do |f| %>
+<%= semantic_form_for @display, :as => :display, :url => doogle_displays_url do |f| %>
   <%= f.semantic_errors %>
   <%= render :partial=>'edit_form', :locals =>{:f=>f, :display => @display} %>
   <%= f.buttons do %>
     <%= f.commit_button 'Save' %>
-    <li class="link"><%= link_to 'Cancel', (params[:return_to] || displays_url) %></li>
+    <li class="link"><%= link_to 'Cancel', (params[:return_to] || doogle_displays_url) %></li>
   <% end %>
 <% end %>

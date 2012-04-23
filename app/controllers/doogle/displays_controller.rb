@@ -15,7 +15,8 @@ class Doogle::DisplaysController < ApplicationController
       display_scope = Doogle::Display
       Doogle::FieldConfig.all.select { |f| f.searchable? and !f.composite? }.each do |field|
         value_key = field.search_range? ? field.search_range_attribute : field.key
-        if (value = @search.send(value_key)).present?
+        value = @search.send(value_key)
+        if value.present? or value.is_a?(FalseClass)
           @field_keys.add field.composite_parent.key
           Rails.logger.debug "Scoping #{value_key} to #{value.to_s}"
           display_scope = display_scope.send(value_key, value)
@@ -34,7 +35,15 @@ class Doogle::DisplaysController < ApplicationController
   end
 
   def new
-    @display = build_object
+    if dup_id = params[:dup]
+      source = Doogle::Display.find(dup_id)
+      @display = source.dup
+      @display.interface_types = source.interface_types
+      @display.model_number = @display.model_number.succ
+      @display.errors.add(:model_number, "New revision of #{source.model_number}")
+    else
+      @display = build_object
+    end
   end
 
   def edit
@@ -43,13 +52,13 @@ class Doogle::DisplaysController < ApplicationController
 
   def create
     @display = build_object
-
+    @display.sync_to_erp
     if @display.save
       flash[:notice] = 'Display was successfully created.'
       if params[:commit] == 'Save & Edit'
         redirect_to(edit_doogle_display_url(@display, :return_to => params[:return_to]))
       else
-        redirect_back_or_default(doogle_display_url(@display))
+        redirect_to doogle_display_url(@display)
       end
     else
       render :action => "new"
@@ -110,11 +119,16 @@ class Doogle::DisplaysController < ApplicationController
         else
           @current_object = Doogle::Display.find_by_model_number(params[:id]) || (raise ActiveRecord::RecordNotFound)
         end
+        # @current_object.m2m_validations = true
       end
       @current_object
     end
 
     def build_object
-      @current_object ||= Doogle::Display.new(params[:display])
+      if @current_object.nil?
+        @current_object = Doogle::Display.new(params[:display])
+        # @current_object.m2m_validations = true
+      end
+      @current_object
     end
 end

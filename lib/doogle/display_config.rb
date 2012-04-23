@@ -140,4 +140,12 @@ class Doogle::DisplayConfig
     result
   end
   
+  def method_missing(mid, *args)
+    if config.member?(mid.to_s)
+      config[mid.to_s]
+    else
+      super
+    end
+  end
+  
 end

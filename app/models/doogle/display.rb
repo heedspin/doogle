@@ -150,6 +150,7 @@ class Doogle::Display < ApplicationModel
   active_hash_setter(Doogle::StandardClassification)
   has_many :display_interface_types, :class_name => 'Doogle::DisplayInterfaceType', :dependent => :destroy
   has_many :interface_types, :through => :display_interface_types, :source => :interface_type
+  belongs_to :item, :class_name => 'M2m::Item', :foreign_key => 'erp_id'
 
   [ [:datasheet, ':display_type/:model_number/LXD-:model_number-datasheet.:extension'],
     [:specification, ':display_type/:model_number/LXD-:model_number-spec.:extension'],
@@ -222,11 +223,15 @@ class Doogle::Display < ApplicationModel
     }
   }
   scope :web, :conditions => { :publish_to_web => true }
-  scope :datasheet_public, lambda { |bool|
+  %w(datasheet_public publish_to_web publish_to_erp).each do |key|
+    self.class_eval <<-RUBY
+    scope :#{key}, lambda { |v|
     {
-      :conditions => { :datasheet_public => bool }
+      :conditions => { :#{key} => v }
+                       }
     }
-  }
+    RUBY
+  end
 
   def destroy
     self.update_attributes(:status_id => Doogle::Status.deleted.id)
@@ -306,43 +311,106 @@ class Doogle::Display < ApplicationModel
     self.respond_to?(key) && self.send(key)
   end
 
-  def web_sync!
+  def sync_to_web
     dr = nil
     begin
       dr = Doogle::DisplayResource.find(self.id)
     rescue ActiveResource::ResourceNotFound
     end
-    dr ||= Doogle::DisplayResource.new(:id => self.id)
-    Doogle::FieldConfig.non_composites.each do |field|
-      if field.sync_to_web?
-        if field.has_many?
-          ids_method = field.column.to_s.singularize
-          dr.send("#{ids_method}_ids=", self.send("#{ids_method}_ids"))
-        elsif field.attachment?
-          [:file_name, :content_type, :file_size, :updated_at].each do |paperclip_key|
-            paperclip_column = "#{field.column}_#{paperclip_key}"
-            dr.send("#{paperclip_column}=", self.send(paperclip_column))
-          end
+    return if dr.nil? and (self.status.nil? or !self.status.published?)
+    if !self.publish_to_web
+      if dr.present?
+        dr.status = self.status
+        if dr.changed?
+          dr.save && :update
         else
-          dr.send("#{field.column}=", self.send(field.column))
+          :no_change
         end
-      end
-    end
-    if dr.save
-      if self.changed?
-        self.save
       else
-        true
+        :no_change
       end
     else
-      logger.error "Doogle::Display.web_sync! failed: " + dr.errors.full_messages.join("\n")
-      false
+      dr ||= Doogle::DisplayResource.new(:id => self.id)
+      Doogle::FieldConfig.non_composites.each do |field|
+        if field.sync_to_web?
+          if field.has_many?
+            ids_method = field.column.to_s.singularize
+            dr.send("#{ids_method}_ids=", self.send("#{ids_method}_ids"))
+          elsif field.attachment?
+            [:file_name, :content_type, :file_size, :updated_at].each do |paperclip_key|
+              paperclip_column = "#{field.column}_#{paperclip_key}"
+              dr.send("#{paperclip_column}=", self.send(paperclip_column))
+            end
+          else
+            dr.send("#{field.column}=", self.send(field.column))
+          end
+        end
+      end
+      success_result = dr.new_record? ? :create : :update
+      dr.save ? success_result : :error
     end
   end
 
-  def self.web_sync
-    self.all.each(&:web_sync!)
+  def sync_from_erp!(item)
+    @in_sync_from_erp = true
+    begin
+      self.item = item
+      self.model_number = item.part_number
+      self.save!
+    ensure
+      @in_sync_from_erp = false
+    end
   end
+  
+  def sync_to_erp
+    return unless self.publish_to_erp
+    product_class_number = M2m::ProductClass.with_name(self.display_type.m2m_product_class).first.try(:number) || (raise "No m2m product class for display type #{self.display_type.key} with name #{self.display_type.m2m_product_class}")
+    if item = self.item
+      item.product_class_key = product_class_number
+      unless item.group_code_key.strip == self.display_type.m2m_group_code
+        # Trailing whitespace lead to unnecessary updates.
+        item.group_code_key = self.display_type.m2m_group_code
+      end
+      if item.changed?
+        unless item.save
+          item.errors.each do |error|
+            self.errors.add_to_base error.message
+          end
+          return false
+        end
+      end
+    elsif item = M2m::Item.with_part_number(self.model_number).first
+      self.item = item
+    else
+      item = M2m::Item.new
+      item.part_number = self.model_number
+      item.revision = ''
+      item.location = 'WAREHOUSE'
+      item.description = self.display_type.name
+      item.product_class_key = product_class_number
+      item.group_code_key = self.display_type.m2m_group_code
+      item.measure1 = item.measure2 = 'EA'
+      item.source = M2m::ItemSource.buy
+      item.abc_code = 'A'
+      unless item.save
+        item.errors.each do |error|
+          self.errors.add_to_base error.message
+        end
+      end
+      self.erp_id = item.id
+    end
+    true
+  end
+  
+  # attr_accessor :m2m_validations
+  # 
+  # validate :model_number_unique_in_erp, :on => :create
+  # def model_number_unique_in_erp
+  #   return unless self.m2m_validations
+  #   if item = M2m::Item.with_part_number(self.model_number)
+  #     errors.add(:model_number, "m2m part #{self.model_number} already exists")
+  #   end
+  # end
 
   def guess_resolutions
     if !self.graphic_display?
@@ -638,7 +706,7 @@ class Doogle::Display < ApplicationModel
       self.digit_height_mm = (self._digit_height.to_f * MM_PER_INCH).round(MM_PRECISION)
     end
   end
-  
+
   def guess_datasheet
     unless datasheet_exists = self.datasheet.exists?
       location = File.join(AppConfig.doogle_datasheets_directory, "LXD-#{self.model_number.upcase}.pdf")
@@ -660,9 +728,7 @@ class Doogle::Display < ApplicationModel
     end
   end
 
-  # rails console
-  # Doogle::Display.gr!
-  def self.gr!
+  def self.g!
     find_each { |d| d.guess_ranges! }
   end
   def guess_ranges!

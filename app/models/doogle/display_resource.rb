@@ -1,5 +1,5 @@
 class Doogle::DisplayResource < ActiveResource::Base
-  self.site = 'http://lxdinc.dev/doogle'
+  self.site = AppConfig.doogle_lxdinc_site
   self.format = :json
   
   def save
