@@ -1,5 +1,7 @@
+<%= render 'submenu' %>
+
 <% title 'Editing Display' %>
-<%= semantic_form_for @display, :as => :display, :url => doogle_display_path(@display) do |f| %>
+<%= semantic_form_for @display, :as => :display, :url => doogle_display_path(@display), :html => {:class => 'doogle'} do |f| %>
   <%= hidden_field_tag :_method, :put %>
   <%= f.semantic_errors %>
   <%= render :partial=>'edit_form', :locals =>{:f=>f} %>

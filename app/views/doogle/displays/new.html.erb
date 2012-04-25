@@ -2,7 +2,7 @@
 
 <% title 'New Display' %>
 
-<%= semantic_form_for @display, :as => :display, :url => doogle_displays_url do |f| %>
+<%= semantic_form_for @display, :as => :display, :url => doogle_displays_url, :html => {:class => 'doogle'} do |f| %>
   <%= f.semantic_errors %>
   <%= render :partial=>'edit_form', :locals =>{:f=>f, :display => @display} %>
   <%= f.buttons do %>
