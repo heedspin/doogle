@@ -9,7 +9,7 @@
 		<% elsif field.has_many? %>
 		<%= f.input field.key, :as => :check_boxes, :collection => field.has_many_class.all %>
 		<% elsif field.belongs_to? %>
-		<%= f.input field.key, :as => :select, :collection => field.belongs_to_class.all %>
+		<%= f.input field.key, :as => :select, :collection => field.belongs_to_class.all, :member_label => field.belongs_to_class_member_label %>
 		<% elsif field.dimension? %>
 		<%= render 'dimension', :f => f, :display => @display, :field => field, :search => false %>
 		<% elsif field.attachment? %>
