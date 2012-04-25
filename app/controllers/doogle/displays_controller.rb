@@ -46,6 +46,7 @@ class Doogle::DisplaysController < ApplicationController
     if dup_id = params[:dup]
       source = Doogle::Display.find(dup_id)
       @display = source.dup
+      @display.forget_attachments
       @display.interface_types = source.interface_types
       @display.model_number = @display.model_number.succ
       @display.errors.add(:model_number, "New revision of #{source.model_number}")

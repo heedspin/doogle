@@ -790,6 +790,12 @@ class Doogle::Display < ApplicationModel
     self.guess_datasheet
     self.save! if self.changed?
   end
+  
+  def forget_attachments
+    %w(datasheet_public datasheet_updated_at datasheet_file_size datasheet_content_type datasheet_file_name source_specification_updated_at source_specification_file_size source_specification_content_type source_specification_file_name specification_public specification_updated_at specification_file_size specification_content_type specification_file_name drawing_public drawing_updated_at drawing_file_size drawing_content_type drawing_file_name).each do |field|
+      write_attribute(field, nil)
+    end
+  end
 end
 
 Paperclip.interpolates :model_number do |attachment, style|
