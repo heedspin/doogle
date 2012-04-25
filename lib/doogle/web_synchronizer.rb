@@ -9,6 +9,7 @@ class Doogle::WebSynchronizer
     @web_updates = 0
     @web_no_change = 0
     @web_errors = 0
+    @web_deletes = 0
   end
 
   def run_in_background!
@@ -35,6 +36,8 @@ class Doogle::WebSynchronizer
       @web_creates += 1
     when :update
       @web_updates += 1
+    when :delete
+      @web_deletes += 1
     when :no_change
       @web_no_change += 1
     when :error
@@ -46,6 +49,7 @@ class Doogle::WebSynchronizer
     <<-TEXT
     #{@web_creates} creates
     #{@web_updates} updates
+    #{@web_deletes} deletes
     #{@web_no_change} no changes
     #{@web_errors} errors
     TEXT

@@ -217,6 +217,15 @@ class Doogle::FieldConfig
     end
     @belongs_to_class
   end
+  
+  def belongs_to_class_member_label
+    return nil unless belongs_to?
+    if belongs_to_class.respond_to?(:member_label)
+      belongs_to_class.member_label
+    else
+      :name
+    end
+  end
 
   def has_many?
     if @has_many.nil?

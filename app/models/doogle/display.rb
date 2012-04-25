@@ -328,12 +328,8 @@ class Doogle::Display < ApplicationModel
     return if dr.nil? and (self.status.nil? or !self.status.published?)
     if !self.publish_to_web
       if dr.present?
-        dr.status = self.status
-        if dr.changed?
-          dr.save && :update
-        else
-          :no_change
-        end
+        dr.destroy
+        :delete
       else
         :no_change
       end
@@ -539,8 +535,7 @@ class Doogle::Display < ApplicationModel
   def self.next_model_number_for(display_config)
     result = self.connection.select_one <<-SQL
     select max(model_number) from displays 
-    where type_key = '#{display_config.key}'
-    and model_number like '#{display_config.model_number_prefix}%'
+    where model_number like '#{display_config.model_number_prefix}%'
     SQL
     model_number = result.values.first
     if model_number.present?
@@ -553,7 +548,7 @@ class Doogle::Display < ApplicationModel
         model_number + ' + one'
       end
     else
-      display_config.model_number_prefix + '0000A' 
+      display_config.model_number_prefix + '000A' 
     end
   end
 
@@ -649,6 +644,8 @@ class Doogle::Display < ApplicationModel
     end
     if result
       self.type_key = result
+    elsif self.type_key == :glass_displays
+      self.type_key = :segment_glass_displays
     end
   end
 
