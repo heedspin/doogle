@@ -3,8 +3,8 @@ require 'logger_utils'
 class Doogle::WebSynchronizer
   include LoggerUtils
 
-  def initialize(display=nil)
-    @display_id = display.id
+  def initialize(display_id=nil)
+    @display_id = display_id
     @web_creates = 0
     @web_updates = 0
     @web_no_change = 0
@@ -20,7 +20,7 @@ class Doogle::WebSynchronizer
     end
   end
 
-  # require 'doogle/display_synchronizer' ; puts Doogle::WebSynchronizer.new.sync_all_displays
+  # require 'doogle/web_synchronizer' ; puts Doogle::WebSynchronizer.new.sync_all_displays
   def sync_all_displays
     # TODO: add time window here?
     Doogle::Display.find_each do |display|

@@ -315,7 +315,7 @@ class Doogle::Display < ApplicationModel
   def maybe_sync_to_web
     # Ignore draft changes.  Deletes and publishes go live.
     if !self.status.draft?
-      Doogle::WebSynchronizer.new(self).run_in_background!
+      Doogle::WebSynchronizer.new(self.id).run_in_background!
     end
   end
 
