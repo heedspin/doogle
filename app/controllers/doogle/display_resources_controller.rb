@@ -51,7 +51,9 @@ class Doogle::DisplayResourcesController < ApplicationController
 
     before_filter :require_api_key
     def require_api_key
-      (params[:api_key] == AppConfig.doogle_api_key)
+      unless (params[:api_key] == AppConfig.doogle_api_key)
+        not_authorized
+      end
     end
 
     def build_object
