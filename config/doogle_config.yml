@@ -227,6 +227,8 @@ display_types: &_display_types
       deprecated: yup
     - key: small_tft_displays
       deprecated: yup
+    - key: glass_displays
+      deprecated: yup
   
 shared_config: &shared_config
   company_name: LXD Research & Display
