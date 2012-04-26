@@ -1,8 +1,12 @@
 module StaticModel
   module ClassMethods
     def data=(configs)
-      configs.each do |config|
-        add_static_model(config)
+      begin
+        configs.each do |config|
+          add_static_model(config)
+        end
+      rescue ActiveRecord::StatementInvalid
+        # Migrations have not been run yet.  Ignore.
       end
     end
     def add_static_model(config)
