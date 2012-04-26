@@ -346,7 +346,10 @@ class Doogle::Display < ApplicationModel
               dr.send("#{paperclip_column}=", self.send(paperclip_column))
             end
           else
-            dr.send("#{field.column}=", self.send(field.column))
+            # Avoid sending empty string (which will end up being different from nil).
+            unless dr.send(field.column) == self.send(field.column)
+              dr.send("#{field.column}=", self.send(field.column))
+            end
           end
         end
       end
