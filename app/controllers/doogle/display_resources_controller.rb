@@ -58,7 +58,7 @@ class Doogle::DisplayResourcesController < ApplicationController
       if @current_object.nil?
         id = nil
         if display_params = params[:display_resource]
-          id = display_params.delete(:id)
+          id = display_params.delete(:new_display_id)
         end
         @current_object = Doogle::Display.new(display_params)
         @current_object.id = id if id

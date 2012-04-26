@@ -334,7 +334,7 @@ class Doogle::Display < ApplicationModel
         :no_change
       end
     else
-      dr ||= Doogle::DisplayResource.new(:id => self.id)
+      dr ||= Doogle::DisplayResource.new(:new_display_id => self.id)
       Doogle::FieldConfig.non_composites.each do |field|
         if field.sync_to_web?
           if field.has_many?
