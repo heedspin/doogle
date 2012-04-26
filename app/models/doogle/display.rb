@@ -347,7 +347,7 @@ class Doogle::Display < ApplicationModel
             end
           else
             # Avoid sending empty string (which will end up being different from nil).
-            unless dr.send(field.column) == self.send(field.column)
+            unless !dr.send(field.column).present? and !self.send(field.column).present?
               dr.send("#{field.column}=", self.send(field.column))
             end
           end
