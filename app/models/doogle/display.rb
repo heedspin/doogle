@@ -322,7 +322,7 @@ class Doogle::Display < ApplicationModel
   def sync_to_web
     dr = nil
     begin
-      dr = Doogle::DisplayResource.find(self.id)
+      dr = Doogle::DisplayResource.authorized_find(self.id)
     rescue ActiveResource::ResourceNotFound
     end
     return if dr.nil? and (self.status.nil? or !self.status.published?)
@@ -793,6 +793,23 @@ class Doogle::Display < ApplicationModel
       write_attribute(field, nil)
     end
   end
+  
+  attr_accessor :current_user
+  
+  protected
+  
+    after_create :log_create
+    def log_create
+      Doogle::DisplayLog.create(:display => self, :user_id => current_user.try(:id), :summary => 'Create', :details => "status = #{self.status.name}")
+    end
+    before_destroy :log_destroy
+    def log_destroy
+      Doogle::DisplayLog.create(:display => self, :user_id => current_user.try(:id), :summary => 'Destroy')
+    end
+    before_update :log_update
+    def log_update
+      Doogle::DisplayLog.create(:display => self, :user_id => current_user.try(:id), :summary => 'Update', :details => self.changes.inspect)
+    end
 end
 
 Paperclip.interpolates :model_number do |attachment, style|

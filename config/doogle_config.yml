@@ -221,15 +221,6 @@ display_types: &_display_types
       m2m_product_class: ACCESSORIES
       model_number_prefix: A
       
-    - key: module_displays
-      deprecated: yup
-    - key: sunlight_tft_displays
-      deprecated: yup
-    - key: small_tft_displays
-      deprecated: yup
-    - key: glass_displays
-      deprecated: yup
-  
 shared_config: &shared_config
   company_name: LXD Research & Display
   <<: *_display_fields

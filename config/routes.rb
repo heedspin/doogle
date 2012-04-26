@@ -6,6 +6,7 @@ Rails.application.routes.draw do
       end
     end
     resources :display_resources, :only => [ :show, :create, :update, :destroy ]
+    resources :display_logs, :only => [ :show, :index ]
   end
   resources :display_assets, :only => [ :show ]
 end

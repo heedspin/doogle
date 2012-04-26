@@ -133,7 +133,7 @@ class Doogle::DisplaysController < ApplicationController
         else
           @current_object = Doogle::Display.find_by_model_number(params[:id]) || (raise ActiveRecord::RecordNotFound)
         end
-        # @current_object.m2m_validations = true
+        @current_object.current_user = current_user
       end
       @current_object
     end
@@ -141,7 +141,7 @@ class Doogle::DisplaysController < ApplicationController
     def build_object
       if @current_object.nil?
         @current_object = Doogle::Display.new(params[:display])
-        # @current_object.m2m_validations = true
+        @current_object.current_user = current_user
       end
       @current_object
     end
