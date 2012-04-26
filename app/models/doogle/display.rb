@@ -311,7 +311,7 @@ class Doogle::Display < ApplicationModel
     key = "#{key}_public"
     self.respond_to?(key) && self.send(key)
   end
-  
+
   def maybe_sync_to_web
     # Ignore draft changes.  Deletes and publishes go live.
     if !self.status.draft?
@@ -368,7 +368,7 @@ class Doogle::Display < ApplicationModel
       @in_sync_from_erp = false
     end
   end
-  
+
   def sync_to_erp
     return unless self.publish_to_erp
     product_class_number = M2m::ProductClass.with_name(self.display_type.m2m_product_class).first.try(:number) || (raise "No m2m product class for display type #{self.display_type.key} with name #{self.display_type.m2m_product_class}")
@@ -408,9 +408,9 @@ class Doogle::Display < ApplicationModel
     end
     true
   end
-  
+
   # attr_accessor :m2m_validations
-  # 
+  #
   # validate :model_number_unique_in_erp, :on => :create
   # def model_number_unique_in_erp
   #   return unless self.m2m_validations
@@ -534,10 +534,10 @@ class Doogle::Display < ApplicationModel
       nil
     end
   end
-  
+
   def self.next_model_number_for(display_config)
     result = self.connection.select_one <<-SQL
-    select max(model_number) from displays 
+    select max(model_number) from displays
     where model_number like '#{display_config.model_number_prefix}%'
     SQL
     model_number = result.values.first
@@ -551,7 +551,7 @@ class Doogle::Display < ApplicationModel
         model_number + ' + one'
       end
     else
-      display_config.model_number_prefix + '000A' 
+      display_config.model_number_prefix + '000A'
     end
   end
 
@@ -790,17 +790,17 @@ class Doogle::Display < ApplicationModel
     self.guess_datasheet
     self.save! if self.changed?
   end
-  
+
   def forget_attachments
     %w(datasheet_public datasheet_updated_at datasheet_file_size datasheet_content_type datasheet_file_name source_specification_updated_at source_specification_file_size source_specification_content_type source_specification_file_name specification_public specification_updated_at specification_file_size specification_content_type specification_file_name drawing_public drawing_updated_at drawing_file_size drawing_content_type drawing_file_name).each do |field|
       write_attribute(field, nil)
     end
   end
-  
+
   attr_accessor :current_user
-  
+
   protected
-  
+
     after_create :log_create
     def log_create
       Doogle::DisplayLog.create(:display => self, :user_id => current_user.try(:id), :summary => 'Create', :details => "status = #{self.status.name}")
@@ -811,7 +811,13 @@ class Doogle::Display < ApplicationModel
     end
     before_update :log_update
     def log_update
-      Doogle::DisplayLog.create(:display => self, :user_id => current_user.try(:id), :summary => 'Update', :details => self.changes.inspect)
+      filtered_changes = self.changes.clone
+      filtered_changes.delete('created_at')
+      filtered_changes.delete('updated_at')
+      Doogle::DisplayLog.create(:display => self,
+                                :user_id => current_user.try(:id),
+                                :summary => 'Update',
+                                :details => filtered_changes.inspect)
     end
 end
 
