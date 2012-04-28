@@ -5,35 +5,7 @@
 #  id                                :integer(4)      not null, primary key
 #  type_key                          :string(255)
 #  model_number                      :string(255)
-#  _number_of_digits                 :string(255)
-#  _technology_type                  :string(255)
-#  _module_dimensions                :string(255)
-#  _digit_height                     :string(255)
-#  _polarizer_mode                   :string(255)
-#  _number_of_pins                   :string(255)
-#  _configuration                    :string(255)
-#  _lcd_type                         :string(255)
-#  _viewing_dimensions               :string(255)
-#  _diagonal_size                    :string(255)
-#  _dot_format                       :string(255)
-#  _brightness                       :string(255)
-#  _contrast                         :string(255)
-#  _backlight_type                   :string(255)
-#  _backlight_color                  :string(255)
-#  _viewing_angle                    :string(255)
-#  _operational_temperature          :string(255)
-#  _storage_temperature              :string(255)
-#  _interface                        :string(255)
-#  _resolution                       :string(255)
-#  _weight                           :string(255)
-#  _power_consumption                :string(255)
-#  _active_area                      :string(255)
-#  _outline_dimensions               :string(255)
-#  _view_direction                   :string(255)
-#  _bonding_type                     :string(255)
-#  _pixel_configuration              :string(255)
 #  integrated_controller             :string(255)
-#  _operating_voltage                :string(255)
 #  status_id                         :integer(4)
 #  creator_id                        :integer(4)
 #  updater_id                        :integer(4)
@@ -41,11 +13,6 @@
 #  updated_at                        :datetime
 #  position                          :integer(4)
 #  colors                            :string(255)
-#  _dot_size                         :string(255)
-#  _dot_pitch                        :string(255)
-#  _thickness                        :string(255)
-#  _integrated_circuit               :string(255)
-#  _panel_size                       :string(255)
 #  source_id                         :integer(4)
 #  source_model_number               :string(255)
 #  datasheet_file_name               :string(255)
@@ -101,6 +68,7 @@
 #  publish_to_erp                    :boolean(1)
 #  erp_id                            :integer(4)
 #  publish_to_web                    :boolean(1)
+#  web_id                            :integer(4)
 #  needs_pushed_to_web               :boolean(1)
 #  viewing_cone                      :integer(4)
 #  datasheet_public                  :boolean(1)
@@ -118,6 +86,7 @@
 #  drawing_file_size                 :integer(4)
 #  drawing_updated_at                :datetime
 #  drawing_public                    :boolean(1)
+#  description                       :string(255)
 #
 
 # tim@concerto:~/Dropbox/p/lxd_m2mhub$ bundle exec annotate --model-dir ../doogle/app/models
@@ -393,7 +362,7 @@ class Doogle::Display < ApplicationModel
       item.part_number = self.model_number
       item.revision = ''
       item.location = 'WAREHOUSE'
-      item.description = self.display_type.name
+      item.description = self.description
       item.product_class_key = product_class_number
       item.group_code_key = self.display_type.m2m_group_code
       item.measure1 = item.measure2 = 'EA'
@@ -532,26 +501,6 @@ class Doogle::Display < ApplicationModel
       "#{self.character_columns} x #{self.character_rows}"
     else
       nil
-    end
-  end
-
-  def self.next_model_number_for(display_config)
-    result = self.connection.select_one <<-SQL
-    select max(model_number) from displays
-    where model_number like '#{display_config.model_number_prefix}%'
-    SQL
-    model_number = result.values.first
-    if model_number.present?
-      if model_number =~ /(\w)(\d+)(\w)?/
-        prefix = $1
-        number = $2
-        revision = $3
-        prefix + number.succ + (revision || '')
-      else
-        model_number + ' + one'
-      end
-    else
-      display_config.model_number_prefix + '000A'
     end
   end
 

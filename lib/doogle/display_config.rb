@@ -1,5 +1,5 @@
 class Doogle::DisplayConfig
-  def self.for_keys(*args)
+  def self.map
     if @map.nil?
       @map = {}
       self.all.each do |config|
@@ -9,8 +9,11 @@ class Doogle::DisplayConfig
         end
       end
     end
+    @map
+  end
+  def self.for_keys(*args)
     if args and (args.size > 0)
-      args.flatten.map { |a| @map[a.to_s] }
+      args.flatten.map { |a| self.map[a.to_s] }
     else
       nil
     end
@@ -138,6 +141,41 @@ class Doogle::DisplayConfig
       result[display_config.key] = display_config.fields.map(&:key)
     end
     result
+  end
+  
+  def max_model_number
+    result = if self.key == :tft_displays
+      Doogle::Display.connection.select_one <<-SQL
+      select max(substring(model_number, 2)) from displays
+      where (model_number like "_7%")
+      SQL
+    else
+      Doogle::Display.connection.select_one <<-SQL
+      select max(substring(model_number, 2)) from displays
+      where ((model_number like "H%")
+         or (model_number like "M%")
+         or (model_number like "A%")
+         or (model_number like "L%"))
+        and (model_number not like "_7%")
+      SQL
+    end
+    if result.values.size > 0
+      self.model_number_prefix + result.values.first
+    else
+      self.model_number_prefix + '000A'
+    end
+  end
+  
+  def next_model_number
+    model_number = self.max_model_number
+    if model_number =~ /(\w)(\d+)(\w)?/
+      prefix = $1
+      number = $2
+      revision = $3
+      prefix + number.succ + 'A'
+    else
+      model_number.succ
+    end
   end
   
   def method_missing(mid, *args)

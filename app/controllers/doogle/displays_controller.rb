@@ -35,7 +35,7 @@ class Doogle::DisplaysController < ApplicationController
   end
   
   def next_model_number
-    if (display_type = Doogle::DisplayConfig.find_by_key(params[:display_type])) and (next_model_number = Doogle::Display.next_model_number_for(display_type))
+    if (display_type = Doogle::DisplayConfig.find_by_key(params[:display_type])) and (next_model_number = display_type.next_model_number)
       render :json => next_model_number
     else
       render :json => 'sorry failed'
@@ -59,6 +59,7 @@ class Doogle::DisplaysController < ApplicationController
 
   def edit
     @display = current_object
+    @display.description ||= @display.display_type.name
   end
 
   def create
