@@ -1,7 +1,7 @@
 <%= render 'submenu' %>
 
 <% title 'New Display' %>
-
+<h2>New Display</h2>
 <%= semantic_form_for @display, :as => :display, :url => doogle_displays_url, :html => {:class => 'doogle'} do |f| %>
   <%= f.semantic_errors %>
   <%= render :partial=>'edit_form', :locals =>{:f=>f, :display => @display} %>

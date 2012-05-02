@@ -4,7 +4,13 @@
 	<%= f.input :id, :input_html => { :readonly => 'readonly' } %>
 	<% end %>
 	<% Doogle::FieldConfig.main.each do |field| %>
-		<% if field.display_type? %>
+		<% if field.model_number? %>
+		<% if @display.new_record? %>
+		<%= f.input :model_number %>
+		<% else %>
+		<%= f.input :model_number, :input_html => { :readonly => 'readonly' } %>
+		<% end %>
+		<% elsif field.display_type? %>
 		<%= f.input :type_key, :as => :select, :collection => Doogle::DisplayConfig.all, :label => 'Type' %>
 		<% elsif field.has_many? %>
 		<%= f.input field.key, :as => :check_boxes, :collection => field.has_many_class.all %>

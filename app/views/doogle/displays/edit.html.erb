@@ -1,6 +1,7 @@
 <%= render 'submenu' %>
 
-<% title 'Editing Display' %>
+<% title "Editing #{@display.model_number}" %>
+<h2>Editing <%= @display.model_number %></h2>
 <%= semantic_form_for @display, :as => :display, :url => doogle_display_path(@display), :html => {:class => 'doogle'} do |f| %>
   <%= hidden_field_tag :_method, :put %>
   <%= f.semantic_errors %>
