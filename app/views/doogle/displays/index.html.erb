@@ -25,7 +25,11 @@ $(function() {
 		$('form#search_new').clearForm();
 		$("#search_results").html("");
 		return false;
-	})
+	});
+	$("input.create").click(function() {
+    $('form').ajaxSubmit(options);
+		return false;
+	});
 });
 </script>
 <% end %>
@@ -34,10 +38,14 @@ $(function() {
 
 <% title 'Display Search' %>
 
-<%= link_to 'Clear Form', '#', :class => 'clear_form' %>
-
 <%= semantic_form_for @search, :as => :search, :url => doogle_displays_path, :html => {:method => :get, :class => 'doogle'} do |f| %>
 <%= render :partial=>'search_form', :locals =>{:f=>f} %>
+<%= f.buttons do %>
+  <%= f.commit_button 'Search' %>
+	<li>
+		<%= link_to 'Clear Form', '#', :class => 'clear_form' %>
+	</li>
+<% end %>
 <% end %>
 
 <div id="inprogress" class="hide display_search">

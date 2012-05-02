@@ -1,6 +1,14 @@
+<% include_closed_details_javascript('Advanced', 'Simple') %>
 <%= f.inputs do %>
+	<%= f.input :model_number %>
+	<li>
+		<a href="#"><span class="show_closed_details" id="closed_details">Advanced</span></a>
+	</li>
+<% end %>
+<%= f.inputs :class => 'inputs closed_details xclosed_details' do %>
   <%#= f.input :type, :as => :select, :collection => Doogle::DisplayConfig.options %>
 	<% Doogle::FieldConfig.searchable.each do |field| %>
+		<% next if field.model_number? %>
 		<% if field.display_type? %>
 		<%= f.input :type_key, :as => :select, :collection => Doogle::DisplayConfig.all, :label => 'Type' %>
 		<% elsif field.search_range? %>

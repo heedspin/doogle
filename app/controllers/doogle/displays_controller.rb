@@ -8,9 +8,6 @@ class Doogle::DisplaysController < ApplicationController
     # Doogle::DisplayConfig.all
     search_params = params[:search]
     @search = Doogle::Display.new(search_params)
-    unless search_params.present?
-      @search.status ||= Doogle::Status.published
-    end
     # Rails.logger.debug "Search params: #{search_params.inspect}\nSearch object: #{@search.inspect}"
     if search_params
       @field_keys = Set.new ; @field_keys.add :model_number ; @field_keys.add :type
@@ -20,8 +17,11 @@ class Doogle::DisplaysController < ApplicationController
         value = @search.send(value_key)
         if value.present? or value.is_a?(FalseClass)
           @field_keys.add field.composite_parent.key
-          Rails.logger.debug "Scoping #{value_key} to #{value.to_s}"
+          # Rails.logger.debug "Scoping #{value_key} to #{value.to_s}"
           display_scope = display_scope.send(value_key, value)
+        elsif field.status?
+          @field_keys.add field.composite_parent.key
+          display_scope = display_scope.not_deleted
         end
       end
       @displays = display_scope.by_model_number.paginate(:page => params[:page], :per_page => 50)
