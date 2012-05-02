@@ -27,7 +27,7 @@ module DoogleHelper
     else
       txt
     end
-    result.html_safe
+    result.try(:html_safe)
   end
   
   def render_field(display, field)
