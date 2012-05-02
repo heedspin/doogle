@@ -27,6 +27,11 @@
 					<%= link_to 'Datasheet', doogle_asset_path(display, :datasheet) %>
 				</td>
 				<% end %>
+				<% if display.specification? %>
+			  <td>
+					<%= link_to 'Specification', doogle_asset_path(display, :specification) %>
+				</td>
+				<% end %>
       </tr>
     <% end %>
   </tbody>
