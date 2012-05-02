@@ -7,15 +7,15 @@ _display_fields: &_display_fields
       belongs_to: DisplayConfig
       column: type_key
       web: sync_only
-    - key: model_number
     - key: description
+    - key: model_number
+    - key: source_model_number
+      web: false
     - key: publish_to_web
       search_as: select
       web: false
     - key: publish_to_erp
       search_as: select
-      web: false
-    - key: source_model_number
       web: false
     - key: source
       belongs_to: DisplaySource
@@ -173,7 +173,7 @@ display_types: &_display_types
   display_types:
     - key: tft_displays
       name: Digital TFT Display
-      fields: status, display_type, model_number, description, publish_to_web, publish_to_erp, bonding_type, polarizer_mode, viewing_direction, module_diagonal_in, module_dimensions, viewing_area, active_area, resolution, active_area, backlight_type, operational_temperature, storage_temperature, interface_types, colors, touch_panel_type, datasheet, datasheet_public, specification, source_specification, drawing, luminance_nits, integrated_controller, logic_operating_voltage, target_environment, comments, standard_classification
+      fields: status, display_type, model_number, source_model_number, description, publish_to_web, publish_to_erp, bonding_type, polarizer_mode, viewing_direction, module_diagonal_in, module_dimensions, viewing_area, active_area, resolution, active_area, backlight_type, operational_temperature, storage_temperature, interface_types, colors, touch_panel_type, datasheet, datasheet_public, specification, source_specification, drawing, luminance_nits, integrated_controller, logic_operating_voltage, target_environment, comments, standard_classification
       web_list: model_number, module_diagonal_in, module_dimensions, active_area, resolution, active_area, backlight_type, operational_temperature, storage_temperature, interface_types, colors, touch_panel_type, luminance_nits
       m2m_group_code: TFTS
       m2m_product_class: TFTS
