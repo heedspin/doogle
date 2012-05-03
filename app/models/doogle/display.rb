@@ -202,6 +202,11 @@ class Doogle::Display < ApplicationModel
     }
     RUBY
   end
+  scope :description, lambda { |text|
+    {
+      :conditions => [ 'LOWER(displays.description) like ?', '%' + (text.strip.downcase || '') + '%' ]
+    }
+  }
 
   def destroy
     self.update_attributes(:status_id => Doogle::Status.deleted.id)

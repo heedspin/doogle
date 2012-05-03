@@ -12,7 +12,7 @@
 		<% if field.display_type? %>
 		<%= f.input :type_key, :as => :select, :collection => Doogle::DisplayConfig.all, :label => 'Type' %>
 		<% elsif field.search_range? %>
-		<li class="select input optional" id="display_<%= field.key %>_input" style="display: block; "><label class=" label" for="display_<%= field.key %>"><%= field.label %></label>
+		<li class="select input optional" id="display_<%= field.key %>_input" style="display: block; "><label class=" label" for="search_<%= field.key %>"><%= field.label %></label>
 			<%= range_select_tag @search, field %>
 		</li>
 		<% elsif field.has_many? %>
