@@ -22,6 +22,7 @@ class Doogle::InterfaceType < ApplicationModel
     {:id => 8,  :name => 'MCU'},
     {:id => 9,  :name => 'PC'},
     {:id => 10, :name => 'MIPI'},
-    {:id => 11, :name => 'MPU'}
+    {:id => 11, :name => 'MPU'},
+    {:id => 12, :name => 'Serial'}
   ]
 end
