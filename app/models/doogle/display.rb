@@ -97,7 +97,7 @@ require 'acts_as_list'
 require 'doogle/web_synchronizer'
 
 class Doogle::Display < ApplicationModel
-  validates_uniqueness_of :model_number
+  validates_uniqueness_of :model_number, :source_model_number
 
   attr_accessor :display_type
   include ActiveHashSetter
