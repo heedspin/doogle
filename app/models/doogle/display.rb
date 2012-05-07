@@ -87,6 +87,7 @@
 #  drawing_updated_at                :datetime
 #  drawing_public                    :boolean(1)
 #  description                       :string(255)
+#  gamma_required                    :boolean(1)
 #
 
 # tim@concerto:~/Dropbox/p/lxd_m2mhub$ bundle exec annotate --model-dir ../doogle/app/models
@@ -205,6 +206,11 @@ class Doogle::Display < ApplicationModel
   scope :description, lambda { |text|
     {
       :conditions => [ 'LOWER(displays.description) like ?', '%' + (text.strip.downcase || '') + '%' ]
+    }
+  }
+  scope :gamma_required, lambda { |gr|
+    {
+      :conditions => { :gamma_required => gr }
     }
   }
 
