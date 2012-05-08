@@ -100,6 +100,7 @@ require 'doogle/web_synchronizer'
 class Doogle::Display < ApplicationModel
   validates_uniqueness_of :model_number
   validates_uniqueness_of :source_model_number, :allow_blank => true
+  validates_presence_of :type_key, :status
 
   attr_accessor :display_type
   include ActiveHashSetter
