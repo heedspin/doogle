@@ -214,6 +214,11 @@ class Doogle::Display < ApplicationModel
       :conditions => { :gamma_required => gr }
     }
   }
+  scope :source_model_number, lambda { |text|
+    {
+      :conditions => [ 'LOWER(displays.source_model_number) like ?', '%' + (text.strip.downcase || '') + '%' ]
+    }
+  }
 
   def destroy
     self.update_attributes(:status_id => Doogle::Status.deleted.id)
