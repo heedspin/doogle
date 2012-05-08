@@ -27,6 +27,7 @@ class Doogle::WebSynchronizer
       sync_single_display(display)
     end
     self.results
+    true
   end
 
   def sync_single_display(display=nil)
@@ -43,6 +44,7 @@ class Doogle::WebSynchronizer
     when :error
       @web_errors += 1
     end
+    true
   end
 
   def results
