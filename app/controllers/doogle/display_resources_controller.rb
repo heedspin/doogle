@@ -1,4 +1,4 @@
-class Doogle::DisplayResourcesController < ApplicationController
+class Doogle::DisplayResourcesController < Doogle::DoogleController
   skip_before_filter :require_login
   respond_to :json
 

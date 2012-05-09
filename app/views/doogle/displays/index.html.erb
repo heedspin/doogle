@@ -49,7 +49,7 @@ $(function() {
 <% end %>
 
 <div id="inprogress" class="hide display_search">
-	Searching... <%= image_tag 'inprogress.gif' %>
+	Searching... <%= image_tag(AppConfig.in_progress_image || 'inprogress.gif') %>
 </div>
 
 <div id="search_results">

@@ -1,9 +1,6 @@
 require 'doogle_config'
 
-class Doogle::DisplaysController < ApplicationController
-  filter_access_to :all
-  # helper :range_select_tag
-
+class Doogle::DisplaysController < Doogle::DoogleController
   def index
     # Doogle::DisplayConfig.all
     search_params = params[:search]

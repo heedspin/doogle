@@ -1,6 +1,6 @@
 require 'doogle_config'
 
-class Doogle::DisplayLogsController < ApplicationController
+class Doogle::DisplayLogsController < Doogle::DoogleController
   filter_access_to :all
   
   def index
