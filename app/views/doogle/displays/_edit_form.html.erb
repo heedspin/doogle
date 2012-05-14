@@ -10,17 +10,17 @@
 		<%= f.input :model_number, :input_html => { :readonly => 'readonly' } %>
 		<% end %>
 		<% elsif field.display_type? %>
-		<%= f.input :type_key, :as => :select, :collection => Doogle::DisplayConfig.all, :label => 'Type' %>
+		<%= f.input :type_key, :as => :select, :collection => Doogle::DisplayConfig.all, :label => field.name %>
 		<% elsif field.has_many? %>
-		<%= f.input field.key, :as => :check_boxes, :collection => field.has_many_class.all %>
+		<%= f.input field.key, :as => :check_boxes, :collection => field.has_many_class.all, :label => field.name %>
 		<% elsif field.belongs_to? %>
-		<%= f.input field.key, :as => :select, :collection => field.belongs_to_class.all, :member_label => field.belongs_to_class_member_label %>
+		<%= f.input field.key, :as => :select, :collection => field.belongs_to_class.all, :member_label => field.belongs_to_class_member_label, :label => field.name %>
 		<% elsif field.dimension? %>
-		<%= render 'dimension', :f => f, :display => @display, :field => field, :search => false %>
+		<%= render 'dimension', :f => f, :display => @display, :field => field, :search => false, :label => field.name %>
 		<% elsif field.attachment? %>
-		<%= f.input field.key, :as => :attachment %>
+		<%= f.input field.key, :as => :attachment, :label => field.name %>
 		<% else %>
-	  <%= f.input field.key %>
+	  <%= f.input field.key, :label => field.name %>
 		<% end %>
 	<% end %>
 <% end %>
