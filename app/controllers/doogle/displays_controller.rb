@@ -5,20 +5,23 @@ class Doogle::DisplaysController < Doogle::DoogleController
     # Doogle::DisplayConfig.all
     search_params = params[:search]
     @search = Doogle::Display.new(search_params)
+    unless @search.status_option_id.present?
+      @search.status_option_id = Doogle::StatusOption.draft_and_published.id
+    end
     # Rails.logger.debug "Search params: #{search_params.inspect}\nSearch object: #{@search.inspect}"
     if search_params
       @field_keys = Set.new ; @field_keys.add :model_number ; @field_keys.add :type
       display_scope = Doogle::Display
       Doogle::FieldConfig.all.select { |f| f.searchable? and !f.composite? }.each do |field|
-        value_key = field.search_range? ? field.search_range_attribute : field.key
+        value_key = field.search_key
         value = @search.send(value_key)
         if value.present? or value.is_a?(FalseClass)
           @field_keys.add field.composite_parent.key
           # Rails.logger.debug "Scoping #{value_key} to #{value.to_s}"
           display_scope = display_scope.send(value_key, value)
-        elsif field.status?
-          @field_keys.add field.composite_parent.key
-          display_scope = display_scope.not_deleted
+        # elsif field.status?
+        #          @field_keys.add field.composite_parent.key
+        #          display_scope = display_scope.not_deleted
         end
       end
       @displays = display_scope.by_model_number.paginate(:page => params[:page], :per_page => 50)

@@ -3,10 +3,13 @@ _display_fields: &_display_fields
     - key: status
       belongs_to: Status
       web: sync_only
+      search_options: true
+      include_blank: false
     - key: display_type
       belongs_to: DisplayConfig
       column: type_key
       web: sync_only
+      name: Type
     - key: description
     - key: model_number
     - key: source_model_number

@@ -15,6 +15,8 @@
 		<li class="select input optional" id="display_<%= field.key %>_input" style="display: block; "><label class=" label" for="search_<%= field.key %>"><%= field.label %></label>
 			<%= range_select_tag @search, field %>
 		</li>
+		<% elsif field.search_options? %>
+		<%= f.input "#{field.search_option_attribute}_id", :as => :select, :collection => field.search_options_class.all, :member_label => field.search_options_class_member_label, :label => field.name, :include_blank => field.include_blank %>
 		<% elsif field.has_many? %>
 		<%= f.input field.key, :as => :check_boxes, :collection => field.has_many_class.all %>
 		<% elsif field.belongs_to? %>

@@ -147,6 +147,53 @@ class Doogle::FieldConfig
     self.search_range_collection.map { |o| [o.name, o.id]}
   end
 
+  def search_options?
+    config.member? 'search_options'
+  end
+
+  def search_option_attribute
+    "#{self.key}_option"
+  end
+
+  def search_options_class
+    if @search_options_class.nil?
+      c = config['search_options']
+      class_name = c.is_a?(String) ? c : self.search_option_attribute.classify
+      @search_options_class = "Doogle::#{class_name}".constantize
+    end
+    @search_options_class
+  end
+
+  def search_options_class_member_label
+    return nil unless search_options?
+    if search_options_class.respond_to?(:member_label)
+      search_options_class.member_label
+    else
+      :name
+    end
+  end
+
+  def search_key
+    if self.search_range?
+      self.search_range_attribute
+    elsif self.search_options?
+      self.search_option_attribute
+    else
+      self.key
+    end
+  end
+  
+  def include_blank
+    if @include_blank.nil?
+      @include_blank = if !config.member?('include_blank')
+        true
+      else
+        config['include_blank']
+      end
+    end
+    @include_blank
+  end
+
   def composite_parent
     @composite_parent ||= Doogle::FieldConfig.composites.detect { |f| f.composite_children.include?(self) } || self
   end
@@ -182,11 +229,11 @@ class Doogle::FieldConfig
     # Doogle::Display.human_attribute_name(self.key)
     @name ||= (config['name'] || self.key.to_s.titleize)
   end
-  
+
   def table_name
     @table_name ||= (config['table_name'] || self.name)
   end
-  
+
   def label
     config['label'] || self.name
   end
@@ -217,7 +264,7 @@ class Doogle::FieldConfig
     end
     @belongs_to_class
   end
-  
+
   def belongs_to_class_member_label
     return nil unless belongs_to?
     if belongs_to_class.respond_to?(:member_label)

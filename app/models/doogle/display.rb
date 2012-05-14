@@ -220,6 +220,13 @@ class Doogle::Display < ApplicationModel
       :conditions => [ 'LOWER(displays.source_model_number) like ?', '%' + (text.strip.downcase || '') + '%' ]
     }
   }
+  active_hash_setter(Doogle::StatusOption, :status_option)
+  attr_accessor :status_option_id
+  scope :status_option, lambda { |status_option|
+    {
+      :conditions => [ 'displays.status_id in (?)', status_option.status_ids ]
+    }
+  }
 
   def destroy
     self.update_attributes(:status_id => Doogle::Status.deleted.id)
