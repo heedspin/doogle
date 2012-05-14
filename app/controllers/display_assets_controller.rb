@@ -1,4 +1,7 @@
+require 'menu_selected'
+
 class DisplayAssetsController < ApplicationController
+  include MenuSelected
   def show
     @display = current_object
     asset = params[:asset] || :datasheet
@@ -7,9 +10,9 @@ class DisplayAssetsController < ApplicationController
       not_found
     else
       asset_is_public = @display.asset_public?(asset)
-      if asset_is_public or permitted_to?(:manage, :doogle_displays)
+      if asset_is_public or permitted_to?("read_#{asset}", :doogle_displays)
         if attachment = @display.send(asset)
-          redirect_to attachment.expiring_url(60), :status => 307
+          redirect_to attachment.expiring_url(180), :status => 307
         else
           not_found
         end
@@ -20,6 +23,14 @@ class DisplayAssetsController < ApplicationController
   end
 
   protected
+  
+    def not_found
+      render :template => "errors/404", :status => 404
+    end
+    
+    def not_authorized
+      render :template => "errors/403", :status => 403
+    end
 
     def current_object
       if @current_object.nil?

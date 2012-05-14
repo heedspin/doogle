@@ -127,7 +127,7 @@ class Doogle::Display < ApplicationModel
 
   [ [:datasheet, ':display_type/:model_number/LXD-:model_number-datasheet.:extension'],
     [:specification, ':display_type/:model_number/LXD-:model_number-spec.:extension'],
-    [:source_specification, ':display_type/:model_number/:model_number-source-spec.:extension'],
+    [:source_specification, ':display_type/:model_number/non-public-:model_number-spec.:extension'],
     [:drawing, ':display_type/:model_number/LXD-:model_number-drawing-:style.:extension', {:thumbnail => '100>', :medium => '400>', :large => '600>'}]
   ].each do |key, path, image_styles|
     options = { :storage => :s3,
