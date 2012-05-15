@@ -174,27 +174,20 @@ class Doogle::Display < ApplicationModel
   }
   scope :by_model_number, :order => :model_number
   scope :by_resolution, :order => [ :resolution_x, :resolution_y ]
-  scope :model_number, lambda { |text|
-    {
-      :conditions => [ 'LOWER(displays.model_number) like ?', '%' + (text.strip.downcase || '') + '%' ]
-    }
-  }
-  scope :integrated_controller, lambda { |text|
-    {
-      :conditions => [ 'LOWER(displays.integrated_controller) like ?', '%' + (text.strip.downcase || '') + '%' ]
-    }
-  }
   scope :interface_types, lambda { |itypes|
     {
       :joins => :display_interface_types,
       :conditions => [ 'display_interface_types.interface_type_id in (?)', itypes.map(&:id) ]
     }
   }
-  scope :comments, lambda { |text|
-    {
-      :conditions => [ 'LOWER(displays.comments) like ?', '%' + (text.strip.downcase || '') + '%' ]
+  %w(comments description colors source_model_number integrated_controller model_number).each do |key|
+    scope key, lambda { |text|
+      {
+        :conditions => [ "LOWER(displays.#{key}) like ?", '%' + (text.strip.downcase || '') + '%' ]
+      }
     }
-  }
+  end
+  
   scope :web, :conditions => { :publish_to_web => true }
   %w(datasheet_public publish_to_web publish_to_erp).each do |key|
     self.class_eval <<-RUBY
@@ -205,19 +198,9 @@ class Doogle::Display < ApplicationModel
     }
     RUBY
   end
-  scope :description, lambda { |text|
-    {
-      :conditions => [ 'LOWER(displays.description) like ?', '%' + (text.strip.downcase || '') + '%' ]
-    }
-  }
   scope :gamma_required, lambda { |gr|
     {
       :conditions => { :gamma_required => gr }
-    }
-  }
-  scope :source_model_number, lambda { |text|
-    {
-      :conditions => [ 'LOWER(displays.source_model_number) like ?', '%' + (text.strip.downcase || '') + '%' ]
     }
   }
   active_hash_setter(Doogle::StatusOption, :status_option)

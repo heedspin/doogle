@@ -26,7 +26,6 @@ _display_fields: &_display_fields
     - key: touch_panel_type
       belongs_to: true
     - key: colors
-      search: false
     - key: backlight_type
       belongs_to: true
     - key: resolution
@@ -169,9 +168,9 @@ _display_fields: &_display_fields
       attachment: pdf
       web: false
       name: Non-public Specification
-    - key: drawing
-      attachment: image
-      web: sync_only
+    # - key: drawing
+    #   attachment: image
+    #   web: sync_only
     - key: comments
       search_as: string
       web: false
@@ -220,7 +219,7 @@ display_types: &_display_types
     - key: oled_displays
       aliases: Display::OledDisplay
       name: OLED
-      fields: display_type, model_number, source_model_number, description, publish_to_web, publish_to_erp, module_diagonal_in, module_dimensions, resolution, colors, active_area, interface_types, comments, standard_classification
+      fields: status, display_type, model_number, source_model_number, description, publish_to_web, publish_to_erp, module_diagonal_in, module_dimensions, resolution, colors, active_area, interface_types, comments, standard_classification, datasheet, datasheet_public, specification, source_specification
       web_list: display_type, model_number, module_diagonal_in, module_dimensions, resolution, colors, active_area, interface_types
       m2m_group_code: OLEDS
       m2m_product_class: OLEDS
