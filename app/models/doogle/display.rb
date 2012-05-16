@@ -193,8 +193,7 @@ class Doogle::Display < ApplicationModel
     self.class_eval <<-RUBY
     scope :#{key}, lambda { |v|
     {
-      :conditions => { :#{key} => v }
-                       }
+      :conditions => { :#{key} => v } }
     }
     RUBY
   end
@@ -210,6 +209,33 @@ class Doogle::Display < ApplicationModel
       :conditions => [ 'displays.status_id in (?)', status_option.status_ids ]
     }
   }
+  # active_hash_setter(Doogle::TftDiagonalInOption, :tft_diagonal_in_option)
+  attr_accessor :tft_diagonal_in_option_id
+  scope :tft_diagonal_in_option, lambda { |option|
+    {
+      :conditions => { :module_diagonal_in => option.value }
+    }
+  }
+  def tft_diagonal_in_option
+    Doogle::TftDiagonalInOption.from_diagonal(self.tft_diagonal_in_option_id)
+  end
+  attr_accessor :oled_diagonal_in_option_id
+  scope :oled_diagonal_in_option, lambda { |option|
+    {
+      :conditions => { :module_diagonal_in => option.value }
+    }
+  }
+  def oled_diagonal_in_option
+    Doogle::OledDiagonalInOption.from_diagonal(self.oled_diagonal_in_option_id)
+  end
+  
+  def search_field_specified?(field)
+    value = self.send(field.search_key)
+    value.present? || value.is_a?(FalseClass)
+  end
+  def search_scope(display_scope, field)
+    display_scope.send(field.search_key, self.send(field.search_key))
+  end
 
   def destroy
     self.update_attributes(:status_id => Doogle::Status.deleted.id)

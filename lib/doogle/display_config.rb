@@ -104,11 +104,6 @@ class Doogle::DisplayConfig
     @web_list_fields
   end
   
-  def export_fields
-    # Remove type since it's implicit in the spreadsheet tab name.
-    Doogle::FieldConfig.system_fields + fields# - [ 'type' ]
-  end
-  
   def active_field?(field)
     key = field.is_a?(Doogle::FieldConfig) ? field.key.to_s : field.to_s
     required_field_keys.include?(key) or optional_field_keys.include?(key)

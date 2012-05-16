@@ -11,6 +11,10 @@ class Doogle::FieldConfig
   def column
     @column ||= config['column'] || (self.belongs_to? ? "#{self.key}_id" : self.key)
   end
+  
+  def value_key
+    @value_key ||= config['value_key'] || (self.belongs_to? ? self.key : self.column)
+  end
 
   def display_type?
     self.key == :display_type
@@ -65,23 +69,28 @@ class Doogle::FieldConfig
   #   @name_map[name.try(:downcase).try(:strip)]
   # end
 
-  def self.system_fields
-    self.all.select { |f| f.system? }
-  end
-
   def self.main
-    self.all.select { |f| !f.composite_child? and !f.system? }
+    self.all.select { |f| !f.composite_child? }
+  end
+  
+  def self.config_accessor(key, default)
+    key = key.to_s
+    self.class_eval <<-RUBY
+    def #{key}
+      if @#{key}.nil?
+        @#{key} = if !config.member?('#{key}')
+          #{default}
+        else
+          config['#{key}']
+        end
+      end
+      @#{key}
+    end
+    RUBY
   end
 
   def aliases
     @alias ||= (self.config['aliases'] || '').split(',').map(&:strip)
-  end
-
-  def system?
-    if @system.nil?
-      @system = config['system']
-    end
-    @system
   end
 
   def web?
@@ -179,20 +188,13 @@ class Doogle::FieldConfig
     elsif self.search_options?
       self.search_option_attribute
     else
-      self.key
+      self.column
     end
   end
   
-  def include_blank
-    if @include_blank.nil?
-      @include_blank = if !config.member?('include_blank')
-        true
-      else
-        config['include_blank']
-      end
-    end
-    @include_blank
-  end
+  config_accessor :search_include_blank, true
+  config_accessor :edit_include_blank, true
+  config_accessor :sprintf, false
 
   def composite_parent
     @composite_parent ||= Doogle::FieldConfig.composites.detect { |f| f.composite_children.include?(self) } || self
@@ -235,7 +237,11 @@ class Doogle::FieldConfig
   end
 
   def label
-    config['label'] || self.name
+    @label ||= (config['label'] || self.name)
+  end
+  
+  def wrapper_id
+    "display_#{self.key}_input"
   end
 
   def short_label

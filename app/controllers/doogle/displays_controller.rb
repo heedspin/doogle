@@ -2,7 +2,6 @@ require 'doogle_config'
 
 class Doogle::DisplaysController < Doogle::DoogleController
   def index
-    # Doogle::DisplayConfig.all
     search_params = params[:search]
     @search = Doogle::Display.new(search_params)
     unless @search.status_option_id.present?
@@ -13,15 +12,9 @@ class Doogle::DisplaysController < Doogle::DoogleController
       @field_keys = Set.new ; @field_keys.add :model_number ; @field_keys.add :type
       display_scope = Doogle::Display
       Doogle::FieldConfig.all.select { |f| f.searchable? and !f.composite? }.each do |field|
-        value_key = field.search_key
-        value = @search.send(value_key)
-        if value.present? or value.is_a?(FalseClass)
+        if @search.search_field_specified?(field)
           @field_keys.add field.composite_parent.key
-          # Rails.logger.debug "Scoping #{value_key} to #{value.to_s}"
-          display_scope = display_scope.send(value_key, value)
-        # elsif field.status?
-        #          @field_keys.add field.composite_parent.key
-        #          display_scope = display_scope.not_deleted
+          display_scope = @search.search_scope(display_scope, field)
         end
       end
       @displays = display_scope.by_model_number.paginate(:page => params[:page], :per_page => 50)
@@ -83,25 +76,17 @@ class Doogle::DisplaysController < Doogle::DoogleController
   def update
     @display = current_object
 
-    respond_to do |format|
-
-      if (display_params = params[:display]) and (type = display_params.delete(:type))
-        @display.type = type
-      end
-      if @display.update_attributes(display_params)
-        @display.sync_to_erp
-        @display.maybe_sync_to_web
-        flash[:notice] = 'Display was successfully updated.'
-        format.html {
-          if params[:commit] == 'Save & Edit'
-            redirect_to(edit_doogle_display_url(@display, :return_to => params[:return_to]))
-          else
-            redirect_to doogle_display_url(@display)
-          end
-        }
+    if @display.update_attributes(params[:display])
+      @display.sync_to_erp
+      @display.maybe_sync_to_web
+      flash[:notice] = 'Display was successfully updated.'
+      if params[:commit] == 'Save & Edit'
+        redirect_to(edit_doogle_display_url(@display, :return_to => params[:return_to]))
       else
-        format.html { render :action => "edit" }
+        redirect_to doogle_display_url(@display)
       end
+    else
+      render :action => "edit"
     end
   end
 
@@ -145,6 +130,7 @@ class Doogle::DisplaysController < Doogle::DoogleController
       if @current_object.nil?
         @current_object = Doogle::Display.new(params[:display])
         @current_object.current_user = current_user
+        @current_object.type_key ||= Doogle::DisplayConfig.all.first.key
       end
       @current_object
     end

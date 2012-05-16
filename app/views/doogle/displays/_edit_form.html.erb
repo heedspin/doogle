@@ -5,24 +5,24 @@
 	<% Doogle::FieldConfig.main.each do |field| %>
 		<% if field.model_number? %>
 		<% if @display.new_record? %>
-		<%= f.input :model_number %>
+		<%= f.input :model_number, :wrapper_html => { :id => field.wrapper_id } %>
 		<% else %>
-		<%= f.input :model_number, :input_html => { :readonly => 'readonly' } %>
+		<%= f.input :model_number, :input_html => { :readonly => 'readonly' }, :wrapper_html => { :id => field.wrapper_id } %>
 		<% end %>
-		<% elsif field.display_type? %>
-		<%= f.input :type_key, :as => :select, :collection => Doogle::DisplayConfig.all, :label => field.name %>
+		<%# elsif field.display_type? %>
+		<%#= f.input :type_key, :as => :select, :collection => Doogle::DisplayConfig.all, :label => field.label %>
 		<% elsif field.has_many? %>
-		<%= f.input field.key, :as => :check_boxes, :collection => field.has_many_class.all, :label => field.name %>
+		<%= f.input field.column, :as => :check_boxes, :collection => field.has_many_class.all, :label => field.label, :wrapper_html => { :id => field.wrapper_id } %>
 		<% elsif field.belongs_to? %>
-		<%= f.input field.key, :as => :select, :collection => field.belongs_to_class.all, :member_label => field.belongs_to_class_member_label, :label => field.name %>
+		<%= f.input field.column, :as => :select, :collection => field.belongs_to_class.all, :member_label => field.belongs_to_class_member_label, :label => field.label, :wrapper_html => { :id => field.wrapper_id }, :include_blank => field.edit_include_blank %>
 		<% elsif field.dimension? %>
-		<%= render 'dimension', :f => f, :display => @display, :field => field, :search => false, :label => field.name %>
+		<%= render 'dimension', :f => f, :display => @display, :field => field, :search => false, :label => field.label, :wrapper_html => { :id => field.wrapper_id } %>
 		<% elsif field.attachment? %>
-		<%= f.input field.key, :as => :attachment, :label => field.name %>
+		<%= f.input field.column, :as => :attachment, :label => field.label, :wrapper_html => { :id => field.wrapper_id } %>
 		<% else %>
-	  <%= f.input field.key, :label => field.name %>
+	  <%= f.input field.column, :label => field.label, :wrapper_html => { :id => field.wrapper_id } %>
 		<% end %>
 	<% end %>
 <% end %>
 
-<%= render 'dynamic_form', :object_name => 'display', :trigger_change => true %>
+<%= render 'dynamic_form', :object_name => 'display' %>

@@ -34,6 +34,7 @@ $(function() {
 		var display_type_text = $(this).children("option:selected").text();
 		$("input#display_description").val(display_type_text);
   })
+	$("select#display_type_key").trigger('change');
 })
 </script>
 <% end %>

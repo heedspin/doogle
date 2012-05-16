@@ -22,8 +22,8 @@ $(function() {
     $(this).ajaxSubmit(options);
   });
 	$("a.clear_form").click(function() {
-		$('form#search_new').clearForm();
 		$("#search_results").html("");
+		$('form#search_new').clearForm().children('select').find("option:first").attr("selected", true);
 		return false;
 	});
 	$("input.create").click(function() {

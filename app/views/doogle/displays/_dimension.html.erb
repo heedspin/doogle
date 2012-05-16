@@ -4,9 +4,9 @@
 	<% field.dimensions.each do |dimension| %>
 	<span><%= dimension.label %></span>
 	<% if search and dimension.search_range? %>
-	<%= range_select_tag display, dimension %>
+	<%= range_select_tag display, dimension.search_range_attribute, dimension.search_range_options %>
 	<% else %>
-	<%= f.text_field dimension.key %>
+	<%= f.text_field dimension.column %>
 	<% end %>
 	<% end %>
 </li>

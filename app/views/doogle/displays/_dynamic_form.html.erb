@@ -12,11 +12,11 @@ $(function() {
     if (show_fields) {
 			for (var i = 0; i < hide_fields.length; i++) {
 				// console.log("hiding li#<%= object_name %>_"+hide_fields[i]+"_input");
-				$("li#<%= object_name %>_"+hide_fields[i]+"_input").hide();
+				$("li#<%= object_name %>_"+hide_fields[i]+"_input").hide().children('input, select').attr('disabled', true);
 			}
 			for (var i = 0; i < show_fields.length; i++) {
 				// console.log("showing li#<%= object_name %>_"+show_fields[i]+"_input");
-				$("li#<%= object_name %>_"+show_fields[i]+"_input").show();
+				$("li#<%= object_name %>_"+show_fields[i]+"_input").show().children('input, select').attr('disabled', false);;
 			}
 		}
   })<%= trigger_change ? ".trigger('change');" : '' %>
