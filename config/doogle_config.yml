@@ -12,8 +12,10 @@ _display_fields: &_display_fields
       web: sync_only
       name: Type
       edit_include_blank: false
+      simple_field: true
     - key: description
     - key: model_number
+      simple_field: true
     - key: source_model_number
       web: false
     - key: publish_to_web
@@ -33,6 +35,7 @@ _display_fields: &_display_fields
     - key: resolution
       dimension: resolution_x, resolution_y
       table_name: Reso-lution
+      simple_field: false
     - key: resolution_x
       name: X
       # search_range: ResolutionRange      
@@ -42,6 +45,7 @@ _display_fields: &_display_fields
     - key: module_dimensions
       dimension: module_width_mm, module_height_mm, module_thickness_mm
       units_short: mm
+      simple_field: false
     - key: module_width_mm
       name: Width
       search_range: ModuleWidthRange
@@ -56,11 +60,13 @@ _display_fields: &_display_fields
       search_options: true
       column: module_diagonal_in
       sprintf: %s"
+      simple_field: false
     - key: tft_diagonal_in
       name: Diagonal
       search_options: true
       column: module_diagonal_in
       sprintf: %s"
+      simple_field: false
     - key: viewing_area
       dimension: viewing_width_mm, viewing_height_mm
       search: false
@@ -128,6 +134,7 @@ _display_fields: &_display_fields
     - key: character_resolution
       dimension: character_columns, character_rows
       table_name: Char Reso-lution
+      simple_field: false
     - key: character_columns
       name: Cols
       search_range: true
