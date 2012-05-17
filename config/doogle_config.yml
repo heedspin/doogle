@@ -238,7 +238,7 @@ display_types: &_display_types
       aliases: Display::OledDisplay
       name: OLED
       fields: status, display_type, model_number, source_model_number, description, publish_to_web, publish_to_erp, oled_diagonal_in, module_dimensions, resolution, colors, active_area, interface_types, comments, standard_classification, datasheet, datasheet_public, specification, source_specification
-      web_list: display_type, model_number, module_diagonal_in, module_dimensions, resolution, colors, active_area, interface_types
+      web_list: display_type, model_number, oled_diagonal_in, module_dimensions, resolution, colors, active_area, interface_types
       m2m_group_code: OLEDS
       m2m_product_class: OLEDS
       model_number_prefix: L
