@@ -23,7 +23,7 @@ class Doogle::TftDiagonalInOption < ActiveHash::Base
         options.push from_diagonal(diagonal)
       end
     end
-    options
+    options.sort_by(&:value)
   end
   
   def self.from_diagonal(diagonal)

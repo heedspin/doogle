@@ -88,6 +88,7 @@
 #  drawing_public                    :boolean(1)
 #  description                       :string(255)
 #  gamma_required                    :boolean(1)
+#  multiplex_ratio                   :integer(4)
 #
 
 # tim@concerto:~/Dropbox/p/lxd_m2mhub$ bundle exec annotate --model-dir ../doogle/app/models
@@ -162,11 +163,13 @@ class Doogle::Display < ApplicationModel
       :conditions => [ 'displays.type_key in (?)', type_keys ]
     }
   }
-  scope :type_key, lambda { |key|
-    {
-      :conditions => { :type_key => key }
+  %w(multiplex_ratio resolution_x resolution_y type_key gamma_required).each do |key|
+    scope key, lambda { |v|
+      {
+        :conditions => { key => v }
+      }
     }
-  }
+  end
   scope :for_model, lambda { |model_number|
     {
       :conditions => { :model_number => model_number }
@@ -197,11 +200,6 @@ class Doogle::Display < ApplicationModel
     }
     RUBY
   end
-  scope :gamma_required, lambda { |gr|
-    {
-      :conditions => { :gamma_required => gr }
-    }
-  }
   active_hash_setter(Doogle::StatusOption, :status_option)
   attr_accessor :status_option_id
   scope :status_option, lambda { |status_option|

@@ -35,10 +35,10 @@ _display_fields: &_display_fields
       table_name: Reso-lution
     - key: resolution_x
       name: X
-      search_range: ResolutionRange
+      # search_range: ResolutionRange      
     - key: resolution_y
       name: Y
-      search_range: ResolutionRange
+      # search_range: ResolutionRange
     - key: module_dimensions
       dimension: module_width_mm, module_height_mm, module_thickness_mm
       units_short: mm
@@ -85,7 +85,9 @@ _display_fields: &_display_fields
     - key: digit_height_mm
       search: false
     - key: no_of_pins
+      name: Number of Pins
       search: false
+    - key: multiplex_ratio
     - key: contrast_ratio
       search: false
     # - key: pixel_color
@@ -196,14 +198,14 @@ display_types: &_display_types
       
     - key: segment_glass_displays
       name: Segment Glass Display
-      fields: status, display_type, model_number, source_model_number, description, publish_to_web, publish_to_erp, character_resolution, character_type, display_mode, viewing_direction, module_dimensions, viewing_area, active_area, digit_height_mm, polarizer_mode, display_image, no_of_pins, operational_temperature, datasheet, datasheet_public, specification, source_specification, comments, standard_classification
+      fields: status, display_type, model_number, source_model_number, description, publish_to_web, publish_to_erp, character_resolution, character_type, display_mode, viewing_direction, module_dimensions, viewing_area, active_area, digit_height_mm, polarizer_mode, display_image, no_of_pins, operational_temperature, datasheet, datasheet_public, specification, source_specification, comments, standard_classification, multiplex_ratio
       web_list: model_number, character_resolution, display_mode, module_dimensions, digit_height_mm, polarizer_mode, no_of_pins, operational_temperature
       m2m_group_code: GLASS
       m2m_product_class: GLASS
       model_number_prefix: H
       
     - key: graphic_glass_displays
-      fields: status, display_type, model_number, source_model_number, description, publish_to_web, publish_to_erp, viewing_direction, resolution, module_dimensions, viewing_area, active_area, display_mode, polarizer_mode, display_image, operational_temperature, storage_temperature, datasheet, datasheet_public, specification, source_specification, comments, standard_classification
+      fields: status, display_type, model_number, source_model_number, description, publish_to_web, publish_to_erp, viewing_direction, resolution, module_dimensions, viewing_area, active_area, display_mode, polarizer_mode, display_image, operational_temperature, storage_temperature, datasheet, datasheet_public, specification, source_specification, comments, standard_classification, multiplex_ratio
       web_list: model_number, resolution, module_dimensions, viewing_area, display_mode, polarizer_mode, operational_temperature, storage_temperature, datasheet
       m2m_group_code: GLASS
       m2m_product_class: GLASS
