@@ -24,17 +24,17 @@
 				<% end %>
 				<% if display.datasheet? %>
 			  <td>
-					<%= link_to 'Datasheet', doogle_asset_path(display, :datasheet) %>
+					<%= link_to 'Datasheet', doogle_asset_path(display, :datasheet), {:target => '_blank'} %>
 				</td>
 				<% end %>
 				<% if display.specification? %>
 			  <td>
-					<%= link_to 'Specification', doogle_asset_path(display, :specification) %>
+					<%= link_to 'Specification', doogle_asset_path(display, :specification), {:target => '_blank'} %>
 				</td>
 				<% end %>
 				<% if display.source_specification? and permitted_to?(:read_source_specification) %>
 			  <td>
-					<%= link_to 'Non-public Specification', doogle_asset_path(display, :source_specification) %>
+					<%= link_to 'Non-public Specification', doogle_asset_path(display, :source_specification), {:target => '_blank'} %>
 				</td>
 				<% end %>
       </tr>

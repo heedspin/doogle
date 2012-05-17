@@ -56,7 +56,7 @@ module DoogleHelper
       default_render_value field, dimension_values.join(dimension_joiner)
     elsif field.attachment?
       if display.send("#{field.column}?")
-        link_to display.send("#{field.column}_file_name"), doogle_asset_path(display, field.column)
+        link_to display.send("#{field.column}_file_name"), doogle_asset_path(display, field.column), {:target => '_blank'}
       else
         ''
       end
