@@ -226,12 +226,12 @@ class Doogle::Display < ApplicationModel
   def oled_diagonal_in_option
     Doogle::OledDiagonalInOption.from_diagonal(self.oled_diagonal_in_option_id)
   end
-  scope :type_key, lambda { |v|
-    if v == 'any'
+  scope :display_type, lambda { |dt|
+    if dt.key == :any
       where({})
     else
       {
-        :conditions => { :type_key => v }
+        :conditions => { :type_key => dt.key.to_s }
       }
     end
   }

@@ -188,7 +188,7 @@ class Doogle::FieldConfig
     elsif self.search_options?
       self.search_option_attribute
     else
-      self.column
+      self.key
     end
   end
   
