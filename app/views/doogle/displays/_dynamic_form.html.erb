@@ -1,25 +1,28 @@
-<% unless defined?(trigger_change) %>
-<% trigger_change = false %>
-<% end %>
 <% content_for :javascripts do %>
 <script type="text/javascript">
+var all_fields = <%= Doogle::FieldConfig.main.map(&:key).to_json.html_safe %>;
+var fields_for = <%= Doogle::DisplayConfig.key_to_field_keys.to_json.html_safe %>;
+var display_dynamic_form = function(e) {
+	var display_type = $("select#<%= object_name %>_type_key").children("option:selected").attr("value");
+	var show_fields = fields_for[display_type] || all_fields;
+	// console.log("show_fields for " + display_type + " = " + show_fields);
+	for (var i = 0; i < all_fields.length; i++) {
+		var field = all_fields[i];
+		if ($.inArray(field, show_fields) >= 0) {
+			// console.log("showing li#<%= object_name %>_"+field+"_input");
+			$("li#<%= object_name %>_"+field+"_input").show('slow').children('input, select').attr('disabled', false);;			
+		} else {
+			// console.log("hiding li#<%= object_name %>_"+field+"_input");
+			$("li#<%= object_name %>_"+field+"_input").hide('slow').children('input, select').attr('disabled', true);			
+		}
+	}
+}
+var reset_form = function($form) {
+	$form.find('input:text, input:password, input:file, select').val('');
+	$form.find('input:radio, input:checkbox').removeAttr('checked').removeAttr('selected');
+}
 $(function() {
-  $("select#<%= object_name %>_type_key").change(function(e) {
-		var hide_fields = <%= Doogle::FieldConfig.main.map(&:key).to_json.html_safe %>;
-		var fields_for = <%= Doogle::DisplayConfig.key_to_field_keys.to_json.html_safe %>;
-		var display_type = $(this).children("option:selected").attr("value");
-		for (var i = 0; i < hide_fields.length; i++) {
-			// console.log("hiding li#<%= object_name %>_"+hide_fields[i]+"_input");
-			$("li#<%= object_name %>_"+hide_fields[i]+"_input").hide().children('input, select').attr('disabled', true);
-		}
-		var show_fields = fields_for[display_type] || hide_fields;
-    if (show_fields) {
-			for (var i = 0; i < show_fields.length; i++) {
-				// console.log("showing li#<%= object_name %>_"+show_fields[i]+"_input");
-				$("li#<%= object_name %>_"+show_fields[i]+"_input").show().children('input, select').attr('disabled', false);;
-			}
-		}
-  })<%= trigger_change ? ".trigger('change');" : '' %>
+  $("select#<%= object_name %>_type_key").change(display_dynamic_form);
 })
 </script>
 <% end %>

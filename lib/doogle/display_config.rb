@@ -37,6 +37,10 @@ class Doogle::DisplayConfig
     @all
   end
   
+  def self.edit
+    self.all.select { |dc| dc.key != :any }
+  end
+  
   def self.options
     self.all.sort_by(&:name).map { |dc| [ dc.name, dc.key ] }
   end

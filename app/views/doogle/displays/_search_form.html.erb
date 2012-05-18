@@ -1,33 +1,24 @@
-<% include_closed_details_javascript('Advanced', 'Simple') %>
-<% simple_fields, advanced_fields = Doogle::FieldConfig.searchable.partition(&:simple_field) %>
-<% [[simple_fields, :simple], [advanced_fields, :advanced]].each do |fields,fields_key| %>
-	<%= f.inputs :class => fields_key == :advanced ? 'inputs closed_details xclosed_details' : '' do %>
-		<% fields.each do |field| %>
-			<% if field.search_range? %>
-			<li class="select input optional" id="search_<%= field.key %>_input" style="display: block; "><label class=" label" for="search_<%= field.key %>"><%= field.label %></label>
-		    <%= range_select_tag(@search, field.search_range_attribute, field.search_range_options) %>
-			</li>
-			<% elsif field.search_options? %>
-			<%= f.input "#{field.search_option_attribute}_id", :as => :select, :collection => field.search_options_class.all, :member_label => field.search_options_class_member_label, :label => field.label, :include_blank => field.search_include_blank, :wrapper_html => { :id => "search_#{field.key}_input" } %>
-			<% elsif field.has_many? %>
-			<%= f.input field.column, :as => :check_boxes, :collection => field.has_many_class.all, :label => field.label, :wrapper_html => { :id => "search_#{field.key}_input" } %>
-			<% elsif field.belongs_to? %>
-			<%= f.input field.column, :as => :select, :collection => field.belongs_to_class.all, :label => field.label, :wrapper_html => { :id => "search_#{field.key}_input" } %>
-			<% elsif field.dimension? %>
-			<%= render 'dimension', :f => f, :display => @search, :field => field, :search => true %>
-			<% elsif field.search_as %>
-		  <%= f.input field.column, :as => field.search_as, :label => field.label, :wrapper_html => { :id => "search_#{field.key}_input" } %>
-			<% else %>
-		  <%= f.input field.column, :label => field.label, :wrapper_html => { :id => "search_#{field.key}_input" } %>
-			<% end %>
-		<% end # end fields %>
-		<% if fields_key == :simple %>
-		<li>
-			<a href="#"><span class="show_closed_details" id="closed_details">Advanced</span></a>
+<%= f.inputs do %>
+	<% Doogle::FieldConfig.searchable.each do |field| %>
+		<% if field.search_range? %>
+		<li class="select input optional <%= hosf(field) %>" id="search_<%= field.key %>_input">
+			<label class=" label" for="search_<%= field.key %>"><%= field.label %></label>
+	    <%= range_select_tag(@search, field.search_range_attribute, field.search_range_options) %>
 		</li>
+		<% elsif field.search_options? %>
+		<%= f.input "#{field.search_option_attribute}_id", :as => :select, :collection => field.search_options_class.all, :member_label => field.search_options_class_member_label, :label => field.label, :include_blank => field.search_include_blank, :wrapper_html => { :id => "search_#{field.key}_input", :class => hosf(field) } %>
+		<% elsif field.has_many? %>
+		<%= f.input field.column, :as => :check_boxes, :collection => field.has_many_class.all, :label => field.label, :wrapper_html => { :id => "search_#{field.key}_input", :class => hosf(field) } %>
+		<% elsif field.belongs_to? %>
+		<%= f.input field.column, :as => :select, :collection => field.belongs_to_class.all, :label => field.label, :include_blank => field.search_include_blank, :wrapper_html => { :id => "search_#{field.key}_input", :class => hosf(field) } %>
+		<% elsif field.dimension? %>
+		<%= render 'dimension', :f => f, :display => @search, :field => field, :search => true %>
+		<% elsif field.search_as %>
+	  <%= f.input field.column, :as => field.search_as, :label => field.label, :wrapper_html => { :id => "search_#{field.key}_input", :class => hosf(field) } %>
+		<% else %>
+	  <%= f.input field.column, :label => field.label, :wrapper_html => { :id => "search_#{field.key}_input", :class => hosf(field) } %>
 		<% end %>
-	<% end # end inputs %>
-<% end # end fields loop %>
+	<% end # end fields %>
+<% end # end inputs %>
 
 <%= render 'dynamic_form', :object_name => 'search' %>
-<%= set_focus('#search_model_number') %>

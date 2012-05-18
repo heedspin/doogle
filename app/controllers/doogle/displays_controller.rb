@@ -7,6 +7,7 @@ class Doogle::DisplaysController < Doogle::DoogleController
     unless @search.status_option_id.present?
       @search.status_option_id = Doogle::StatusOption.draft_and_published.id
     end
+    @search.type_key ||= 'any'
     # Rails.logger.debug "Search params: #{search_params.inspect}\nSearch object: #{@search.inspect}"
     if search_params
       @field_keys = Set.new ; @field_keys.add :model_number ; @field_keys.add :type

@@ -1,6 +1,6 @@
 <% li_class = search && field.dimensions.any?(&:search_range?) ? 'select' : 'string stringish' %>
 <% li_id = "#{search ? 'search' : 'display'}_#{field.key}_input" %>
-<li class="<%= li_class %> input optional doogle_dimensions" id="<%= li_id %>" style="display: block; "><label class=" label" for="display_<%= field.key %>"><%= field.label %></label>
+<li class="<%= li_class %> input optional doogle_dimensions <%= hosf(field) %>" id="<%= li_id %>"><label class=" label" for="display_<%= field.key %>"><%= field.label %></label>
 	<% field.dimensions.each do |dimension| %>
 	<span><%= dimension.label %></span>
 	<% if search and dimension.search_range? %>

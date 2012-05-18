@@ -5,22 +5,22 @@
 	<% Doogle::FieldConfig.main.each do |field| %>
 		<% if field.model_number? %>
 		<% if @display.new_record? %>
-		<%= f.input :model_number, :wrapper_html => { :id => field.wrapper_id } %>
+		<%= f.input :model_number, :wrapper_html => { :id => field.wrapper_id, :class => hosf(field) } %>
 		<% else %>
-		<%= f.input :model_number, :input_html => { :readonly => 'readonly' }, :wrapper_html => { :id => field.wrapper_id } %>
+		<%= f.input :model_number, :input_html => { :readonly => 'readonly' }, :wrapper_html => { :id => field.wrapper_id, :class => hosf(field) } %>
 		<% end %>
-		<%# elsif field.display_type? %>
-		<%#= f.input :type_key, :as => :select, :collection => Doogle::DisplayConfig.all, :label => field.label %>
+		<% elsif field.display_type? %>
+		<%= f.input :type_key, :as => :select, :collection => Doogle::DisplayConfig.edit, :label => field.label, :wrapper_html => { :id => field.wrapper_id, :class => hosf(field) }, :include_blank => field.edit_include_blank %>
 		<% elsif field.has_many? %>
-		<%= f.input field.column, :as => :check_boxes, :collection => field.has_many_class.all, :label => field.label, :wrapper_html => { :id => field.wrapper_id } %>
+		<%= f.input field.column, :as => :check_boxes, :collection => field.has_many_class.all, :label => field.label, :wrapper_html => { :id => field.wrapper_id, :class => hosf(field) } %>
 		<% elsif field.belongs_to? %>
-		<%= f.input field.column, :as => :select, :collection => field.belongs_to_class.all, :member_label => field.belongs_to_class_member_label, :label => field.label, :wrapper_html => { :id => field.wrapper_id }, :include_blank => field.edit_include_blank %>
+		<%= f.input field.column, :as => :select, :collection => field.belongs_to_class.all, :member_label => field.belongs_to_class_member_label, :label => field.label, :wrapper_html => { :id => field.wrapper_id, :class => hosf(field) }, :include_blank => field.edit_include_blank %>
 		<% elsif field.dimension? %>
-		<%= render 'dimension', :f => f, :display => @display, :field => field, :search => false, :label => field.label, :wrapper_html => { :id => field.wrapper_id } %>
+		<%= render 'dimension', :f => f, :display => @display, :field => field, :search => false, :label => field.label, :wrapper_html => { :id => field.wrapper_id, :class => hosf(field) } %>
 		<% elsif field.attachment? %>
-		<%= f.input field.column, :as => :attachment, :label => field.label, :wrapper_html => { :id => field.wrapper_id } %>
+		<%= f.input field.column, :as => :attachment, :label => field.label, :wrapper_html => { :id => field.wrapper_id, :class => hosf(field) } %>
 		<% else %>
-	  <%= f.input field.column, :label => field.label, :wrapper_html => { :id => field.wrapper_id } %>
+	  <%= f.input field.column, :label => field.label, :wrapper_html => { :id => field.wrapper_id, :class => hosf(field) } %>
 		<% end %>
 	<% end %>
 <% end %>

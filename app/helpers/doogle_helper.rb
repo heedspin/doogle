@@ -91,4 +91,12 @@ module DoogleHelper
   def doogle_asset_path(display, asset)
     display_asset_path URI.escape(display.model_number, "/"), :asset => asset
   end
+  
+  def hosf(field)
+    if (obj = @search || @display) && obj.display_type.try(:active_field?, field)
+      ''
+    else
+      'hide'
+    end
+  end
 end

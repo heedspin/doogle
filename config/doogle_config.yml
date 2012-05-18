@@ -1,21 +1,22 @@
 _display_fields: &_display_fields
   display_fields:
+    - key: display_type
+      belongs_to: DisplayConfig
+      column: type_key
+      web: sync_only
+      name: Type
+      search_include_blank: false
+      edit_include_blank: false
+      simple_field: true
+    - key: model_number
+      simple_field: true
     - key: status
       belongs_to: Status
       web: sync_only
       search_options: true
       search_include_blank: false
       edit_include_blank: false
-    - key: display_type
-      belongs_to: DisplayConfig
-      column: type_key
-      web: sync_only
-      name: Type
-      edit_include_blank: false
-      simple_field: true
     - key: description
-    - key: model_number
-      simple_field: true
     - key: source_model_number
       web: false
     - key: publish_to_web
@@ -195,6 +196,9 @@ _display_fields: &_display_fields
 
 display_types: &_display_types
   display_types:
+    - key: any
+      name: Any
+      fields: display_type, model_number
     - key: tft_displays
       name: Digital TFT
       fields: status, display_type, model_number, source_model_number, description, publish_to_web, publish_to_erp, bonding_type, polarizer_mode, viewing_direction, tft_diagonal_in, module_dimensions, active_area, resolution, active_area, backlight_type, operational_temperature, storage_temperature, interface_types, gamma_required, colors, touch_panel_type, datasheet, datasheet_public, specification, source_specification, luminance_nits, integrated_controller, logic_operating_voltage, target_environment, comments, standard_classification

@@ -226,6 +226,15 @@ class Doogle::Display < ApplicationModel
   def oled_diagonal_in_option
     Doogle::OledDiagonalInOption.from_diagonal(self.oled_diagonal_in_option_id)
   end
+  scope :type_key, lambda { |v|
+    if v == 'any'
+      where({})
+    else
+      {
+        :conditions => { :type_key => v }
+      }
+    end
+  }
   
   def search_field_specified?(field)
     value = self.send(field.search_key)

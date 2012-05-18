@@ -1,10 +1,62 @@
+<%= render 'submenu' %>
+
+<% title 'Display Search' %>
+
+<% show_form_html = image_tag(AppConfig.arrow_collapse_image) + ' Show Search Form' %>
+<% hide_form_html = image_tag(AppConfig.arrow_expand_image) + ' Hide Search Form' %>
+
+<div class="doogle_search_box">
+	<div class="dooglemenu">
+		<ul>
+			<li>
+				<%= link_to 'Clear', '#', :class => 'clear_form' %>
+			</li>
+			<li>
+				<a href="#" class="hide" id="show_search_form_link"><%= show_form_html %></a>
+			</li>
+		</ul>
+	</div>
+
+	<%= semantic_form_for @search, :as => :search, :url => doogle_displays_path, :html => {:method => :get, :class => 'doogle'} do |f| %>
+	<%= f.buttons :class => 'buttons right' do %>
+	  <%= f.commit_button 'Search' %>
+	<% end %>
+	<%= render :partial=>'search_form', :locals =>{:f=>f} %>
+	<%= f.buttons do %>
+	  <%= f.commit_button 'Search' %>
+	<% end %>
+	<% end %>
+</div>
+
+<div id="inprogress" class="hide display_search">
+	Searching... <%= image_tag(AppConfig.in_progress_image || 'inprogress.gif') %>
+</div>
+
+<div id="search_results">
+<% if @displays %>
+<%= render 'search_results' %>
+<% end %>
+</div>
+
+
 <% content_for :javascripts do %>
 <script type="text/javascript">
+var hide_search_form = function() {
+	$("form#search_new").hide();
+	$("#show_search_form_link").html("<%= escape_javascript(show_form_html) %>").show().unbind('click').toggle(function() { 
+		$("form#search_new").show();
+	  $(this).html("<%= escape_javascript(hide_form_html) %>");
+	}, function() {
+		$("form#search_new").hide();
+	  $(this).html("<%= escape_javascript(show_form_html) %>");
+	});
+};
 var options = {
 	target: '#search_results',
 	beforeSubmit: function(arr, $form, options) { 
 		$("#search_results").html("");
 		$("#inprogress").show();
+		hide_search_form();
 		return true;
 	},
 	success: function() {
@@ -19,41 +71,25 @@ var options = {
 };
 $(function() {
   $("form#search_new").change(function() {
-    $(this).ajaxSubmit(options);
+		console.log("form#search_new changed");
+		display_dynamic_form();
   });
 	$("a.clear_form").click(function() {
 		$("#search_results").html("");
-		$('form#search_new').clearForm().children('select').find("option:first").attr("selected", true);
+		$("#show_search_form_link").hide();
+		$("form#search_new").show();
+		reset_form($("form#search_new"));
+		display_dynamic_form();
 		return false;
 	});
 	$("input.create").click(function() {
     $('form').ajaxSubmit(options);
 		return false;
 	});
+	<% if @displays %>
+	hide_search_form();
+	<% end %>
+	$("#search_model_number").focus();
 });
 </script>
 <% end %>
-
-<%= render 'submenu' %>
-
-<% title 'Display Search' %>
-
-<%= semantic_form_for @search, :as => :search, :url => doogle_displays_path, :html => {:method => :get, :class => 'doogle'} do |f| %>
-<%= render :partial=>'search_form', :locals =>{:f=>f} %>
-<%= f.buttons do %>
-  <%= f.commit_button 'Search' %>
-	<li>
-		<%= link_to 'Clear Form', '#', :class => 'clear_form' %>
-	</li>
-<% end %>
-<% end %>
-
-<div id="inprogress" class="hide display_search">
-	Searching... <%= image_tag(AppConfig.in_progress_image || 'inprogress.gif') %>
-</div>
-
-<div id="search_results">
-<% if @displays %>
-<%= render 'search_results' %>
-<% end %>
-</div>
