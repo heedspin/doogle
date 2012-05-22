@@ -18,7 +18,7 @@ class Doogle::DisplaysController < Doogle::DoogleController
           display_scope = @search.search_scope(display_scope, field)
         end
       end
-      @displays = display_scope.by_model_number.paginate(:page => params[:page], :per_page => 50)
+      @displays = display_scope.by_model_number.paginate(:page => params[:page], :per_page => 100)
       @show_results_fields = Doogle::FieldConfig.top_level.select { |f| @field_keys.member?(f.key) }
     end
     if request.xhr?
