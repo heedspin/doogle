@@ -1,21 +1,24 @@
 <div class="admintoolbar">
 <h3><%= cm @displays.total_entries %> Displays<h3>
 <%= will_paginate @displays %>
+<% result_fields = @search.display_type.present? ? @search.display_type.sorted_fields : Doogle::FieldConfig.sorted_top_level %>
+<% result_fields.delete_if { |f| [:datasheet, :specification, :source_specification].include?(f.key) } %>
+<%= select_tag(:field_id, options_from_collection_for_select(result_fields, :key, :name, @show_results_fields.map(&:key)), {:id => 'search_results_filter', :multiple => true}) %>
 </div>
 
 <table class="data">
   <thead>
     <tr>
-			<% @fields.each do |field| %>
-			<th><%= field.label %></th>
+			<% result_fields.each do |field| %>
+			<th class="<%= field_class(field) %>"><%= field.label %></th>
 			<% end %>
     </tr>
   </thead>
   <tbody>
     <% @displays.each do |display| %>
       <tr class="<%= cycle('odd', 'even') %>">
-				<% @fields.each do |field| %>
-				<td class="<%= field_td_class(display, field) %>"><%= render_field(display, field) %></td>
+				<% result_fields.each do |field| %>
+				<td class="<%= field_class(field, display) %>"><%= render_field(display, field) %></td>
 				<% end %>
 				<% if permitted_to? :edit, :doogle_displays %>
 				<td>

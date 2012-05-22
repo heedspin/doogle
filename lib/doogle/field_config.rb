@@ -31,7 +31,11 @@ class Doogle::FieldConfig
   end
 
   def self.top_level
-    self.all.select { |f| f.top_level? }
+    @top_level ||= self.all.select { |f| f.top_level? }
+  end
+  
+  def self.sorted_top_level
+    @sorted_top_level ||= self.top_level.sort_by(&:name)
   end
 
   def self.for_keys(*args)

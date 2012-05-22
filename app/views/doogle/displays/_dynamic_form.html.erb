@@ -2,7 +2,7 @@
 <script type="text/javascript">
 var all_fields = <%= Doogle::FieldConfig.main.map(&:key).to_json.html_safe %>;
 var fields_for = <%= Doogle::DisplayConfig.key_to_field_keys.to_json.html_safe %>;
-var display_dynamic_form = function(e) {
+var show_or_hide_edit_fields = function(e) {
 	var display_type = $("select#<%= object_name %>_type_key").children("option:selected").attr("value");
 	var show_fields = fields_for[display_type] || all_fields;
 	// console.log("show_fields for " + display_type + " = " + show_fields);
@@ -10,10 +10,10 @@ var display_dynamic_form = function(e) {
 		var field = all_fields[i];
 		if ($.inArray(field, show_fields) >= 0) {
 			// console.log("showing li#<%= object_name %>_"+field+"_input");
-			$("li#<%= object_name %>_"+field+"_input").show('slow').children('input, select').attr('disabled', false);;			
+			$("li#<%= object_name %>_"+field+"_input").show('slow').children('input, select').attr('disabled', false);
 		} else {
 			// console.log("hiding li#<%= object_name %>_"+field+"_input");
-			$("li#<%= object_name %>_"+field+"_input").hide('slow').children('input, select').attr('disabled', true);			
+			$("li#<%= object_name %>_"+field+"_input").hide('slow').children('input, select').attr('disabled', true);
 		}
 	}
 }
@@ -22,7 +22,7 @@ var reset_form = function($form) {
 	$form.find('input:radio, input:checkbox').removeAttr('checked').removeAttr('selected');
 }
 $(function() {
-  $("select#<%= object_name %>_type_key").change(display_dynamic_form);
+  $("select#<%= object_name %>_type_key").change(show_or_hide_edit_fields);
 })
 </script>
 <% end %>

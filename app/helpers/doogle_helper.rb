@@ -6,10 +6,6 @@ module DoogleHelper
                 :include_blank => true )
   end
 
-  def field_td_class(display, field)
-    'centered'
-  end
-
   def doogle_cm(thing, nil_if_equals=nil)
     if thing and (thing.to_f != nil_if_equals)
       if (thing.is_a?(Float) or thing.is_a?(BigDecimal)) and (thing.to_i == thing)
@@ -34,7 +30,7 @@ module DoogleHelper
 
   def render_field(display, field)
     value = if field.model_number?
-      link_to doogle_search_excerpt(display.model_number, @search.try(:model_number)), doogle_display_url(display)
+      link_to doogle_search_excerpt(display.model_number, @search.try(:model_number)), doogle_display_url(display), {:target => '_blank'}
     elsif field.comment?
       doogle_search_excerpt(display.comment, @search.try(:comment))
     elsif field.integrated_controller?
@@ -98,5 +94,14 @@ module DoogleHelper
     else
       'hide'
     end
+  end
+  
+  def ssf(field)
+    @show_search_fields.include?(field) ? '' : 'hide'
+  end
+
+  def field_class(field, display=nil)
+    hide = 'hide ' unless @show_results_fields.include?(field)
+    "#{hide}#{field.key}_cell"
   end
 end

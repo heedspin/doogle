@@ -1,24 +1,24 @@
 <%= f.inputs do %>
 	<% Doogle::FieldConfig.searchable.each do |field| %>
+		<% next if field.display_type? %>
 		<% if field.search_range? %>
-		<li class="select input optional <%= hosf(field) %>" id="search_<%= field.key %>_input">
+		<li class="select input optional <%= ssf(field) %>" id="search_<%= field.key %>_input">
 			<label class=" label" for="search_<%= field.key %>"><%= field.label %></label>
 	    <%= range_select_tag(@search, field.search_range_attribute, field.search_range_options) %>
 		</li>
 		<% elsif field.search_options? %>
-		<%= f.input "#{field.search_option_attribute}_id", :as => :select, :collection => field.search_options_class.all, :member_label => field.search_options_class_member_label, :label => field.label, :include_blank => field.search_include_blank, :wrapper_html => { :id => "search_#{field.key}_input", :class => hosf(field) } %>
+		<%= f.input "#{field.search_option_attribute}_id", :as => :select, :collection => field.search_options_class.all, :member_label => field.search_options_class_member_label, :label => field.label, :include_blank => field.search_include_blank, :wrapper_html => { :id => "search_#{field.key}_input", :class => ssf(field) } %>
 		<% elsif field.has_many? %>
-		<%= f.input field.column, :as => :check_boxes, :collection => field.has_many_class.all, :label => field.label, :wrapper_html => { :id => "search_#{field.key}_input", :class => hosf(field) } %>
+		<%= f.input field.column, :as => :check_boxes, :collection => field.has_many_class.all, :label => field.label, :wrapper_html => { :id => "search_#{field.key}_input", :class => ssf(field) } %>
 		<% elsif field.belongs_to? %>
-		<%= f.input field.column, :as => :select, :collection => field.belongs_to_class.all, :label => field.label, :include_blank => field.search_include_blank, :wrapper_html => { :id => "search_#{field.key}_input", :class => hosf(field) } %>
+		<%= f.input field.column, :as => :select, :collection => field.belongs_to_class.all, :label => field.label, :include_blank => field.search_include_blank, :wrapper_html => { :id => "search_#{field.key}_input", :class => ssf(field) } %>
 		<% elsif field.dimension? %>
 		<%= render 'dimension', :f => f, :display => @search, :field => field, :search => true %>
 		<% elsif field.search_as %>
-	  <%= f.input field.column, :as => field.search_as, :label => field.label, :wrapper_html => { :id => "search_#{field.key}_input", :class => hosf(field) } %>
+	  <%= f.input field.column, :as => field.search_as, :label => field.label, :wrapper_html => { :id => "search_#{field.key}_input", :class => ssf(field) } %>
 		<% else %>
-	  <%= f.input field.column, :label => field.label, :wrapper_html => { :id => "search_#{field.key}_input", :class => hosf(field) } %>
+	  <%= f.input field.column, :label => field.label, :wrapper_html => { :id => "search_#{field.key}_input", :class => ssf(field) } %>
 		<% end %>
 	<% end # end fields %>
 <% end # end inputs %>
 
-<%= render 'dynamic_form', :object_name => 'search' %>

@@ -11,6 +11,7 @@
   <% end %>
 <% end %>
 
+<% unless @revising %>
 <% content_for :javascripts do %>
 <script type="text/javascript">
 $(function() {
@@ -37,4 +38,5 @@ $(function() {
 	$("select#display_type_key").trigger('change');
 })
 </script>
+<% end %>
 <% end %>

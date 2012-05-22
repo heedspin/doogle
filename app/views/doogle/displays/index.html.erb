@@ -21,6 +21,13 @@
 	<%= f.buttons :class => 'buttons right' do %>
 	  <%= f.commit_button 'Search' %>
 	<% end %>
+	<%= f.inputs :class => 'horizontal' do %>
+		<%= f.input :type_key, :as => :select, :collection => Doogle::DisplayConfig.all, :label => 'Type', :include_blank => false, :wrapper_html => { :id => "search_type_key_input" } %>
+		<% Doogle::DisplayConfig.all.each do |dc| %>
+		<%= select_tag(:field_id, options_from_collection_for_select(dc.sorted_search_fields, :key, :name, dc.default_search_fields.map(&:key)), 
+		    {:multiple => true, :class => 'hide raw_field_selector', :id => "raw_#{dc.key}_field_selector"}) %>
+		<% end %>
+	<% end %>
 	<%= render :partial=>'search_form', :locals =>{:f=>f} %>
 	<%= f.buttons do %>
 	  <%= f.commit_button 'Search' %>
@@ -51,7 +58,37 @@ var hide_search_form = function() {
 	  $(this).html("<%= escape_javascript(show_form_html) %>");
 	});
 };
-var options = {
+var show_or_hide_result_column = function(field_key, show, doitslow) {
+	if (show) {
+		$("." + field_key + "_cell").show(doitslow ? "fast" : null);
+	} else {
+		$("." + field_key + "_cell").hide(doitslow ? "fast" : null);
+	}	
+}
+var handle_results_click = function(event, ui){
+	show_or_hide_result_column(ui.value, ui.checked, true);
+}
+var show_all_result_columns = function() {
+	$(this).children("option").each(function() {
+		show_or_hide_result_column($(this).val(), true, false);
+	});
+}
+var hide_all_result_columns = function() {
+	$(this).children("option").each(function() {
+		show_or_hide_result_column($(this).val(), false, false);
+	});
+}
+var setup_results_filter = function() {
+	$("#search_results_filter").multiselect({
+		minWidth: 375,
+		selectedText: "Select Columns",
+		noneSelectedText: "Select Columns",
+		checkAll: show_all_result_columns,
+		uncheckAll: hide_all_result_columns,
+		click: handle_results_click
+	}).multiselectfilter()
+}
+var search_options = {
 	target: '#search_results',
 	beforeSubmit: function(arr, $form, options) { 
 		$("#search_results").html("");
@@ -61,6 +98,7 @@ var options = {
 	},
 	success: function() {
 		$("#inprogress").hide();
+		setup_results_filter();
 		return true;
 	},
 	error: function() {
@@ -69,24 +107,78 @@ var options = {
 		return true;
 	}
 };
+var enable_filter = function(field_key) {
+  $("li#search_" + field_key + "_input").show('slow').children('input, select').attr('disabled', false);
+}
+var disable_filter = function(field_key) {
+  $("li#search_" + field_key + "_input").hide('slow').children('input, select').attr('disabled', true);			
+}
+var enable_all_search_filters = function() {
+	$.each($(this).val(), function(index, field_key) {
+		enable_filter(field_key);
+	});
+}
+var disable_all_search_filters = function() {
+	$(this).children("option").each(function() {
+		disable_filter($(this).val());
+	});
+}
+var all_fields = <%= Doogle::FieldConfig.main.map(&:key).to_json.html_safe %>;
+var show_field_selector = function(e) {
+	var display_type = $("select#search_type_key").children("option:selected").attr("value");
+	var fields_to_show = $("#raw_" + display_type + "_field_selector").val();
+	$(".ms_field_selector").hide();
+	$("button.ms_" + display_type + "_field_selector").show();
+	$.each(all_fields, function(index, field_key) { 
+		if ($.inArray(field_key, fields_to_show) >= 0) {
+			enable_filter(field_key);
+		} else {
+			disable_filter(field_key);
+		}
+	});
+}
+var reset_form = function($form) {
+	$form.find('input:text, input:password, input:file, select').not(".raw_field_selector").val('');
+	$form.find('input:radio, input:checkbox').removeAttr('checked').not(".raw_field_selector").removeAttr('selected');
+}
+var handle_search_click = function(event, ui){
+	if (ui.checked) {
+		enable_filter(ui.value);
+	} else {
+		disable_filter(ui.value);
+	}
+}
 $(function() {
-  $("form#search_new").change(function() {
-		display_dynamic_form();
-  });
+  // $("form#search_new").change(function() {
+  // 		display_dynamic_form();
+  // });
 	$("a.clear_form").click(function() {
 		$("#search_results").html("");
 		$("#show_search_form_link").hide();
 		$("form#search_new").show();
 		reset_form($("form#search_new"));
-		display_dynamic_form();
+		show_field_selector();
 		return false;
 	});
 	$("input.create").click(function() {
-    $('form').ajaxSubmit(options);
+    $('form').ajaxSubmit(search_options);
 		return false;
 	});
+  $("select#search_type_key").change(show_field_selector);
 	<% if @displays %>
 	hide_search_form();
+	setup_results_filter();
+	<% end %>
+	<% Doogle::DisplayConfig.all.each do |dc| %>
+	$(<%= "\"#raw_#{dc.key}_field_selector\"".html_safe %>).multiselect({
+		classes: "ms_field_selector ms_<%= dc.key %>_field_selector <%= @search.display_type == dc ? '' : 'hide' %>",
+		minWidth: 375,
+		selectedText: "Select Filters",
+		noneSelectedText: "Select Filter",
+		click: handle_search_click,
+		checkAll: enable_all_search_filters,
+		uncheckAll: disable_all_search_filters
+	}).multiselectfilter()
 	<% end %>
 	$("#search_model_number").focus();
 });

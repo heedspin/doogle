@@ -19,10 +19,12 @@ class Doogle::DisplaysController < Doogle::DoogleController
         end
       end
       @displays = display_scope.by_model_number.paginate(:page => params[:page], :per_page => 50)
-      @fields = Doogle::FieldConfig.top_level.select { |f| @field_keys.member?(f.key) }
+      @show_results_fields = Doogle::FieldConfig.top_level.select { |f| @field_keys.member?(f.key) }
     end
     if request.xhr?
       render :action => '_search_results', :layout => false
+    else
+      @show_search_fields = @fields || @search.display_type.try(:default_search_fields)
     end
   end
 
@@ -40,12 +42,12 @@ class Doogle::DisplaysController < Doogle::DoogleController
 
   def new
     if dup_id = params[:dup]
-      source = Doogle::Display.find(dup_id)
-      @display = source.dup
+      @revising = Doogle::Display.find(dup_id)
+      @display = @revising.dup
       @display.forget_attachments
-      @display.interface_types = source.interface_types
+      @display.interface_types = @revising.interface_types
       @display.model_number = @display.model_number.succ
-      @display.errors.add(:model_number, "New revision of #{source.model_number}")
+      @display.errors.add(:model_number, "New revision of #{@revising.model_number}")
     else
       @display = build_object
       @display.status ||= Doogle::Status.draft
