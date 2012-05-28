@@ -22,6 +22,7 @@
 #  touch_panel_type_id               :integer(4)
 #  timing_controller_type_id         :integer(4)
 #  specification_type_id             :integer(4)
+#  viewing_cone                      :integer(4)
 #  resolution_x                      :integer(4)
 #  resolution_y                      :integer(4)
 #  storage_temperature_min           :integer(4)
@@ -68,9 +69,7 @@
 #  publish_to_erp                    :boolean(1)
 #  erp_id                            :integer(4)
 #  publish_to_web                    :boolean(1)
-#  web_id                            :integer(4)
 #  needs_pushed_to_web               :boolean(1)
-#  viewing_cone                      :integer(4)
 #  datasheet_public                  :boolean(1)
 #  source_specification_file_name    :string(255)
 #  source_specification_content_type :string(255)
@@ -89,6 +88,7 @@
 #  description                       :string(255)
 #  gamma_required                    :boolean(1)
 #  multiplex_ratio                   :integer(4)
+#  previous_revision_id              :integer(4)
 #
 
 # tim@concerto:~/Dropbox/p/lxd_m2mhub$ bundle exec annotate --model-dir ../doogle/app/models
@@ -125,6 +125,7 @@ class Doogle::Display < ApplicationModel
   has_many :display_interface_types, :class_name => 'Doogle::DisplayInterfaceType', :dependent => :destroy
   has_many :interface_types, :through => :display_interface_types, :source => :interface_type
   belongs_to :item, :class_name => 'M2m::Item', :foreign_key => 'erp_id'
+  belongs_to :previous_revision, :class_name => 'Doogle::Display', :foreign_key => 'previous_revision_id'
 
   [ [:datasheet, ':display_type/:model_number/LXD-:model_number-datasheet.:extension'],
     [:specification, ':display_type/:model_number/LXD-:model_number-spec.:extension'],
@@ -161,7 +162,7 @@ class Doogle::Display < ApplicationModel
   }
   scope :display_type, lambda { |*types|
     type_keys = types.flatten.map { |t| t.is_a?(Doogle::DisplayConfig) ? t.key : t.to_s }
-    if type_keys.include?('any')
+    if type_keys.include?(:any)
       where({})
     else
       {
@@ -330,12 +331,16 @@ class Doogle::Display < ApplicationModel
   def sync_to_web
     dr = nil
     begin
-      dr = Doogle::DisplayResource.authorized_find(self.id)
+      dr = Doogle::DisplayResource.find(self.id)
     rescue ActiveResource::ResourceNotFound
     end
-    return if dr.nil? and (self.status.nil? or !self.status.published?)
-    if !self.publish_to_web
-      if dr.present?
+    if dr.nil? and (self.status.nil? or !self.status.published?)
+      # It's not on the web and it's not published, so exit.
+      return
+    end
+    result = nil
+    if !self.publish_to_web or self.status.deleted?
+      result = if dr.present? and !dr.status.try(:deleted?)
         dr.destroy
         :delete
       else
@@ -358,16 +363,20 @@ class Doogle::Display < ApplicationModel
             if (!dr.respond_to?(field.column) or !dr.send(field.column).present?) and !self.send(field.column).present?
               # Do nothing
             else
-              dr.attributes[field.column] =self.send(field.column)
+              dr.attributes[field.column] = self.send(field.column)
             end
           end
         end
       end
       success_result = dr.new_record? ? :create : :update
       result = dr.save ? success_result : :error
-      Doogle::DisplayLog.create(:display => self, :summary => 'Web Sync', :details => "result = #{result}")
-      result
     end
+    Doogle::DisplayLog.create(:display => self, :summary => 'Web Sync', :details => "result = #{result}")
+    if (result == :create) and self.previous_revision.present?
+      self.previous_revision.destroy # should already be destroyed
+      self.previous_revision.sync_to_web
+    end
+    result
   end
 
   def sync_from_erp!(item)

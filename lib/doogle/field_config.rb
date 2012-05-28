@@ -199,7 +199,6 @@ class Doogle::FieldConfig
   config_accessor :search_include_blank, true
   config_accessor :edit_include_blank, true
   config_accessor :sprintf, false
-  config_accessor :simple_field, false
 
   def composite_parent
     @composite_parent ||= Doogle::FieldConfig.composites.detect { |f| f.composite_children.include?(self) } || self

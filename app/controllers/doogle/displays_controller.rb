@@ -41,17 +41,19 @@ class Doogle::DisplaysController < Doogle::DoogleController
   end
 
   def new
-    if dup_id = params[:dup]
-      @revising = Doogle::Display.find(dup_id)
+    if rev_id = params[:rev]
+      @revising = Doogle::Display.find(rev_id)
       @display = @revising.dup
+      @display.previous_revision_id = rev_id
       @display.forget_attachments
       @display.interface_types = @revising.interface_types
       @display.model_number = @display.model_number.succ
-      @display.errors.add(:model_number, "New revision of #{@revising.model_number}")
+      @display.errors.add(:model_number, "New Revision")
+      @display.status = Doogle::Status.draft
     else
       @display = build_object
       @display.status ||= Doogle::Status.draft
-      @display.publish_to_web = @display.publish_to_erp = true
+      @display.publish_to_web = @display.publish_to_erp = false
     end
   end
 
@@ -64,6 +66,7 @@ class Doogle::DisplaysController < Doogle::DoogleController
     @display = build_object
     if @display.save
       @display.sync_to_erp
+      @display.previous_revision.try(:destroy)
       @display.maybe_sync_to_web
       flash[:notice] = 'Display was successfully created.'
       if params[:commit] == 'Save & Edit'

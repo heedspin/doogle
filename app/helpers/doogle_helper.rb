@@ -56,6 +56,10 @@ module DoogleHelper
       else
         ''
       end
+    elsif field.previous_revision_id?
+      if display.previous_revision
+        link_to display.previous_revision.model_number, doogle_display_url(display.previous_revision)
+      end
     else
       default_render_field(display, field)
     end
