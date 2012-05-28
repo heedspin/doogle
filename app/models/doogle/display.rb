@@ -161,9 +161,13 @@ class Doogle::Display < ApplicationModel
   }
   scope :display_type, lambda { |*types|
     type_keys = types.flatten.map { |t| t.is_a?(Doogle::DisplayConfig) ? t.key : t.to_s }
-    {
-      :conditions => [ 'displays.type_key in (?)', type_keys ]
-    }
+    if type_keys.include?('any')
+      where({})
+    else
+      {
+        :conditions => [ 'displays.type_key in (?)', type_keys ]
+      }
+    end
   }
   %w(multiplex_ratio resolution_x resolution_y type_key gamma_required).each do |key|
     scope key, lambda { |v|
@@ -229,15 +233,6 @@ class Doogle::Display < ApplicationModel
   def oled_diagonal_in_option
     Doogle::OledDiagonalInOption.from_diagonal(self.oled_diagonal_in_option_id)
   end
-  scope :display_type, lambda { |dt|
-    if dt.key == :any
-      where({})
-    else
-      {
-        :conditions => { :type_key => dt.key.to_s }
-      }
-    end
-  }
 
   def search_field_specified?(field)
     value = self.send(field.search_key)
