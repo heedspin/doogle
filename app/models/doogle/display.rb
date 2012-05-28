@@ -134,10 +134,12 @@ class Doogle::Display < ApplicationModel
     options = { :storage => :s3,
                 :s3_credentials => { :access_key_id => AppConfig.doogle_access_key_id,
                                      :secret_access_key => AppConfig.doogle_secret_access_key },
-                :url => ':s3_domain_url',
+                :url => ':s3_is_my_bitch_url',
                 :bucket => AppConfig.doogle_bucket,
                 :s3_permissions => 'authenticated-read',
-                :path => path }
+                :path => path,
+                :asset_key => key,
+                :hello => 'world' }
     options[:styles] = image_styles if image_styles
     has_attached_file key, options
   end
@@ -190,13 +192,14 @@ class Doogle::Display < ApplicationModel
       }
     }
   end
-  
+
   scope :web, :conditions => { :publish_to_web => true }
   %w(datasheet_public publish_to_web publish_to_erp).each do |key|
     self.class_eval <<-RUBY
     scope :#{key}, lambda { |v|
     {
-      :conditions => { :#{key} => v } }
+      :conditions => { :#{key} => v }
+                       }
     }
     RUBY
   end
@@ -235,7 +238,7 @@ class Doogle::Display < ApplicationModel
       }
     end
   }
-  
+
   def search_field_specified?(field)
     value = self.send(field.search_key)
     value.present? || value.is_a?(FalseClass)
@@ -435,10 +438,10 @@ class Doogle::Display < ApplicationModel
 
   # MM_PER_INCH = 25.4
   # MM_PRECISION = 4
-  # 
+  #
   # Diagonal via Pythagorian:
   # Math.sqrt(self.module_width_mm * self.module_width_mm + self.module_height_mm * self.module_height_mm) / MM_PER_INCH
-  # 
+  #
   # Inches to MM:
   # (n * MM_PER_INCH).round(MM_PRECISION)
 
@@ -478,4 +481,9 @@ end
 
 Paperclip.interpolates :display_type do |attachment, style|
   attachment.instance.display_type.key
+end
+
+Paperclip.interpolates :s3_is_my_bitch_url do |attachment, style|
+  model_number = URI.escape(attachment.instance.model_number, "/")
+  "/display_assets/#{model_number}?asset=#{attachment.options[:asset_key]}"
 end

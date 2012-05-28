@@ -85,7 +85,8 @@ module DoogleHelper
   end
 
   def doogle_asset_path(display, asset)
-    display_asset_path URI.escape(display.model_number, "/"), :asset => asset
+    # display_asset_path URI.escape(display.model_number, "/"), :asset => asset
+    display.send(asset).url
   end
   
   def hosf(field)
