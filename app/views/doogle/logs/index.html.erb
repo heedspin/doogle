@@ -1,6 +1,5 @@
-<%= render 'doogle/displays/submenu' %>
 
-<h2>Logs for <%= link_to @display.model_number, doogle_display_url(@display) %></h2>
+<%= render 'doogle/displays/submenu' %>
 
 <%= will_paginate @display_logs %>
 
@@ -8,6 +7,7 @@
 	<thead>
 		<tr>
 			<th>Time</th>
+			<th>Display</th>
 			<th>Summary</th>
 			<th>Details</th>
 			<th>User</th>
@@ -17,6 +17,7 @@
 		<% @display_logs.each do |dl| %>
 		<tr>
 			<td><%= dl.created_at.to_s(:number_date_time) %></td>
+			<td><%= link_to_if permitted_to?(:read, :doogle_displays), dl.display.model_number, doogle_display_url(dl.display) %></td>
 			<td><%= dl.summary %></td>
 			<td><%= dl.details %></td>
 			<td><%= dl.user.try(:full_name) %></td>

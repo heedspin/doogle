@@ -9,6 +9,7 @@
   <% links.push link_to('<span></span>Edit'.html_safe, edit_doogle_display_path(display, :return_to => doogle_displays_path), :class => 'btn edit') %>
   <% links.push link_to('<span></span>New Revision'.html_safe, new_doogle_display_path(:dup => @display.id))  %>
   <% links.push link_to('<span></span>Destroy'.html_safe, doogle_display_path(display), :confirm => 'Are you sure?', :method => :delete, :class => 'btn delete')  %>
+  <% links.push link_to('<span></span>Logs'.html_safe, doogle_display_display_logs_path(@display))  %>
 <% end %>
 
 <table class="data">

@@ -8,8 +8,8 @@
 		<li class="<%= menu_selected(:controller => :displays, :action => :new) %>">
 			<%= link_to 'New Display', new_doogle_display_url %>
 		</li>
-		<li class="<%= menu_selected(:controller => :display_logs, :action => :index) %>">
-			<%= link_to 'Logs', doogle_display_logs_url %>
+		<li class="<%= menu_selected(:controller => :logs, :action => :index) %>">
+			<%= link_to 'Logs', doogle_logs_url %>
 		</li>
 		<% end %>
 	</ul>

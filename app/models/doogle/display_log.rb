@@ -16,4 +16,10 @@ class Doogle::DisplayLog < ActiveRecord::Base
   belongs_to :user
   
   scope :by_date_desc, :order => 'display_logs.created_at desc'
+  scope :for_display, lambda { |display|
+    display_id = display.is_a?(Doogle::Display) ? display.id : display
+    {
+      :conditions => { :display_id => display_id }
+    }
+  }
 end
