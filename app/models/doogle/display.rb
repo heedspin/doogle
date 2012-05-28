@@ -366,7 +366,9 @@ class Doogle::Display < ApplicationModel
         end
       end
       success_result = dr.new_record? ? :create : :update
-      dr.save ? success_result : :error
+      result = dr.save ? success_result : :error
+      Doogle::DisplayLog.create(:display => self, :summary => 'Web Sync', :details => "result = #{result}")
+      result
     end
   end
 
