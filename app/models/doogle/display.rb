@@ -411,15 +411,9 @@ class Doogle::Display < ApplicationModel
       self.item = item
     else
       item = M2m::Item.new
-      item.part_number = self.model_number
-      item.revision = '000'
-      item.location = 'WAREHOUSE'
-      item.description = self.description
-      item.product_class_key = product_class_number
-      item.group_code_key = self.display_type.m2m_group_code
-      item.measure1 = item.measure2 = 'EA'
-      item.source = M2m::ItemSource.buy
-      item.abc_code = 'A'
+      { :fpartno => self.model_number, :location => 'WAREHOUSE', :description => self.description, :product_class_key => product_class_number, :group_code_key => self.display_type.m2m_group_code, :frev => '000', :fsource => M2m::ItemSource.buy.key, :abc_code => 'A', :fac => 'Default', :sfac => 'Default', :fcstscode => 'A', :fcstperinv => 1.0, :fbulkissue => 'Y', :fcbackflsh => 'N', :fcopymemo => 'Y', :fcostcode => 'R', :fcpurchase => 'Y', :fdrawno => self.model_number, :finspect => 'N', :fyield => 100.0, :fcudrev => '000', :flFSRtn => 1, :flocbfdef => 'WAREHOUSE', :measure1 => 'EA', :measure2 => 'EA' }.each do |key, value|
+        item.send("#{key}=", value)
+      end
       unless item.save
         item.errors.each do |error|
           self.errors.add_to_base error.message
