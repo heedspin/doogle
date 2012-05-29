@@ -250,6 +250,21 @@ class Doogle::Display < ApplicationModel
   def model_and_id
     "id: #{id} #{model_number}"
   end
+  
+  def clean_decimal(thing, nil_if_equals=nil)
+    if thing and (thing.to_f != nil_if_equals)
+      if (thing.is_a?(Float) or thing.is_a?(BigDecimal)) and (thing.to_i == thing)
+        thing = sprintf('%0.f', thing)
+      end
+      thing
+    else
+      nil
+    end
+  end
+  
+  def default_description
+    self.instance_eval '"' + self.display_type.default_description + '"'
+  end
 
   # **********************************
 
@@ -411,7 +426,7 @@ class Doogle::Display < ApplicationModel
       self.item = item
     else
       item = M2m::Item.new
-      { :fpartno => self.model_number, :location => 'WAREHOUSE', :description => self.description, :product_class_key => product_class_number, :group_code_key => self.display_type.m2m_group_code, :frev => '000', :fsource => M2m::ItemSource.buy.key, :abc_code => 'A', :fac => 'Default', :sfac => 'Default', :fcstscode => 'A', :fcstperinv => 1.0, :fbulkissue => 'Y', :fcbackflsh => 'N', :fcopymemo => 'Y', :fcostcode => 'R', :fcpurchase => 'Y', :fdrawno => self.model_number, :finspect => 'N', :fyield => 100.0, :fcudrev => '000', :flFSRtn => 1, :flocbfdef => 'WAREHOUSE', :measure1 => 'EA', :measure2 => 'EA' }.each do |key, value|
+      { :fpartno => self.model_number, :location => 'WAREHOUSE', :description => self.description || self.display_type.name, :product_class_key => product_class_number, :group_code_key => self.display_type.m2m_group_code, :frev => '000', :fsource => M2m::ItemSource.buy.key, :abc_code => 'A', :fac => 'Default', :sfac => 'Default', :fcstscode => 'A', :fcstperinv => 1.0, :fbulkissue => 'Y', :fcbackflsh => 'N', :fcopymemo => 'Y', :fcostcode => 'R', :fcpurchase => 'Y', :fdrawno => self.model_number, :finspect => 'N', :fyield => 100.0, :fcudrev => '000', :flFSRtn => 1, :flocbfdef => 'WAREHOUSE', :measure1 => 'EA', :measure2 => 'EA' }.each do |key, value|
         item.send("#{key}=", value)
       end
       unless item.save

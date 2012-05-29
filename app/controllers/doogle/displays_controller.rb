@@ -59,7 +59,7 @@ class Doogle::DisplaysController < Doogle::DoogleController
 
   def edit
     @display = current_object
-    @display.description ||= @display.display_type.name
+    @display.description ||= @display.default_description
   end
 
   def create
