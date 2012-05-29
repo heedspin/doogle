@@ -412,7 +412,7 @@ class Doogle::Display < ApplicationModel
     else
       item = M2m::Item.new
       item.part_number = self.model_number
-      item.revision = ''
+      item.revision = '000'
       item.location = 'WAREHOUSE'
       item.description = self.description
       item.product_class_key = product_class_number
