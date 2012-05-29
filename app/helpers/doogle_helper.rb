@@ -60,6 +60,10 @@ module DoogleHelper
       if display.previous_revision
         link_to display.previous_revision.model_number, doogle_display_url(display.previous_revision)
       end
+    elsif field.erp_id?
+      if display.item
+        link_to 'M2M Item', item_url(display.item)
+      end
     else
       default_render_field(display, field)
     end

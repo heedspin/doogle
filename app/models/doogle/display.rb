@@ -427,7 +427,7 @@ class Doogle::Display < ApplicationModel
       end
       self.erp_id = item.id
     end
-    true
+    self.save
   end
 
   # attr_accessor :m2m_validations

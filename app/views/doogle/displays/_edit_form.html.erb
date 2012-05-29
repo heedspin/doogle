@@ -19,6 +19,11 @@
 		<% elsif permitted_to? :set_previous_revision_id %>
 		<%= f.input :previous_revision_id, :label => field.label, :wrapper_html => { :id => field.wrapper_id, :class => hosf(field) } %>
 		<% end %>
+
+		<% elsif field.erp_id? %>
+		<% if permitted_to? :set_erp_id %>
+		<%= f.input :erp_id, :label => field.label, :wrapper_html => { :id => field.wrapper_id, :class => hosf(field) } %>
+		<% end %>
 		
 		<% elsif field.display_type? %>
 		<%= f.input :type_key, :as => :select, :collection => Doogle::DisplayConfig.edit, :label => field.label, :wrapper_html => { :id => field.wrapper_id, :class => hosf(field) }, :include_blank => field.edit_include_blank %>
