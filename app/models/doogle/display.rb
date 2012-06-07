@@ -100,7 +100,6 @@ require 'doogle/web_synchronizer'
 
 class Doogle::Display < ApplicationModel
   validates_uniqueness_of :model_number
-  validates_uniqueness_of :source_model_number, :allow_blank => true
   validates_presence_of :type_key, :status
 
   attr_accessor :display_type
@@ -406,6 +405,12 @@ class Doogle::Display < ApplicationModel
   end
 
   def sync_to_erp
+    if self.item.nil? and (item = M2m::Item.with_part_number(self.model_number).first)
+      self.item = item
+    end
+  end
+    
+  def deprecated_sync_to_erp
     return unless self.publish_to_erp
     product_class_number = M2m::ProductClass.with_name(self.display_type.m2m_product_class).first.try(:number) || (raise "No m2m product class for display type #{self.display_type.key} with name #{self.display_type.m2m_product_class}")
     if item = self.item
@@ -485,6 +490,23 @@ class Doogle::Display < ApplicationModel
                                 :user_id => current_user.try(:id),
                                 :summary => 'Update',
                                 :details => filtered_changes.inspect)
+    end
+    
+    validate :check_source_model_number
+    def check_source_model_number
+      return unless self.source_model_number.present?
+      conflicts = Doogle::Display.where(:source_model_number => self.source_model_number).all
+      if self.previous_revision_id.nil?
+        if conflicts.size > 0
+          self.errors.add(:source_model_number, "Conflicts with: #{conflicts.map(&:model_number).join(', ')}")
+        end
+      else
+        if conflicts.any? { |c| c.id == self.previous_revision_id }
+          # Assume the rest are ok.
+        else
+          self.errors.add(:source_model_number, "Conflicts with: #{conflicts.map(&:model_number).join(', ')}")
+        end
+      end
     end
 end
 
