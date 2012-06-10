@@ -495,7 +495,10 @@ class Doogle::Display < ApplicationModel
     validate :check_source_model_number
     def check_source_model_number
       return unless self.source_model_number.present?
-      conflicts = Doogle::Display.scoped(:conditions => "displays.id != #{self.id}").where(:source_model_number => self.source_model_number).all
+      conflicts = Doogle::Display.where(:source_model_number => self.source_model_number)
+      unless self.new_record?
+        conflicts = conflicts.scoped(:conditions => "displays.id != #{self.id}")
+      end
       if self.previous_revision_id.nil?
         if conflicts.size > 0
           self.errors.add(:source_model_number, "Conflicts with: #{conflicts.map(&:model_number).join(', ')}")
