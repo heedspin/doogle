@@ -26,7 +26,6 @@ class Doogle::WebSynchronizer
     Doogle::Display.find_each do |display|
       sync_single_display(display)
     end
-    self.results
     true
   end
 

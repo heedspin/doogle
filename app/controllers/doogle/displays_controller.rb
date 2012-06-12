@@ -1,6 +1,9 @@
 require 'doogle_config'
+require 'user_activity_logger'
 
 class Doogle::DisplaysController < Doogle::DoogleController
+  include UserActivityLogger
+
   def index
     search_params = params[:search]
     @search = Doogle::Display.new(search_params)
