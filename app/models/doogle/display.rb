@@ -504,9 +504,8 @@ class Doogle::Display < ApplicationModel
           self.errors.add(:source_model_number, "Conflicts with: #{conflicts.map(&:model_number).join(', ')}")
         end
       else
-        if conflicts.any? { |c| c.id == self.previous_revision_id }
-          # Assume the rest are ok.
-        else
+        conflicts = conflicts.all
+        unless (conflicts.size == 0) or (conflicts.any? { |c| c.id == self.previous_revision_id })
           self.errors.add(:source_model_number, "Conflicts with: #{conflicts.map(&:model_number).join(', ')}")
         end
       end
