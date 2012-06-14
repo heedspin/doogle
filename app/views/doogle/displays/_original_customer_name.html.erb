@@ -1,0 +1,34 @@
+<li class="flat string input optional stringish <%= ssf(field) %>" id="<%= object_name %>_original_customer_name_input">
+	<label class=" label" for="<%= object_name %>_original_customer_name"><%= field.label %></label>
+	<%= f.text_field field.column %>
+	<span id="customer_inprogress" class="hide">
+	<%= image_tag AppConfig.in_progress_image %>
+	</span>
+</li>
+
+<% content_for :javascripts do %>
+<script type="text/javascript">
+$(function() {
+	$("input#<%= object_name %>_original_customer_name").autocomplete({
+		source: "<%= customers_url %>",
+		search: function(event, ui) { 
+			$("input#sales_commission_rate_customer_name").autocomplete("close");
+			$("#customer_inprogress").show();
+		},
+		open: function(event, ui) { 
+			$("#customer_inprogress").hide();
+		},
+		select: function(event, ui) { 
+			if (ui.item.value == "No Results") {
+				$(this).val( "" ); 
+				// Do nothing.
+			}	else {
+				$(this).val( ui.item.value ); 
+			}
+			return false; 
+		}		
+	});
+})
+</script>
+<% end %>
+

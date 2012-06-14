@@ -16,6 +16,8 @@
 		<%= render 'dimension', :f => f, :display => @search, :field => field, :search => true %>
 		<% elsif field.search_as %>
 	  <%= f.input field.column, :as => field.search_as, :label => field.label, :wrapper_html => { :id => "search_#{field.key}_input", :class => ssf(field) } %>
+		<% elsif field.original_customer_name? %>
+		<%= render 'original_customer_name', :f => f, :field => field, :object_name => 'search' %>
 		<% else %>
 	  <%= f.input field.column, :label => field.label, :wrapper_html => { :id => "search_#{field.key}_input", :class => ssf(field) } %>
 		<% end %>

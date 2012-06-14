@@ -106,7 +106,7 @@ module DoogleHelper
   end
   
   def ssf(field)
-    @show_search_fields.include?(field) ? '' : 'hide'
+    (@show_search_fields.nil? or @show_search_fields.include?(field)) ? '' : 'hide'
   end
 
   def field_class(field, display=nil)
