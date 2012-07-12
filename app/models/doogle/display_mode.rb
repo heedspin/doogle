@@ -8,6 +8,7 @@ class Doogle::DisplayMode < ActiveHash::Base
     {:position => 5, :id => 3, :name => 'FSTN',     :long_name => 'Film Compensated STN'},
     {:position => 6, :id => 4, :name => 'DSTN',     :long_name => 'Dual Scan STN'},
     {:position => 7, :id => 5, :name => 'FFSTN',    :long_name => 'Double Film Super-Twist Nematic'},
+    {:position => 8, :id => 8, :name => 'HTN',      :long_name => 'High Twisted Nematic'}
   ]
   include ActiveHashMethods
   
