@@ -4,7 +4,7 @@ class AddDoogleOriginalCustomerFields < ActiveRecord::Migration
     add_column :displays, :original_customer_part_number, :string
   end
 
-  def self.down
+  def down
     remove_column :displays, :original_customer_part_number
     remove_column :displays, :original_customer_name
   end
