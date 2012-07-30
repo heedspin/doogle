@@ -406,10 +406,12 @@ class Doogle::Display < ApplicationModel
     end
   end
 
-  def sync_to_erp
+  def sync_to_erp!
     if self.item.nil? and (item = M2m::Item.with_part_number(self.model_number).first)
       self.item = item
+      self.save! if self.changed?
     end
+    true
   end
     
   def deprecated_sync_to_erp

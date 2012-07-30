@@ -68,7 +68,7 @@ class Doogle::DisplaysController < Doogle::DoogleController
   def create
     @display = build_object
     if @display.save
-      @display.sync_to_erp
+      @display.sync_to_erp!
       @display.previous_revision.try(:destroy)
       @display.maybe_sync_to_web
       flash[:notice] = 'Display was successfully created.'
@@ -86,7 +86,7 @@ class Doogle::DisplaysController < Doogle::DoogleController
     @display = current_object
 
     if @display.update_attributes(params[:display])
-      @display.sync_to_erp
+      @display.sync_to_erp!
       @display.maybe_sync_to_web
       flash[:notice] = 'Display was successfully updated.'
       if params[:commit] == 'Save & Edit'
