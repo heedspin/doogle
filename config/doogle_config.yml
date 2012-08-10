@@ -206,14 +206,14 @@ display_types: &_display_types
   display_types:
     - key: any
       name: Any
-      fields: display_type, model_number, source_model_number, status, description, previous_revision_id, erp_id, comments, original_customer_name, original_customer_part_number
+      fields: display_type, model_number, source_model_number, status, description, previous_revision_id, erp_id, comments, original_customer_name, original_customer_part_number, standard_classification
       default_search_fields: display_type, model_number, source_model_number
 
     - key: tft_displays
       name: Digital TFT
       fields: status, display_type, model_number, source_model_number, description, previous_revision_id, erp_id, publish_to_web, bonding_type, polarizer_mode, viewing_direction, tft_diagonal_in, module_dimensions, active_area, resolution, active_area, backlight_type, operational_temperature, storage_temperature, interface_types, gamma_required, colors, touch_panel_type, datasheet, datasheet_public, specification, source_specification, luminance_nits, integrated_controller, logic_operating_voltage, target_environment, comments, standard_classification, original_customer_name, original_customer_part_number
       default_search_fields: display_type, model_number, tft_diagonal_in, resolution, interface_types
-      web_list: model_number, tft_diagonal_in, module_dimensions, active_area, resolution, active_area, backlight_type, operational_temperature, storage_temperature, interface_types, colors, touch_panel_type, luminance_nits
+      web_list: model_number, tft_diagonal_in, module_dimensions, active_area, resolution, backlight_type, operational_temperature, storage_temperature, interface_types, colors, touch_panel_type, luminance_nits
       m2m_group_code: TFTS
       m2m_product_class: TFTS
       model_number_prefix: M
@@ -252,7 +252,7 @@ display_types: &_display_types
       name: Segmented Module
       fields: status, display_type, model_number, source_model_number, description, previous_revision_id, erp_id, publish_to_web, viewing_direction, logic_operating_voltage, character_resolution, character_type, bonding_type, display_mode, module_dimensions, viewing_area, active_area, polarizer_mode, display_image, backlight_type, backlight_color, operational_temperature, storage_temperature, interface_types, integrated_controller, datasheet, datasheet_public, specification, source_specification, comments, standard_classification, original_customer_name, original_customer_part_number
       default_search_fields: display_type, model_number, character_resolution, bonding_type, display_mode
-      web_list: model_number, character_resolution, bonding_type, display_mode, module_dimensions, viewing_area, display_mode, polarizer_mode, backlight_type, backlight_color, operational_temperature, storage_temperature, datasheet
+      web_list: model_number, character_resolution, bonding_type, module_dimensions, viewing_area, display_mode, polarizer_mode, backlight_type, backlight_color, operational_temperature, storage_temperature, datasheet
       m2m_group_code: MOD
       m2m_product_class: MODULES
       model_number_prefix: M

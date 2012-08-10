@@ -73,8 +73,8 @@ class Doogle::DisplayConfig
   end
 
   def field_keys
-    @field_keys ||= if field_keys = @config['fields']
-      field_keys.split(',').map(&:strip).uniq
+    @field_keys ||= if fk = @config['fields']
+      fk.split(',').map(&:strip).uniq
     else
       []
     end
@@ -102,10 +102,10 @@ class Doogle::DisplayConfig
 
   def web_list_fields
     if @web_list_fields.nil?
-      fields = if keys = @config['web_list']
-        keys.split(',').map { |k| Doogle::FieldConfig.for_key(k.strip) }
+      fields = if (keys = @config['web_list'])
+        keys.split(',').map(&:strip).uniq.map { |k| Doogle::FieldConfig.for_key(k.strip) }
       else
-        self.web_fields
+        []
       end
       @web_list_fields = fields.select { |f| f.web? }
     end
