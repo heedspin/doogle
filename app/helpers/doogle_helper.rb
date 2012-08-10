@@ -116,17 +116,19 @@ module DoogleHelper
 
   def partition_displays(displays)
     result = []
-    if :tft_displays == displays.first.try(:display_type).try(:key)
-      sunlight, tft = displays.partition { |d| d.target_environment.try(:sunlight_readable?) }
-      result.push Doogle::DisplayPartition.new( :heading => 'Sunlight Readable TFTs',
-                                                :displays => sunlight,
-                                                :hide_fields => [:operational_temperature, :storage_temperature] )
-      result.push Doogle::DisplayPartition.new( :heading => 'Digital TFTs',
-                                                :displays => tft,
-                                                :hide_fields => [:luminance_nits] )
-    else
-      result.push Doogle::DisplayPartition.new( :heading => displays.first.try(:display_type).try(:web_name),
-                                                :displays => displays )
+    if displays
+      if :tft_displays == displays.first.try(:display_type).try(:key)
+        sunlight, tft = displays.partition { |d| d.target_environment.try(:sunlight_readable?) }
+        result.push Doogle::DisplayPartition.new( :heading => 'Sunlight Readable TFTs',
+                                                  :displays => sunlight,
+                                                  :hide_fields => [:operational_temperature, :storage_temperature] )
+        result.push Doogle::DisplayPartition.new( :heading => 'Digital TFTs',
+                                                  :displays => tft,
+                                                  :hide_fields => [:luminance_nits] )
+      else
+        result.push Doogle::DisplayPartition.new( :heading => displays.first.try(:display_type).try(:web_name),
+                                                  :displays => displays )
+      end
     end
     result
   end
