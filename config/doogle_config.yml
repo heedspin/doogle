@@ -206,7 +206,7 @@ display_types: &_display_types
   display_types:
     - key: any
       name: Any
-      fields: display_type, model_number, source_model_number, status, description, previous_revision_id, erp_id, comments, original_customer_name, original_customer_part_number, standard_classification
+      fields: display_type, model_number, source_model_number, status, description, previous_revision_id, erp_id, comments, original_customer_name, original_customer_part_number, standard_classification, publish_to_web
       default_search_fields: display_type, model_number, source_model_number
 
     - key: tft_displays
