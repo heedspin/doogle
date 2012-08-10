@@ -161,6 +161,11 @@ class Doogle::Display < ApplicationModel
       :conditions => ['displays.status_id = ?', Doogle::Status.published.id]
     }
   }
+  scope :draft, lambda {
+    {
+      :conditions => ['displays.status_id = ?', Doogle::Status.draft.id]
+    }
+  }
   scope :display_type, lambda { |*types|
     type_keys = types.flatten.map { |t| t.is_a?(Doogle::DisplayConfig) ? t.key : t.to_s }
     if type_keys.include?(:any)
@@ -235,6 +240,7 @@ class Doogle::Display < ApplicationModel
   def oled_diagonal_in_option
     Doogle::OledDiagonalInOption.from_diagonal(self.oled_diagonal_in_option_id)
   end
+  scope :standard, :conditions => { :standard_classification_id => Doogle::StandardClassification.standard.id }
 
   def search_field_specified?(field)
     value = self.send(field.search_key)
@@ -251,7 +257,7 @@ class Doogle::Display < ApplicationModel
   def model_and_id
     "id: #{id} #{model_number}"
   end
-  
+
   def clean_decimal(thing, nil_if_equals=nil)
     if thing and (thing.to_f != nil_if_equals)
       if (thing.is_a?(Float) or thing.is_a?(BigDecimal)) and (thing.to_i == thing)
@@ -262,7 +268,7 @@ class Doogle::Display < ApplicationModel
       nil
     end
   end
-  
+
   def default_description
     self.instance_eval '"' + self.display_type.default_description + '"'
   end
@@ -337,10 +343,18 @@ class Doogle::Display < ApplicationModel
     self.respond_to?(key) && self.send(key)
   end
 
+  def publish!
+    return false if self.status.deleted?
+    self.status = Doogle::Status.published
+    self.save!
+  end
+
   def maybe_sync_to_web
     # Ignore draft changes.  Deletes and publishes go live.
     if !self.status.draft?
       Doogle::WebSynchronizer.new(self.id).run_in_background!
+    else
+      false
     end
   end
 
@@ -413,7 +427,7 @@ class Doogle::Display < ApplicationModel
     end
     true
   end
-    
+
   def deprecated_sync_to_erp
     return unless self.publish_to_erp
     product_class_number = M2m::ProductClass.with_name(self.display_type.m2m_product_class).first.try(:number) || (raise "No m2m product class for display type #{self.display_type.key} with name #{self.display_type.m2m_product_class}")
@@ -475,6 +489,67 @@ class Doogle::Display < ApplicationModel
 
   attr_accessor :current_user
 
+  def has_revision_letter?
+    if self.model_number[self.model_number.size-1, self.model_number.size-1] =~ /[A-Z]/
+      true
+    else
+      false
+    end
+  end
+
+  def latest_revision
+    if @latest_revision.nil?
+      @latest_revision = self
+      d = self
+      while d
+        if d = Doogle::Display.where(:previous_revision_id => d.id).first
+          @latest_revision = d
+        end
+      end
+    end
+    @latest_revision
+  end
+
+  def latest_revision?
+    self.latest_revision == self
+  end
+
+  # updated = []
+  # Doogle::Display.draft.web.where(:previous_revision_id => nil).each { |d| updated.push d if d.choose_previous_revision! }
+  # puts updated.map { |d| "#{d.previous_revision.model_number} <= #{d.model_number}" }.join("\n")
+  def choose_previous_revision!
+    return false if self.previous_revision_id.present?
+    # Only assign for model numbers ending in letter.
+    return false unless self.has_revision_letter?
+    candidates = Doogle::Display.for_model(self.model_number[0..self.model_number.size-2]).all
+    if candidates.size == 1
+      self.previous_revision = candidates.first
+      self.save!
+      true
+    else
+      false
+    end
+  end
+
+  def web_sort_key
+    case self.type_key
+    when 'tft_displays'
+      [(self.module_diagonal_in || '99999').to_f, self.model_number]
+    when 'character_module_displays'
+      [self.character_columns || 0, self.character_rows || 0, self.model_number]
+    when 'graphic_module_displays'
+      [self.resolution_x || 0, self.resolution_y || 0, self.model_number]
+    when 'segment_glass_displays'
+      [self.character_columns || 0, self.model_number]
+    when 'graphic_glass_displays'
+      [self.resolution_x || 0, self.resolution_y || 0, self.model_number]
+    when 'oled_displays'
+      [(self.module_diagonal_in || '99999').to_f, self.model_number]
+    else
+      self.model_number
+    end
+  end
+
   protected
 
     after_create :log_create
@@ -495,7 +570,7 @@ class Doogle::Display < ApplicationModel
                                 :summary => 'Update',
                                 :details => filtered_changes.inspect)
     end
-    
+
     validate :check_source_model_number
     def check_source_model_number
       return unless self.source_model_number.present?

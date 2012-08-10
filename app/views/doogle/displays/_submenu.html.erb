@@ -11,6 +11,9 @@
 		<li class="<%= menu_selected(:controller => :logs, :action => :index) %>">
 			<%= link_to 'Logs', doogle_logs_url %>
 		</li>
+		<li class="<%= menu_selected(:controller => :displays, :action => :web_preview) %>">
+			<%= link_to 'Web Preview', web_preview_doogle_displays_url %>
+		</li>
 		<% end %>
 	</ul>
 </div>

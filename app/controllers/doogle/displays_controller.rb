@@ -111,6 +111,14 @@ class Doogle::DisplaysController < Doogle::DoogleController
   def datasheet
     redirect_to request.host + '/' + params[:id]
   end
+  
+  def web_preview
+    if (@key = params[:key]).present?
+      @displays = Doogle::Display.display_type(@key).web.not_deleted.all
+      @search = Doogle::Display.new(:type_key => @key)
+      @show_results_fields = @search.display_type.web_list_fields
+    end
+  end  
 
   protected
 

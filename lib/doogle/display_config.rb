@@ -51,6 +51,10 @@ class Doogle::DisplayConfig
     @config = config
     @name = config['name'] || self.key.to_s.humanize.titleize.singularize
   end
+  
+  def web_name
+    @web_name ||= self.config['web_name'] || self.name.pluralize
+  end
 
   def id
     self.key.to_s

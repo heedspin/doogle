@@ -1,0 +1,24 @@
+
+<%= render 'submenu' %>
+
+<% content_for :javascripts do %>
+<script type="text/javascript">
+$(function() {
+  $("select#web_preview_key").change(function() {
+		var display_type_value = $(this).children("option:selected").attr("value");
+		window.location.href = "<%= web_preview_doogle_displays_url %>?key=" + display_type_value;
+	});
+});
+</script>
+<% end %>
+
+<div class="admintoolbar">
+	<%= select_tag(:key, options_from_collection_for_select(Doogle::DisplayConfig.edit.sort_by(&:name), :key, :name, @key), {:id => 'web_preview_key', :prompt => 'Select Display Type'}) %>
+	<br />
+	<% partition_displays(@displays).each do |part| %>
+	<h2><%= cm part.displays.size %> <%= part.heading %><h2>
+	<%= render 'search_results_table', :result_fields => part.web_list_fields, :displays => part.displays.sort_by(&:web_sort_key) %>
+	<% end %>	
+
+</div>
+

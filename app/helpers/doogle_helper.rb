@@ -96,7 +96,7 @@ module DoogleHelper
     # display_asset_path URI.escape(display.model_number, "/"), :asset => asset
     display.send(asset).url
   end
-  
+
   def hosf(field)
     if (obj = @search || @display) && obj.display_type.try(:active_field?, field)
       ''
@@ -104,7 +104,7 @@ module DoogleHelper
       'hide'
     end
   end
-  
+
   def ssf(field)
     (@show_search_fields.nil? or @show_search_fields.include?(field)) ? '' : 'hide'
   end
@@ -112,5 +112,22 @@ module DoogleHelper
   def field_class(field, display=nil)
     hide = 'hide ' unless @show_results_fields.include?(field)
     "#{hide}#{field.key}_cell"
+  end
+
+  def partition_displays(displays)
+    result = []
+    if :tft_displays == displays.first.try(:display_type).try(:key)
+      sunlight, tft = displays.partition { |d| d.target_environment.try(:sunlight_readable?) }
+      result.push Doogle::DisplayPartition.new( :heading => 'Sunlight Readable TFTs',
+                                                :displays => sunlight,
+                                                :hide_fields => [:operational_temperature, :storage_temperature] )
+      result.push Doogle::DisplayPartition.new( :heading => 'Digital TFTs',
+                                                :displays => tft,
+                                                :hide_fields => [:luminance_nits] )
+    else
+      result.push Doogle::DisplayPartition.new( :heading => displays.first.try(:display_type).try(:web_name),
+                                                :displays => displays )
+    end
+    result
   end
 end

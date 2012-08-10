@@ -3,6 +3,7 @@ Rails.application.routes.draw do
     resources :displays do
       collection do
         get 'next_model_number'
+        get 'web_preview'
       end
       resources :display_logs
     end
