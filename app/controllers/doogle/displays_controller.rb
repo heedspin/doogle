@@ -116,7 +116,6 @@ class Doogle::DisplaysController < Doogle::DoogleController
     if (@key = params[:key]).present?
       @displays = Doogle::Display.display_type(@key).web.not_deleted.all
       @search = Doogle::Display.new(:type_key => @key)
-      @show_results_fields = @search.display_type.web_list_fields
     end
   end  
 

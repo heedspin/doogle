@@ -17,7 +17,7 @@ $(function() {
 	<br />
 	<% partition_displays(@displays).each do |part| %>
 	<h2><%= cm part.displays.size %> <%= part.heading %><h2>
-	<%= render 'search_results_table', :result_fields => part.web_list_fields, :displays => part.displays.sort_by(&:web_sort_key) %>
+	<%= render 'search_results_table', :result_fields => part.web_list_fields + [Doogle::FieldConfig.for_key('status')], :displays => part.displays.sort_by(&:web_sort_key) %>
 	<% end %>	
 
 </div>
