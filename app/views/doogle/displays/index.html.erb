@@ -31,6 +31,9 @@
 	<%= render :partial=>'search_form', :locals =>{:f=>f} %>
 	<%= f.buttons do %>
 	  <%= f.commit_button 'Search' %>
+		<li class="link">
+			<%= link_to 'Export XLS', '#', :id => 'export_xls' %>
+		</li>
 	<% end %>
 	<% end %>
 </div>
@@ -178,9 +181,16 @@ $(function() {
 		click: handle_search_click,
 		checkAll: enable_all_search_filters,
 		uncheckAll: disable_all_search_filters
-	}).multiselectfilter()
+	}).multiselectfilter();
 	<% end %>
 	$("#search_model_number").focus();
+	
+	$("#export_xls").click(function() {
+		var input = $("<input>").attr("type", "hidden").attr("name", "format").attr("id","export_xls_input").val("xls");
+		$("#search_new").append($(input)).submit();
+		$("#export_xls_input").remove();
+		return false;
+	})
 });
 </script>
 <% end %>

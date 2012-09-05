@@ -24,10 +24,20 @@ class Doogle::DisplaysController < Doogle::DoogleController
       @displays = display_scope.by_model_number.paginate(:page => params[:page], :per_page => 100)
       @show_results_fields = Doogle::FieldConfig.top_level.select { |f| @field_keys.member?(f.key) }
     end
-    if request.xhr?
-      render :action => '_search_results', :layout => false
-    else
-      @show_search_fields = @fields || @search.display_type.try(:default_search_fields)
+    respond_to do |f|
+      f.html do
+        if request.xhr?
+          render :action => '_search_results', :layout => false
+        else
+          @show_search_fields = @fields || @search.display_type.try(:default_search_fields)
+        end
+      end
+      f.xls do
+        display_export = Doogle::DisplayExport.new(@search, @displays)
+        headers['Content-Disposition'] = "attachment; filename=\"#{display_export.filename}.xls\""
+        headers['Content-type'] = 'application/vnd.ms-excel'
+        render :text => display_export.to_xls
+      end
     end
   end
 

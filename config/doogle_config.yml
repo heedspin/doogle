@@ -71,12 +71,12 @@ _display_fields: &_display_fields
       name: Diagonal
       search_options: true
       column: module_diagonal_in
-      sprintf: %s"
+      sprintf_config: %s"
     - key: tft_diagonal_in
       name: Diagonal
       search_options: true
       column: module_diagonal_in
-      sprintf: %s"
+      sprintf_config: %s"
     - key: viewing_area
       dimension: viewing_width_mm, viewing_height_mm
       search: false

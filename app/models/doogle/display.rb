@@ -140,8 +140,7 @@ class Doogle::Display < ApplicationModel
                 :bucket => AppConfig.doogle_bucket,
                 :s3_permissions => 'authenticated-read',
                 :path => path,
-                :asset_key => key,
-                :hello => 'world' }
+                :asset_key => key }
     options[:styles] = image_styles if image_styles
     has_attached_file key, options
   end

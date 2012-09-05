@@ -1,4 +1,8 @@
+require 'doogle/formatting'
+
 class Doogle::FieldConfig
+  include Doogle::Formatting
+  include ActionView::Helpers::UrlHelper
   attr_reader :key, :config, :field_type, :description
 
   def initialize(config)
@@ -11,7 +15,7 @@ class Doogle::FieldConfig
   def column
     @column ||= config['column'] || (self.belongs_to? ? "#{self.key}_id" : self.key)
   end
-  
+
   def value_key
     @value_key ||= config['value_key'] || (self.belongs_to? ? self.key : self.column)
   end
@@ -33,7 +37,7 @@ class Doogle::FieldConfig
   def self.top_level
     @top_level ||= self.all.select { |f| f.top_level? }
   end
-  
+
   def self.sorted_top_level
     @sorted_top_level ||= self.top_level.sort_by(&:name)
   end
@@ -76,17 +80,13 @@ class Doogle::FieldConfig
   def self.main
     self.all.select { |f| !f.composite_child? }
   end
-  
+
   def self.config_accessor(key, default)
     key = key.to_s
     self.class_eval <<-RUBY
     def #{key}
       if @#{key}.nil?
-        @#{key} = if !config.member?('#{key}')
-          #{default}
-        else
-          config['#{key}']
-        end
+        @#{key} = !config.member?('#{key}') ? #{default} : config['#{key}']
       end
       @#{key}
     end
@@ -195,10 +195,10 @@ class Doogle::FieldConfig
       self.key
     end
   end
-  
+
   config_accessor :search_include_blank, true
   config_accessor :edit_include_blank, true
-  config_accessor :sprintf, false
+  config_accessor :sprintf_config, false
 
   def composite_parent
     @composite_parent ||= Doogle::FieldConfig.composites.detect { |f| f.composite_children.include?(self) } || self
@@ -243,7 +243,7 @@ class Doogle::FieldConfig
   def label
     @label ||= (config['label'] || self.name)
   end
-  
+
   def wrapper_id
     "display_#{self.key}_input"
   end
@@ -317,6 +317,92 @@ class Doogle::FieldConfig
   end
   def units_short
     @units_short ||= config['units_short']
+  end
+
+  def render(display, args={})
+    search = args[:search]
+    format = args[:format] || :html
+    value = if self.model_number?
+      if format == :html
+        link_to( doogle_search_excerpt(display.model_number, search.try(:model_number)),
+                 Rails.application.routes.url_helpers.doogle_display_url(display, :host => AppConfig.hostname),
+                 {:target => '_blank'} )
+      else
+        display.model_number
+      end
+    elsif self.comment?
+      doogle_search_excerpt(display.comment, search.try(:comment))
+    elsif self.integrated_controller?
+      doogle_search_excerpt(display.integrated_controller, search.try(:integrated_controller))
+    elsif self.display_type?
+      display.display_type.try(:name)
+    elsif self.character_rows? or self.character_columns?
+      doogle_cm(display.send(self.column))
+    elsif self.has_many?
+      display.send(self.column).map { |v| v.try(:name) }.join(', ')
+    elsif self.dimension?
+      dimension_values = []
+      self.dimensions.each do |child_field|
+        child_value = child_field.render(display)
+        break unless child_value.present?
+        dimension_values.push child_value
+      end
+      dimension_joiner = self.key.to_s.include?('temperature') ? ' to ' : ' x '
+      default_render_value dimension_values.join(dimension_joiner)
+    elsif self.attachment?
+      if display.send("#{self.column}?")
+        if format == :html
+          link_to display.send("#{self.column}_file_name"), display.send(self.column).try(:url), {:target => '_blank'}
+        else
+          "#{self.column}_file_name"
+        end
+      else
+        ''
+      end
+    elsif self.previous_revision_id?
+      if display.previous_revision
+        if format == :html
+          link_to( display.previous_revision.model_number,
+                   Rails.application.routes.url_helpers.doogle_display_url(display.previous_revision, :host => AppConfig.hostname) )
+        else
+          display.previous_revision.model_number
+        end
+      end
+    elsif self.erp_id?
+      if display.item
+        if format == :html
+          link_to( 'M2M Item',
+                   Rails.application.routes.url_helpers.item_url(display.item, :host => AppConfig.hostname) )
+        else
+          "M2M Item #{display.item.id}"
+        end
+      end
+    else
+      self.default_render_field(display)
+    end
+    value.try(:html_safe)
+  end
+
+  def default_render_field(display)
+    val = display.send(self.value_key)
+    val = if val.is_a?(Numeric)
+      val = sprintf("%.1f",val) if val.is_a?(Float)
+      doogle_cm(val)
+    else
+      val.try(:to_s)
+    end
+    self.default_render_value(val)
+  end
+
+  def default_render_value(val)
+    if val.present?
+      if self.units_short
+        val = "#{val} #{self.units_short}"
+      elsif self.sprintf_config
+        val = sprintf(self.sprintf_config, val)
+      end
+    end
+    val
   end
 
   # Allows stuff like this:

@@ -30,7 +30,7 @@
 	<% next if field.source_specification? and !permitted_to?(:read_source_specification) %>
 	<tr>
 		<td><%= field.name %></td>
-		<td><%= render_field(@display, field) %></td>
+		<td><%= field.render(@display) %></td>
 	</tr>
 <% end %>
 	</tbody>
