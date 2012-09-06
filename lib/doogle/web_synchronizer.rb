@@ -1,7 +1,7 @@
-require 'logger_utils'
+require 'plutolib/logger_utils'
 
 class Doogle::WebSynchronizer
-  include LoggerUtils
+  include Plutolib::LoggerUtils
 
   def initialize(display_id=nil)
     @display_id = display_id

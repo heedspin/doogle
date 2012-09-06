@@ -1,7 +1,7 @@
-require 'logger_utils'
+require 'plutolib/logger_utils'
 
 class Doogle::M2mSynchronizer
-  include LoggerUtils
+  include Plutolib::LoggerUtils
   
   def initialize
     @linked_displays = 0
