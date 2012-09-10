@@ -4,7 +4,6 @@ module Doogle
   end
 end
 
-require 'plutolib/plutolib'
 require 'doogle_config'
 require 'doogle/display_config'
 require 'doogle/field_config'
