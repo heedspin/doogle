@@ -7,7 +7,7 @@ class Doogle::DisplayPartition
   end
   
   def web_list_fields
-    return [] unless self.display_type.web_list_fields
+    return [] unless self.display_type.try(:web_list_fields)
     self.display_type.web_list_fields.select { |f| !self.hide_fields.include?(f.key) }
   end
   
