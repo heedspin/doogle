@@ -1,7 +1,7 @@
-require 'm2mhub/xls_report'
+require 'plutolib/xls_report'
 
 class Doogle::DisplayExport
-  include M2mhub::XlsReport
+  include Plutolib::XlsReport
   
   def initialize(search, displays)
     @search = search
