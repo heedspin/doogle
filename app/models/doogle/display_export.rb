@@ -20,7 +20,7 @@ class Doogle::DisplayExport
     result_fields = @search.display_type.present? ? @search.display_type.fields : Doogle::FieldConfig.top_level
     result_fields = result_fields.select { |f| ![:datasheet, :specification, :source_specification].include?(f.key) }
     result_fields.each do |field|
-      self.fields.push M2mhub::XlsReport::Field.new(field.name) { |d| field.render(d, :search => @search, :format => :xls) }
+      self.fields.push Plutolib::XlsReport::Field.new(field.name) { |d| field.render(d, :search => @search, :format => :xls) }
     end
   end
   
