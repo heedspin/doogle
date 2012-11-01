@@ -1,8 +1,8 @@
 require 'doogle_config'
-require 'user_activity_logger'
+require 'm2mhub/user_activity_logger'
 
 class Doogle::DisplaysController < Doogle::DoogleController
-  include UserActivityLogger
+  include M2mhub::UserActivityLogger
 
   def index
     search_params = params[:search]
