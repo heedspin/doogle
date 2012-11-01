@@ -154,6 +154,7 @@ _display_fields: &_display_fields
       belongs_to: true
     - key: luminance_nits
       datasheet_hint: \"typical\" value
+      search_range: LuminanceRange
     - key: target_environment
       belongs_to: true
       web: sync_only
