@@ -1,5 +1,4 @@
 require 'doogle_config'
-require 'm2mhub/user_activity_logger'
 
 class Doogle::DisplaysController < Doogle::DoogleController
 
