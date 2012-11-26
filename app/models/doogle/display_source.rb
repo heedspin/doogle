@@ -1,4 +1,4 @@
-require 'active_hash_methods'
+require 'plutolib/active_hash_methods'
 class Doogle::DisplaySource < ActiveHash::Base
   self.data = [
     {:id => 1, :name => 'LXD'},
@@ -7,5 +7,5 @@ class Doogle::DisplaySource < ActiveHash::Base
     {:id => 4, :name => 'Prime View'},
     {:id => 5, :name => 'Other'}
   ]
-  include ActiveHashMethods
+  include Plutolib::ActiveHashMethods
 end

@@ -1,4 +1,4 @@
-require 'active_hash_methods'
+require 'plutolib/active_hash_methods'
 class Doogle::DisplayMode < ActiveHash::Base
   self.data = [
     {:position => 1, :id => 1, :name => 'TN',       :long_name => 'Twisted Nematic'},
@@ -10,7 +10,7 @@ class Doogle::DisplayMode < ActiveHash::Base
     {:position => 7, :id => 5, :name => 'FFSTN',    :long_name => 'Double Film Super-Twist Nematic'},
     {:position => 8, :id => 8, :name => 'HTN',      :long_name => 'High Twisted Nematic'}
   ]
-  include ActiveHashMethods
+  include Plutolib::ActiveHashMethods
   
   def self.all
     super.sort_by(&:position)

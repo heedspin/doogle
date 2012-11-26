@@ -1,4 +1,4 @@
-require 'active_hash_methods'
+require 'plutolib/active_hash_methods'
 class Doogle::ViewingDirection < ActiveHash::Base
   self.data = [
     {:position => 1, :id => 1, :cmethod => 'twelve', :name => '12:00'},
@@ -10,7 +10,7 @@ class Doogle::ViewingDirection < ActiveHash::Base
     {:position => 7, :id => 4, :cmethod => 'nine', :name => '9:00'},
     {:position => 8, :id => 8, :cmethod => 'ten_thirty', :name => '10:30'},
   ]
-  include ActiveHashMethods
+  include Plutolib::ActiveHashMethods
   
   def self.all
     super.sort_by(&:position)

@@ -1,4 +1,4 @@
-require 'active_hash_methods'
+require 'plutolib/active_hash_methods'
 class Doogle::CharacterType < ActiveHash::Base
   self.data = [
     {:id => 1, :name => '7 Segment'},
@@ -9,5 +9,5 @@ class Doogle::CharacterType < ActiveHash::Base
     {:id => 7, :name => 'Mosaic'},
     {:id => 8, :name => 'Bar Graph'},
   ]
-  include ActiveHashMethods
+  include Plutolib::ActiveHashMethods
 end

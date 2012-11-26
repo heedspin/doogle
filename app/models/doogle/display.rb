@@ -96,7 +96,7 @@
 # tim@concerto:~/Dropbox/p/lxd_m2mhub$ bundle exec annotate --model-dir ../doogle/app/models
 #
 
-require 'active_hash_setter'
+require 'plutolib/active_hash_setter'
 require 'acts_as_list'
 require 'doogle/web_synchronizer'
 
@@ -105,7 +105,7 @@ class Doogle::Display < ApplicationModel
   validates_presence_of :type_key, :status
 
   attr_accessor :display_type
-  include ActiveHashSetter
+  include Plutolib::ActiveHashSetter
   active_hash_setter(Doogle::Status)
   active_hash_setter(Doogle::TouchPanelType)
   active_hash_setter(Doogle::BondingType)

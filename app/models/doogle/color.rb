@@ -1,4 +1,4 @@
-require 'active_hash_methods'
+require 'plutolib/active_hash_methods'
 class Doogle::Color < ActiveHash::Base
   self.data = [
     {:id => 1, :name => 'None', :aliases => %w(n/a na)},
@@ -10,7 +10,7 @@ class Doogle::Color < ActiveHash::Base
     {:id => 7, :name => 'Yellow-Green', :aliases => %w(y/g)},
     {:id => 8, :name => 'Gray'}
   ]
-  include ActiveHashMethods
+  include Plutolib::ActiveHashMethods
   
   def self.find_by_name_or_alias(txt)
     return nil unless txt.present?

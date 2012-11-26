@@ -1,4 +1,4 @@
-require 'active_hash_methods'
+require 'plutolib/active_hash_methods'
 class Doogle::BondingType < ActiveHash::Base
   self.data = [
     {:id => 1, :name => 'COB'},
@@ -6,5 +6,5 @@ class Doogle::BondingType < ActiveHash::Base
     {:id => 3, :name => 'TAB'},
     {:id => 4, :name => 'COF'}
   ]
-  include ActiveHashMethods
+  include Plutolib::ActiveHashMethods
 end
