@@ -91,6 +91,7 @@
 #  previous_revision_id              :integer(4)
 #  original_customer_name            :string(255)
 #  original_customer_part_number     :string(255)
+#  tft_type_id                       :integer(4)
 #
 
 # tim@concerto:~/Dropbox/p/lxd_m2mhub$ bundle exec annotate --model-dir ../doogle/app/models
@@ -123,6 +124,7 @@ class Doogle::Display < ApplicationModel
   active_hash_setter(Doogle::IconType)
   active_hash_setter(Doogle::MaskType)
   active_hash_setter(Doogle::StandardClassification)
+  active_hash_setter(Doogle::TftType)
   has_many :display_interface_types, :class_name => 'Doogle::DisplayInterfaceType', :dependent => :destroy
   has_many :interface_types, :through => :display_interface_types, :source => :interface_type
   belongs_to :item, :class_name => 'M2m::Item', :foreign_key => 'erp_id'
