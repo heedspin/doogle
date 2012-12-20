@@ -11,13 +11,11 @@
 		<% end %>
 		
 		<% elsif field.previous_revision_id? %>
-		<% if @display.new_record? and @display.previous_revision.present? %>
-		<%= f.input :previous_revision_id, :as => :hidden %>
-		<li class="input optional string" id="display_previous_revision_model_number_input"><label class="label" for="display_previous_revision_model_number %>"><%= field.label %></label>
+		<%= f.input :previous_revision_id, :label => field.label, :wrapper_html => { :id => field.wrapper_id, :class => hosf(field) } %>
+		<% if @display.previous_revision.present? %>
+		<li class="input optional string" id="display_previous_revision_model_number_input"><label class="label" for="display_previous_revision_model_number %>"><%= field.label %> Model Number (Read-Only)</label>
 			<%= text_field_tag 'previous_model_number', @display.previous_revision.model_number, :readonly => 'readonly' %>
 		</li>
-		<% elsif permitted_to? :set_previous_revision_id %>
-		<%= f.input :previous_revision_id, :label => field.label, :wrapper_html => { :id => field.wrapper_id, :class => hosf(field) } %>
 		<% end %>
 
 		<% elsif field.erp_id? %>
