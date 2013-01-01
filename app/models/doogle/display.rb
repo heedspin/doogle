@@ -129,6 +129,7 @@ class Doogle::Display < ApplicationModel
   has_many :interface_types, :through => :display_interface_types, :source => :interface_type
   belongs_to :item, :class_name => 'M2m::Item', :foreign_key => 'erp_id'
   belongs_to :previous_revision, :class_name => 'Doogle::Display', :foreign_key => 'previous_revision_id'
+  has_many :spec_versions, :class_name => 'Doogle::SpecVersion'
 
   [ [:datasheet, ':display_type/:model_number/LXD-:model_number-datasheet.:extension'],
     [:specification, ':display_type/:model_number/LXD-:model_number-spec.:extension'],
@@ -339,11 +340,6 @@ class Doogle::Display < ApplicationModel
     RUBY
   end
 
-  def asset_public?(key)
-    key = "#{key}_public"
-    self.respond_to?(key) && self.send(key)
-  end
-
   def publish!
     return false if self.status.deleted?
     self.status = Doogle::Status.published
@@ -385,10 +381,11 @@ class Doogle::Display < ApplicationModel
             ids_method = field.column.to_s.singularize
             dr.send("#{ids_method}_ids=", self.send("#{ids_method}_ids"))
           elsif field.attachment?
-            [:file_name, :content_type, :file_size, :updated_at].each do |paperclip_key|
-              paperclip_column = "#{field.column}_#{paperclip_key}"
-              dr.send("#{paperclip_column}=", self.send(paperclip_column))
-            end
+            # For now we will disable any attachments
+            # [:file_name, :content_type, :file_size, :updated_at].each do |paperclip_key|
+            #   paperclip_column = "#{field.column}_#{paperclip_key}"
+            #   dr.send("#{paperclip_column}=", self.send(paperclip_column))
+            # end
           else
             # Avoid sending empty string (which will end up being different from nil).
             if (!dr.respond_to?(field.column) or !dr.send(field.column).present?) and !self.send(field.column).present?
@@ -515,6 +512,18 @@ class Doogle::Display < ApplicationModel
     self.latest_revision == self
   end
 
+  def latest_spec
+    if @latest_spec_set.nil?
+      @latest_spec = self.spec_versions.latest.first
+      @latest_spec_set = true
+    end
+    @latest_spec
+  end
+  def latest_spec=(val)
+    @latest_spec_set = true
+    @latest_spec = val
+  end
+
   # updated = []
   # Doogle::Display.draft.web.where(:previous_revision_id => nil).each { |d| updated.push d if d.choose_previous_revision! }
   # puts updated.map { |d| "#{d.previous_revision.model_number} <= #{d.model_number}" }.join("\n")
@@ -551,11 +560,18 @@ class Doogle::Display < ApplicationModel
     end
   end
 
+  def attachment_fields
+    self.display_type.attachment_fields
+  end
+
   protected
 
     after_create :log_create
     def log_create
-      Doogle::DisplayLog.create(:display => self, :user_id => current_user.try(:id), :summary => 'Create', :details => "status = #{self.status.name}")
+      Doogle::DisplayLog.create(:display => self,
+                                :user_id => current_user.try(:id),
+                                :summary => 'Create',
+                                :details => Doogle::Display.inspect_changes(self.changes))
     end
     before_destroy :log_destroy
     def log_destroy
@@ -563,13 +579,20 @@ class Doogle::Display < ApplicationModel
     end
     before_update :log_update
     def log_update
-      filtered_changes = self.changes.clone
-      filtered_changes.delete('created_at')
-      filtered_changes.delete('updated_at')
       Doogle::DisplayLog.create(:display => self,
                                 :user_id => current_user.try(:id),
                                 :summary => 'Update',
-                                :details => filtered_changes.inspect)
+                                :details => Doogle::Display.inspect_changes(self.changes))
+    end
+
+    def self.inspect_changes(changes)
+      details = []
+      changes.each do |attribute, change|
+        next if ['created_at', 'updated_at'].include?(attribute)
+        old_value, new_value = change
+        details.push "#{attribute}: #{old_value} => #{new_value}"
+      end
+      details.join("\n")
     end
 
     validate :check_source_model_number
@@ -590,17 +613,4 @@ class Doogle::Display < ApplicationModel
         end
       end
     end
-end
-
-Paperclip.interpolates :model_number do |attachment, style|
-  attachment.instance.model_number
-end
-
-Paperclip.interpolates :display_type do |attachment, style|
-  attachment.instance.display_type.key
-end
-
-Paperclip.interpolates :s3_is_my_bitch_url do |attachment, style|
-  model_number = URI.escape(attachment.instance.model_number, "/")
-  "/display_assets/#{model_number}?asset=#{attachment.options[:asset_key]}"
 end

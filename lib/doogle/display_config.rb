@@ -115,6 +115,10 @@ class Doogle::DisplayConfig
     end
     @web_list_fields
   end
+  
+  def attachment_fields
+    @attachment_fields ||= self.fields.select(&:attachment?)
+  end
 
   def active_field?(field)
     key = field.is_a?(Doogle::FieldConfig) ? field.key.to_s : field.to_s

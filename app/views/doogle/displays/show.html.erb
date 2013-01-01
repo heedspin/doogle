@@ -1,30 +1,9 @@
 
-<%= render 'submenu' %>
+<%= render 'doogle/displays/submenu' %>
 
 <% title @display.model_number %>
-<h2><%= @display.model_number %></h2>
-
-<% links = [] %>
-<% if permitted_to?(:manage, :doogle_displays) %>
-  <% links.push link_to('<span></span>Edit'.html_safe, edit_doogle_display_path(display, :return_to => doogle_displays_path), :class => 'btn edit') %>
-  <% links.push link_to('<span></span>New Revision'.html_safe, new_doogle_display_path(:rev => @display.id))  %>
-  <% links.push link_to('<span></span>Destroy'.html_safe, doogle_display_path(display), :confirm => 'Are you sure?', :method => :delete, :class => 'btn delete')  %>
-  <% links.push link_to('<span></span>Logs'.html_safe, doogle_display_display_logs_path(@display))  %>
-<% end %>
 
 <table class="data">
-	<thead>
-		<tr>
-			<th colspan="2">
-				<div class="submenu">
-					<ul>
-						<% links.each do |link| %>
-							<li><%= raw link %></li>
-						<% end %>
-					</ul>
-				</div>
-			</th>
-		</thead>
 	<tbody>
 <% @display.display_type.fields.each do |field| %>
 	<% next if field.source_specification? and !permitted_to?(:read_source_specification) %>
@@ -35,3 +14,5 @@
 <% end %>
 	</tbody>
 </table>
+
+<p><%= link_to 'New Spec Version', new_doogle_display_spec_version_url(@display) %></p>

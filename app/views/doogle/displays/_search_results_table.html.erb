@@ -17,19 +17,19 @@
 					<%= link_to 'Edit', edit_doogle_display_path(display) %>
 				</td>
 				<% end %>
-				<% if display.datasheet? %>
+				<% if display.latest_spec.try(:datasheet?) %>
 			  <td>
 					<%= link_to 'Datasheet', display.datasheet.url, {:target => '_blank'} %>
 				</td>
 				<% end %>
-				<% if display.specification? %>
+				<% if display.latest_spec.try(:specification?) %>
 			  <td>
-					<%= link_to 'Specification', display.specification.url, {:target => '_blank'} %>
+					<%= link_to 'Specification', display.latest_spec.specification.url, {:target => '_blank'} %>
 				</td>
 				<% end %>
-				<% if display.source_specification? and permitted_to?(:read_source_specification) %>
+				<% if display.latest_spec.try(:source_specification?) and permitted_to?(:read_source_specification) %>
 			  <td>
-					<%= link_to 'Non-public Specification', display.source_specification.url, {:target => '_blank'} %>
+					<%= link_to 'Non-public Specification', display.latest_spec.source_specification.url, {:target => '_blank'} %>
 				</td>
 				<% end %>
       </tr>

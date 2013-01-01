@@ -1,21 +1,25 @@
-<% if permitted_to?(:read, :doogle_displays) %>
+<%= render 'doogle/submenu' %>
+
+<hr /><h2><%= @display.model_number %></h2>
+
 <div class="submenu">
 	<ul>
-		<li class="<%= menu_selected :doogle_search %>">
-			<%= link_to 'Search', doogle_displays_url %>
+		<li class="<%= menu_selected :doogle_display_summary %>">
+			<%= link_to 'Summary', doogle_display_url(@display) %>
 		</li>
 		<% if permitted_to?(:manage, :doogle_displays) %>
-		<li class="<%= menu_selected :doogle_new_display %>">
-			<%= link_to 'New Display', new_doogle_display_url %>
-		</li>
-		<li class="<%= menu_selected 'doogle/logs' %>">
-			<%= link_to 'Logs', doogle_logs_url %>
-		</li>
-		<li class="<%= menu_selected :doogle_web_preview %>">
-			<%= link_to 'Web Preview', web_preview_doogle_displays_url %>
+		<li class="<%= menu_selected :edit_doogle_display %>">		
+			<%= link_to 'Edit', edit_doogle_display_path(@display, :return_to => doogle_displays_path) %>
 		</li>
 		<% end %>
+		<li>
+		  <%= link_to 'New Revision', new_doogle_display_path(:rev => @display.id) %>
+		</li>
+		<li class="<%= menu_selected :doogle_display_logs %>">		
+		  <%= link_to 'Logs', doogle_display_display_logs_path(@display)  %>
+		</li>
+		<li class="<%= menu_selected :doogle_spec_versions %>">
+		  <%= link_to 'Spec Versions', doogle_display_spec_versions_url(@display) %>
+		</li>
 	</ul>
 </div>
-<br />
-<% end %>

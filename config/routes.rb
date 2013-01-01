@@ -6,6 +6,7 @@ Rails.application.routes.draw do
         get 'web_preview'
       end
       resources :display_logs
+      resources :spec_versions
     end
     resources :display_resources, :only => [ :show, :create, :update, :destroy ]
     resources :logs, :only => [ :show, :index ]

@@ -1,0 +1,14 @@
+<%= render 'doogle/displays/submenu' %>
+
+<% title 'Editing Spec Version' %>
+
+<br />
+<h3>Editing Spec Version <%= @spec_version.version %></h3>
+
+<%= semantic_form_for @spec_version, :as => :spec_version, :url => doogle_display_spec_version_url(@display, @spec_version) do |f| %>
+  <%= render :partial=>'form', :locals =>{:f=>f} %>
+  <%= f.buttons do %>
+    <%= f.commit_button 'Save' %>
+	  <%= f.cancel_link %>
+  <% end %>
+<% end %>

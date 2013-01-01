@@ -1,7 +1,5 @@
 <%= render 'doogle/displays/submenu' %>
 
-<h2>Logs for <%= link_to @display.model_number, doogle_display_url(@display) %></h2>
-
 <%= will_paginate @display_logs %>
 
 <table class="data">
@@ -18,7 +16,7 @@
 		<tr>
 			<td><%= dl.created_at.to_s(:number_date_time) %></td>
 			<td><%= dl.summary %></td>
-			<td><%= dl.details %></td>
+			<td><%= simple_format dl.details %></td>
 			<td><%= dl.user.try(:full_name) %></td>
 		</tr>
 		<% end %>

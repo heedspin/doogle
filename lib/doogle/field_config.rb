@@ -350,9 +350,9 @@ class Doogle::FieldConfig
       dimension_joiner = self.key.to_s.include?('temperature') ? ' to ' : ' x '
       default_render_value dimension_values.join(dimension_joiner)
     elsif self.attachment?
-      if display.send("#{self.column}?")
+      if (latest_spec = display.latest_spec) and latest_spec.send("#{self.column}?")
         if format == :html
-          link_to display.send("#{self.column}_file_name"), display.send(self.column).try(:url), {:target => '_blank'}
+          link_to latest_spec.send("#{self.column}_file_name"), latest_spec.send(self.column).try(:url), {:target => '_blank'}
         else
           "#{self.column}_file_name"
         end

@@ -1,0 +1,10 @@
+<%= f.semantic_errors :base %>
+
+<%= f.inputs do %>
+	<%= f.input :status, :collection => Doogle::SpecVersionStatus.all, :include_blank => false %>
+	<%= f.input :version, :input_html => { :readonly => 'readonly' } %>
+	<% @display.attachment_fields.each do |field| %>
+	<%= f.input field.column, :as => :attachment, :label => field.label %>	
+	<% end %>
+	<%= f.input :comments %>
+<% end %>
