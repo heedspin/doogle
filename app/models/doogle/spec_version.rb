@@ -131,25 +131,25 @@ class Doogle::SpecVersion < ApplicationModel
     import_log "Starting import at " + Time.now.to_s
     Doogle::Display.by_model_number.all.each do |display|
       if display.spec_versions.count == 0
-        dosave = false
-        sr = display.spec_versions.build
-        sr.comments = 'Initial import'
-        display.attachment_fields.each do |field|
-          if display.send("#{field.key}?")
-            sr.send("#{field.key}=", display.send(field.key))
-            dosave = true
+        begin
+          dosave = false
+          sr = display.spec_versions.build
+          sr.comments = 'Initial import'
+          display.attachment_fields.each do |field|
+            if display.send("#{field.key}?")
+              sr.send("#{field.key}=", display.send(field.key))
+              dosave = true
+            end
+            if display.respond_to?("#{field.key}_public")
+              sr.send("#{field.key}_public=", display.send("#{field.key}_public"))
+            end
           end
-          if display.respond_to?("#{field.key}_public")
-            sr.send("#{field.key}_public=", display.send("#{field.key}_public"))
-          end
-        end
-        if dosave
-          import_log "Creating spec revision for #{display.model_number}"
-          begin
+          if dosave
+            import_log "Creating spec revision for #{display.model_number}"
             sr.save!
-          rescue AWS::S3::Errors::NoSuchKey
-            import_log "Datasheet for #{display.model_number} has moved! Did the type change?"
           end
+        rescue AWS::S3::Errors::NoSuchKey
+          import_log "Datasheet for #{display.model_number} has moved! Did the type change?"
         end
       end
     end
