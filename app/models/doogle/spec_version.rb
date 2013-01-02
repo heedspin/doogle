@@ -124,7 +124,7 @@ class Doogle::SpecVersion < ApplicationModel
   def self.import
     total_imported = 0
     Doogle::Display.by_model_number.all.each do |display|
-      if display.spec_versions.count > 0
+      if display.spec_versions.count == 0
         dosave = false
         sr = display.spec_versions.build
         sr.comments = 'Initial import'
