@@ -121,8 +121,14 @@ class Doogle::SpecVersion < ApplicationModel
                               :details => Doogle::Display.inspect_changes(self.changes))
   end
 
+  def self.import_log(txt)
+    File.open(File.join(Rails.root, 'log/spec_version_import.txt'), 'a') do |output|
+      output.puts txt
+    end
+  end
+
   def self.import
-    total_imported = 0
+    import_log "Starting import at " + Time.now.to_s
     Doogle::Display.by_model_number.all.each do |display|
       if display.spec_versions.count == 0
         dosave = false
@@ -138,8 +144,12 @@ class Doogle::SpecVersion < ApplicationModel
           end
         end
         if dosave
-          puts "Creating spec revision for #{display.model_number}"
-          sr.save!
+          import_log "Creating spec revision for #{display.model_number}"
+          begin
+            sr.save!
+          rescue AWS::S3::Errors::NoSuchKey
+            import_log "Datasheet for #{display.model_number} has moved! Did the type change?"
+          end
         end
       end
     end
