@@ -139,9 +139,6 @@ class Doogle::SpecVersion < ApplicationModel
       if dosave
         puts "Creating spec revision for #{display.model_number}"
         sr.save!
-        if (total_imported += 1) >= 20
-          break
-        end
       end
     end
   end
