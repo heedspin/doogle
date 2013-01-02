@@ -124,8 +124,9 @@ class Doogle::SpecVersion < ApplicationModel
   def self.import
     total_imported = 0
     Doogle::Display.by_model_number.find_each do |display|
+      next if display.spec_versions.first.present?
       dosave = false
-      sr = display.spec_versions.first || display.spec_versions.build
+      sr = display.spec_versions.build
       sr.comments = 'Initial import'
       display.attachment_fields.each do |field|
         if display.send("#{field.key}?")
