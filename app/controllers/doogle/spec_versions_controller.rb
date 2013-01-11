@@ -1,7 +1,7 @@
 class Doogle::SpecVersionsController < Doogle::DoogleController
   filter_access_to :all, :context => :doogle_spec_versions
   def index
-    @spec_versions = Doogle::SpecVersion.by_version_desc.paginate(:page => params[:page], :per_page => 20)
+    @spec_versions = Doogle::SpecVersion.by_updated_at_desc.paginate(:page => params[:page], :per_page => 40)
   end
   
   def show

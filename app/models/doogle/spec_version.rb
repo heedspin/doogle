@@ -49,6 +49,7 @@ class Doogle::SpecVersion < ApplicationModel
   }
   scope :latest, :conditions => { :status_id => Doogle::SpecVersionStatus.latest.id }
   scope :by_version_desc, :order => 'doogle_spec_versions.version desc'
+  scope :by_updated_at_desc, :order => 'doogle_spec_versions.updated_at desc'
 
   [ [:datasheet, ':display_type/:model_number/v:version/LXD-:model_number-datasheet.:extension'],
     [:specification, ':display_type/:model_number/v:version/LXD-:model_number-spec.:extension'],
