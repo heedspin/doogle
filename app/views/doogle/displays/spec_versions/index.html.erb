@@ -1,4 +1,4 @@
-<%= render 'doogle/submenu' %>
+<%= render 'doogle/displays/submenu' %>
 
 <%= will_paginate @spec_versions %>
 
@@ -8,7 +8,6 @@
 <table class="data">
 	<thead>
 		<tr>
-			<th>Model</th>
 			<th>Version</th>
 			<th>Assets</th>
 			<th>Comments</th>
@@ -18,11 +17,8 @@
 		<% @spec_versions.each do |v| %>
 		<tr>
 			<td>
-				<%= link_to v.display.model_number, doogle_display_url(v) %>
-			</td>
-			<td>
 				Version: <%= v.version %><br />
-				Last Modified: <%= doogle_variable_time v.updated_at %><br />
+				Last Modified: <%= v.updated_at.to_s(:number_date_time) %><br />
 				By: <%= v.updated_by.try(:full_name) %>
 			</td>
 			<td>
@@ -39,8 +35,14 @@
 			<td>
 				<%= simple_format v.comments %>
 			</td>
+			<% if permitted_to? :manage, :doogle_spec_versions %>
+			<td>
+				<%= link_to 'Edit', edit_doogle_display_spec_version_url(@display, v) %>
+			</td>
+			<% end %>
 		</tr>
 		<% end %>
 	</tbody>
 </table>
 <% end %>
+<p><%= link_to 'New Spec Version', new_doogle_display_spec_version_url(@display) %></p>

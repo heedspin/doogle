@@ -45,4 +45,11 @@ module DoogleHelper
     end
     result
   end
+
+  def doogle_variable_time(time, today_format=:just_time, past_format=:number_date)
+    return nil unless time
+    now = Time.current
+    today = (time.day == now.day) && (time.year == now.year)
+    time.to_s(today ? today_format : past_format)
+  end
 end

@@ -1,5 +1,5 @@
-class Doogle::DisplayLogsController < Doogle::DoogleController
-  filter_access_to :all
+class Doogle::Displays::LogsController < Doogle::DoogleController
+  filter_access_to :all, :context => :doogle_display_logs
 
   def index
     @display = parent_object
