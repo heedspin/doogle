@@ -10,7 +10,7 @@ Rails.application.routes.draw do
     end
     resources :display_resources, :only => [ :show, :create, :update, :destroy ]
     resources :logs, :only => [ :show, :index ]
-    resources :spec_versions
+    resources :spec_versions, :only => :index
   end
   resources :display_assets, :only => [ :show ]
 end
