@@ -21,5 +21,11 @@
 		<li class="<%= menu_selected :doogle_spec_versions %>">
 		  <%= link_to 'Spec Versions', doogle_display_spec_versions_url(@display) %>
 		</li>
+		<li class="<%= menu_selected 'doogle/displays/prices' %>">
+		  <%= link_to 'Pricing', doogle_display_prices_url(@display) %>
+		</li>
+		<li class="<%= menu_selected 'doogle/displays/vendor_costs' %>">
+		  <%= link_to 'Vendor Costs', doogle_display_vendor_costs_url(@display) %>
+		</li>
 	</ul>
 </div>

@@ -1,0 +1,26 @@
+<% content_for :javascripts, javascript_include_tag('m2mhub/inplace.js') %>
+<%= render 'doogle/displays/submenu' %>
+
+<% title "Editing #{@price.display.model_number} Pricing" %>
+
+<br />
+<h3>Editing <%= @price.display.model_number %> Pricing</h3>
+
+<%= semantic_form_for @price, :url => doogle_display_price_url(@display, @price), :html => {:class => 'doogle'} do |f| %>
+  <%= render :partial=>'form', :locals =>{:f=>f} %>
+  <%= f.buttons do %>
+    <%= f.commit_button 'Save' %>
+	  <%= f.cancel_link %>
+		<% if permitted_to? :destroy, :doogle_display_prices %>
+		<li class="deletastic_container">
+			<%= link_to 'Delete', '#', :class => 'deletastic_delete_link' %>
+			<div class="deletastic_confirmation">
+				Are you sure?
+				<%= link_to 'Delete', '#', :class => 'deletastic_boom' %>
+				<br />
+				<%= link_to 'Cancel', '#', :class => 'deletastic_delete_cancel_link' %>
+			</div>
+		</li>
+		<% end %>
+  <% end %>
+<% end %>

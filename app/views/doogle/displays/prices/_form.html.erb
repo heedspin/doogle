@@ -1,0 +1,19 @@
+<%= f.semantic_errors :base %>
+
+<%= f.inputs do %>
+	<%= f.input :approval_status, :collection => Doogle::ApprovalStatus.all, :include_blank => false %>
+	<%= f.input :start_date, :as => :calendar %>
+	<%= f.input :last_date, :as => :calendar, :input_html => { :value => @price.last_date.try(:to_s, :calendar_date) } %>
+	<% @price.levels.each do |level| %>
+		<li class="string stringish input optional doogle_dimensions" id="display_price_quantity_<%= level.index %>">
+			<% if level == @price.levels.first %>
+			<label class="label">Quantities / Prices</label>
+			<% end %>
+			<span>EA</span>
+			<%= f.text_field level.quantity_column %>
+			<span>USD</span>
+			<%= f.text_field level.price_column %>
+		</li>		
+	<% end %>
+	<%= f.input :notes %>
+<% end %>
