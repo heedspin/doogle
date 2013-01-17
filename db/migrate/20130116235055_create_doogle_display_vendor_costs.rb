@@ -10,7 +10,7 @@ class CreateDoogleDisplayVendorCosts < ActiveRecord::Migration
       t.references :approval_status
       (1..6).each do |x|
         t.integer "quantity#{x}"
-        t.decimal "cost#{x}", :precision => 12, :scale => 4
+        t.decimal "value#{x}", :precision => 12, :scale => 4
       end
       t.text :notes
       t.timestamps

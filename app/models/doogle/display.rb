@@ -131,7 +131,7 @@ class Doogle::Display < ApplicationModel
   belongs_to :previous_revision, :class_name => 'Doogle::Display', :foreign_key => 'previous_revision_id'
   has_many :spec_versions, :class_name => 'Doogle::SpecVersion'
   has_many :prices, :class_name => 'Doogle::DisplayPrice'
-  has_many :vendor_costs, :class_name => 'Doogle::VendorCost'
+  has_many :vendor_costs, :class_name => 'Doogle::DisplayVendorCost'
 
   [ [:datasheet, ':display_type/:model_number/LXD-:model_number-datasheet.:extension'],
     [:specification, ':display_type/:model_number/LXD-:model_number-spec.:extension'],

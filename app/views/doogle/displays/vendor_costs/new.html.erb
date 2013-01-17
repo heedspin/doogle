@@ -1,0 +1,11 @@
+<%= render 'doogle/displays/submenu' %>
+
+<% title "New Vendor Cost for #{@vendor_cost.display.model_number}" %>
+
+<%= semantic_form_for @vendor_cost, :url => doogle_display_vendor_costs_url(@display), :html => {:class => 'doogle'} do |f| %>
+  <%= render :partial=>'form', :locals =>{:f=>f} %>
+  <%= f.buttons do %>
+    <%= f.commit_button 'Create' %>
+	  <%= f.cancel_link %>
+  <% end %>
+<% end %>

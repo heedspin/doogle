@@ -24,7 +24,7 @@
 			<td><%= p.last_date.try(:to_s, :number_date) %></td>
 			<% level = p.levels_used.first %>
 			<td><%= cm level.try(:quantity) %></td>
-			<td><%= cm level.try(:price), :dollars %></td>
+			<td><%= cm level.try(:value), :dollars %></td>
 			<td rowspan="<%= p.levels_used.size %>"><%= simple_format p.notes %></td>
 			<% if permitted_to? :manage, :doogle_display_prices %>
 			<td>
@@ -39,7 +39,7 @@
 				<td colspan="3" rowspan="<%= extra_levels.size %>"></td>
 				<% end %>
 				<td><%= cm level.quantity %></td>
-				<td><%= cm level.price, :dollars %></td>
+				<td><%= cm level.value, :dollars %></td>
 			</tr>
 			<% end %>
 		<% end %>

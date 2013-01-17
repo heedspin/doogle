@@ -1,0 +1,52 @@
+<% content_for :javascripts do %>
+<script type="text/javascript">
+$(function() {
+	$("input#doogle_display_vendor_cost_vendor_name").autocomplete({
+		source: "<%= vendors_url %>",
+		search: function(event, ui) { 
+			$("input#doogle_display_vendor_cost_vendor_name").autocomplete("close");
+			$("#vendor_name_inprogress").show();
+		},
+		open: function(event, ui) { 
+			$("#vendor_name_inprogress").hide();
+		},
+		select: function(event, ui) { 
+			if (ui.item.value == "No Results") {
+				$(this).val( "" ); 
+				// Do nothing.
+			}	else {
+				$(this).val( ui.item.value ); 
+			}
+			return false; 
+		}		
+	});
+})
+</script>
+<% end %>
+<%= f.semantic_errors :base %>
+
+<%= f.inputs do %>
+	<%= f.input :approval_status, :collection => Doogle::ApprovalStatus.all, :include_blank => false %>
+	<li class="flat string input optional stringish" id="display_vendor_cost_vendor_name_input">
+		<label class=" label" for="display_vendor_cost_vendor_name"><%= Doogle::DisplayVendorCost.human_attribute_name(:vendor_name) %></label>
+		<%= f.text_field :vendor_name %>
+		<span id="vendor_name_inprogress" class="hide">
+		<%= image_tag AppConfig.in_progress_image %>
+		</span>
+	</li>
+	<%= f.input :preferred_vendor %>
+	<%= f.input :start_date, :as => :calendar %>
+	<%= f.input :last_date, :as => :calendar, :input_html => { :value => @vendor_cost.last_date.try(:to_s, :calendar_date) } %>
+	<% @vendor_cost.levels.each do |level| %>
+		<li class="string stringish input optional doogle_dimensions" id="display_vendor_cost_quantity_<%= level.index %>">
+			<% if level == @vendor_cost.levels.first %>
+			<label class="label">Quantities / Prices</label>
+			<% end %>
+			<span>EA</span>
+			<%= f.text_field level.quantity_column %>
+			<span>USD</span>
+			<%= f.text_field level.value_column %>
+		</li>		
+	<% end %>
+	<%= f.input :notes %>
+<% end %>
