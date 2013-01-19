@@ -18,6 +18,8 @@
 	  <%= f.input field.column, :as => field.search_as, :label => field.label, :wrapper_html => { :id => "search_#{field.key}_input", :class => ssf(field) } %>
 		<% elsif field.original_customer_name? %>
 		<%= render 'original_customer_name', :f => f, :field => field, :object_name => 'search' %>
+		<% elsif field.model_number? %>
+		<%= f.input :model_number, :wrapper_html => { :class => 'wide_string' }, :label => field.label + '(s)' %>
 		<% else %>
 	  <%= f.input field.column, :label => field.label, :wrapper_html => { :id => "search_#{field.key}_input", :class => ssf(field) } %>
 		<% end %>

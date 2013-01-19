@@ -200,13 +200,20 @@ class Doogle::Display < ApplicationModel
       :conditions => [ 'display_interface_types.interface_type_id in (?)', itypes.map(&:id) ]
     }
   }
-  %w(comments description colors source_model_number integrated_controller model_number original_customer_name original_customer_part_number).each do |key|
+  %w(comments description colors source_model_number integrated_controller original_customer_name original_customer_part_number).each do |key|
     scope key, lambda { |text|
       {
         :conditions => [ "LOWER(displays.#{key}) like ?", '%' + (text.strip.downcase || '') + '%' ]
       }
     }
   end
+  
+  scope :model_number, lambda { |txt|
+    model_numbers = txt.split(' ').select(&:present?).map(&:downcase).map { |m| "%#{m}%" }
+    {
+      :conditions => [ model_numbers.map { |m| 'LOWER(displays.model_number) like ?' }.join(' OR '), *model_numbers ]
+    }
+  }
 
   scope :web, :conditions => { :publish_to_web => true }
   %w(datasheet_public publish_to_web publish_to_erp).each do |key|

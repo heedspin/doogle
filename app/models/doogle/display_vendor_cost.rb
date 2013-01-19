@@ -6,6 +6,7 @@
 #  display_id         :integer(4)
 #  m2m_vendor_id      :string(255)
 #  vendor_name        :string(255)
+#  vendor_part_number :string(255)
 #  preferred_vendor   :boolean(1)
 #  start_date         :date
 #  last_date          :date
@@ -22,6 +23,10 @@
 #  value5             :decimal(12, 4)
 #  quantity6          :integer(4)
 #  value6             :decimal(12, 4)
+#  quantity7          :integer(4)
+#  value7             :decimal(12, 4)
+#  quantity8          :integer(4)
+#  value8             :decimal(12, 4)
 #  notes              :text
 #  created_at         :datetime
 #  updated_at         :datetime

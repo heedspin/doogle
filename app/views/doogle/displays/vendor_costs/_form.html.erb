@@ -34,6 +34,7 @@ $(function() {
 		<%= image_tag AppConfig.in_progress_image %>
 		</span>
 	</li>
+	<%= f.input :vendor_part_number %>
 	<%= f.input :preferred_vendor %>
 	<%= f.input :start_date, :as => :calendar %>
 	<%= f.input :last_date, :as => :calendar, :input_html => { :value => @vendor_cost.last_date.try(:to_s, :calendar_date) } %>

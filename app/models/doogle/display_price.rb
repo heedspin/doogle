@@ -19,6 +19,10 @@
 #  value5             :decimal(12, 4)
 #  quantity6          :integer(4)
 #  value6             :decimal(12, 4)
+#  quantity7          :integer(4)
+#  value7             :decimal(12, 4)
+#  quantity8          :integer(4)
+#  value8             :decimal(12, 4)
 #  notes              :text
 #  created_at         :datetime
 #  updated_at         :datetime

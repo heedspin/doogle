@@ -10,6 +10,7 @@
 		<tr>
 			<th>Approval</th>
 			<th>Vendor</th>
+			<th>Vendor Part Number</th>
 			<th>Preferred</th>
 			<th>Start Date</th>
 			<th>Last Date</th>
@@ -29,6 +30,7 @@
 				<%= v.vendor_name %>
 				<% end %>
 			</td>
+			<td><%= v.vendor_part_number %></td>
 			<td><%= v.preferred_vendor ? 'X' : '' %></td>
 			<td><%= v.start_date.to_s(:number_date) %></td>
 			<td><%= v.last_date.try(:to_s, :number_date) %></td>
@@ -46,7 +48,7 @@
 				 extra_levels.each do |level| %>
 			<tr>
 				<% if level == extra_levels.first %>
-				<td colspan="5" rowspan="<%= extra_levels.size %>"></td>
+				<td colspan="6" rowspan="<%= extra_levels.size %>"></td>
 				<% end %>
 				<td><%= cm level.quantity %></td>
 				<td><%= cm level.value, :dollars %></td>
