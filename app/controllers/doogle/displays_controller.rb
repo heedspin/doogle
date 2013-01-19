@@ -20,6 +20,9 @@ class Doogle::DisplaysController < Doogle::DoogleController
         end
       end
       @displays = display_scope.by_model_number.paginate(:page => params[:page], :per_page => 100)
+      # Choose shown/hidden columns for results.
+      @search_result_fields = @displays.map(&:display_type).uniq.map(&:fields).flatten.uniq
+      @search_result_fields = @search_result_fields.select { |f| ![:datasheet, :specification, :source_specification].include?(f.key) }
       @show_results_fields = Doogle::FieldConfig.top_level.select { |f| @field_keys.member?(f.key) }
     end
     respond_to do |f|
