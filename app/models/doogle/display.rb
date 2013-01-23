@@ -92,6 +92,15 @@
 #  original_customer_name            :string(255)
 #  original_customer_part_number     :string(255)
 #  tft_type_id                       :integer(4)
+#  vendor_name1                      :string(255)
+#  m2m_vendor_id1                    :string(255)
+#  vendor_approval_id1               :integer(4)
+#  vendor_name2                      :string(255)
+#  m2m_vendor_id2                    :string(255)
+#  vendor_approval_id2               :integer(4)
+#  vendor_name3                      :string(255)
+#  m2m_vendor_id3                    :string(255)
+#  vendor_approval_id3               :integer(4)
 #
 
 # tim@concerto:~/Dropbox/p/lxd_m2mhub$ bundle exec annotate --model-dir ../doogle/app/models
@@ -129,9 +138,8 @@ class Doogle::Display < ApplicationModel
   has_many :interface_types, :through => :display_interface_types, :source => :interface_type
   belongs_to :item, :class_name => 'M2m::Item', :foreign_key => 'erp_id'
   belongs_to :previous_revision, :class_name => 'Doogle::Display', :foreign_key => 'previous_revision_id'
-  has_many :spec_versions, :class_name => 'Doogle::SpecVersion'
-  has_many :prices, :class_name => 'Doogle::DisplayPrice'
-  has_many :vendor_costs, :class_name => 'Doogle::DisplayVendorCost'
+  has_many :spec_versions, :class_name => 'Doogle::SpecVersion', :dependent => :destroy
+  has_many :prices, :class_name => 'Doogle::DisplayPrice', :dependent => :destroy
 
   [ [:datasheet, ':display_type/:model_number/LXD-:model_number-datasheet.:extension'],
     [:specification, ':display_type/:model_number/LXD-:model_number-spec.:extension'],

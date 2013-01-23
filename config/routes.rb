@@ -7,7 +7,6 @@ Rails.application.routes.draw do
       end
       resources :display_logs, :controller => 'displays/logs'
       resources :spec_versions, :controller => 'displays/spec_versions'
-      resources :vendor_costs, :controller => 'displays/vendor_costs'
       resources :prices, :controller => 'displays/prices'
     end
     resources :display_resources, :only => [ :show, :create, :update, :destroy ]
