@@ -3,6 +3,18 @@
 
 <% title @display.model_number %>
 
+<% if @display.next_revision %>
+	<% display = @display %>
+	<div class="errorExplanation error">
+		<strong>There are newer revisions:</strong>
+		<ul>
+			<% while display = display.next_revision do %>
+			<li><%= link_to display.model_number, doogle_display_url(display) %></li>
+			<% end %>
+		</ul>
+	</div>
+<% end %>
+
 <table class="data">
 	<tbody>
 <% @display.display_type.fields.each do |field| %>
