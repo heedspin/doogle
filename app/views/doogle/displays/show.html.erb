@@ -4,12 +4,15 @@
 <% title @display.model_number %>
 
 <% if @display.next_revision %>
-	<% display = @display %>
+	<% display = @display 
+	 loop_test = 0
+	%>
 	<div class="errorExplanation error">
 		<strong>There are newer revisions:</strong>
 		<ul>
-			<% while display = display.next_revision do %>
+			<% while (display != display.next_revision) and (display = display.next_revision) do %>
 			<li><%= link_to display.model_number, doogle_display_url(display) %></li>
+			<% break if (loop_test += 1) >= 10 %>
 			<% end %>
 		</ul>
 	</div>
