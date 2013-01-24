@@ -3,6 +3,17 @@ class Doogle::Displays::PricesController < Doogle::DoogleController
   def index
     @display = parent_object
     @prices = @display.prices.by_start_date_desc.paginate(:page => params[:page], :per_page => 20)
+    if @prices.size == 0
+      @cloneable_displays = []
+      display = @display
+      while display = display.previous_revision
+        @cloneable_displays.push display if display.prices
+      end
+      display = @display
+      while display = display.next_revision
+        @cloneable_displays.push display if display.prices
+      end
+    end
   end
 
   def new
@@ -49,6 +60,20 @@ class Doogle::Displays::PricesController < Doogle::DoogleController
         render :json => { :location => destination }.to_json
       }
     end
+  end
+  
+  def clone
+    @display = parent_object
+    if clone_to = params[:clone_to]
+      destination_display = Doogle::Display.find(clone_to)
+      @display.prices.each do |price|
+        Doogle::DisplayPrice.clone_price(price, @display, destination_display)
+      end
+      redirect_to doogle_display_prices_url(destination_display)
+    else
+      flash[:error] = "Failed to find destination display #{clone_to}"
+      redirect_to doogle_display_prices_url(@display)
+    end    
   end
 
   protected

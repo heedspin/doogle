@@ -82,6 +82,14 @@ class Doogle::DisplayPrice < Doogle::Base
     end
   end
   
+  def self.clone_price(source_price, source_display, destination_display)
+    price = source_price.clone
+    price.display_id = destination_display.id
+    price.notes = "Cloned from #{source_display.model_number}"
+    price.save!
+    price
+  end  
+  
   TOTAL_LEVELS=8
   def levels
     @levels ||= (1..TOTAL_LEVELS).map { |x| Doogle::PriceLevel.new(x, self) }

@@ -4,6 +4,11 @@
 
 <% if @prices.size == 0 %>
 <h2>No pricing! Create some!</h2>
+
+<% @cloneable_displays.each do |cloneable_display| %>
+<p><%= link_to "Clone pricing from revision #{cloneable_display.model_number}", clone_doogle_display_prices_url(cloneable_display, :clone_to => @display.id) %></p>
+<% end %>
+
 <% else %>
 <table class="data">
 	<thead>

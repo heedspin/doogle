@@ -7,7 +7,11 @@ Rails.application.routes.draw do
       end
       resources :display_logs, :controller => 'displays/logs'
       resources :spec_versions, :controller => 'displays/spec_versions'
-      resources :prices, :controller => 'displays/prices'
+      resources :prices, :controller => 'displays/prices' do
+        collection do
+          get :clone
+        end
+      end
     end
     resources :display_resources, :only => [ :show, :create, :update, :destroy ]
     resources :logs, :only => [ :show, :index ]
