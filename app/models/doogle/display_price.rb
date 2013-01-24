@@ -76,9 +76,9 @@ class Doogle::DisplayPrice < Doogle::Base
   after_save :set_last_dates
   def set_last_dates
     if self.last_date
-      self.class.update_all({:last_date => self.start_date.advance(:days => -1)}, ["#{self.class.table_name}.id != ? and #{self.class.table_name}.last_date is null and #{self.class.table_name}.start_date < ? and #{self.class.table_name}.vendor_name = ?", self.id, self.last_date, self.vendor_name])
+      self.class.update_all({:last_date => self.start_date.advance(:days => -1)}, ["display_prices.id != ? and display_prices.display_id = ? and display_prices.last_date is null and display_prices.start_date < ? and display_prices.vendor_name = ?", self.id, self.display_id, self.last_date, self.vendor_name])
     else
-      self.class.update_all({:last_date => self.start_date.advance(:days => -1)}, ["#{self.class.table_name}.id != ? and #{self.class.table_name}.last_date is null and #{self.class.table_name}.vendor_name = ?", self.id, self.vendor_name])
+      self.class.update_all({:last_date => self.start_date.advance(:days => -1)}, ["display_prices.id != ? and display_prices.display_id = ? and display_prices.last_date is null and display_prices.vendor_name = ?", self.id, self.display_id, self.vendor_name])
     end
   end
   

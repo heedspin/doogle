@@ -138,6 +138,7 @@ class Doogle::Display < ApplicationModel
   has_many :interface_types, :through => :display_interface_types, :source => :interface_type
   belongs_to :item, :class_name => 'M2m::Item', :foreign_key => 'erp_id'
   belongs_to :previous_revision, :class_name => 'Doogle::Display', :foreign_key => 'previous_revision_id'
+  has_one :next_revision, :class_name => 'Doogle::Display', :foreign_key => 'previous_revision_id'
   has_many :spec_versions, :class_name => 'Doogle::SpecVersion', :dependent => :destroy
   has_many :prices, :class_name => 'Doogle::DisplayPrice', :dependent => :destroy
 
@@ -537,15 +538,13 @@ class Doogle::Display < ApplicationModel
   end
 
   # updated = []
-  # Doogle::Display.draft.web.where(:previous_revision_id => nil).each { |d| updated.push d if d.choose_previous_revision! }
+  # Doogle::Display.where(:previous_revision_id => nil).each { |d| updated.push d if d.choose_previous_revision! } ; updated.size
   # puts updated.map { |d| "#{d.previous_revision.model_number} <= #{d.model_number}" }.join("\n")
   def choose_previous_revision!
     return false if self.previous_revision_id.present?
     # Only assign for model numbers ending in letter.
-    return false unless self.has_revision_letter?
-    candidates = Doogle::Display.for_model(self.model_number[0..self.model_number.size-2]).all
-    if candidates.size == 1
-      self.previous_revision = candidates.first
+    return false unless self.has_revision_letter? && (self.model_number.size == 6)
+    if self.previous_revision = Doogle::Display.where(['displays.model_number like ? and displays.id != ? and displays.model_number < ?', self.model_number[0..self.model_number.size-2] + '%', self.id, self.model_number]).order('displays.model_number desc').first
       self.save!
       true
     else
