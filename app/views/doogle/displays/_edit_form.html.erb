@@ -20,21 +20,21 @@
 		<%= f.input :type_key, :as => :select, :collection => Doogle::DisplayConfig.edit, :label => field.label, :wrapper_html => { :id => field.wrapper_id, :class => hosf(field) }, :include_blank => field.edit_include_blank %>
 		
 		<% elsif field.has_many? %>
-		<%= f.input field.search_value_key, :as => :check_boxes, :collection => field.has_many_class.all, :label => field.label, :wrapper_html => { :id => field.wrapper_id, :class => hosf(field) } %>
+		<%= f.input field.edit_input, :as => :check_boxes, :collection => field.has_many_class.all, :label => field.label, :wrapper_html => { :id => field.wrapper_id, :class => hosf(field) } %>
 		
 		<% elsif field.belongs_to? %>
-		<%= f.input field.search_value_key, :as => :select, :collection => field.belongs_to_class.all, :member_label => field.belongs_to_class_member_label, :label => field.label, :wrapper_html => { :id => field.wrapper_id, :class => hosf(field) }, :include_blank => field.edit_include_blank %>
+		<%= f.input field.edit_input, :as => :select, :collection => field.belongs_to_class.all, :member_label => field.belongs_to_class_member_label, :label => field.label, :wrapper_html => { :id => field.wrapper_id, :class => hosf(field) }, :include_blank => field.edit_include_blank %>
 		
 		<% elsif field.dimension? %>
 		<%= render 'dimension', :f => f, :display => @display, :field => field, :search => false %>
 		
 		<% elsif field.attachment? %>
-		<%#= f.input field.search_value_key, :as => :attachment, :label => field.label, :wrapper_html => { :id => field.wrapper_id, :class => hosf(field) } %>
+		<%#= f.input field.edit_input, :as => :attachment, :label => field.label, :wrapper_html => { :id => field.wrapper_id, :class => hosf(field) } %>
 		
 		<% elsif field.original_customer_name? %>
 		<%= render 'original_customer_name', :f => f, :display => @display, :field => field, :object_name => 'display' %>
 		<% else %>
-	  <%= f.input field.search_value_key, :label => field.label, :wrapper_html => { :id => field.wrapper_id, :class => hosf(field) } %>
+	  <%= f.input field.edit_input, :label => field.label, :wrapper_html => { :id => field.wrapper_id, :class => hosf(field) } %>
 		<% end %>
 	<% end %>
 <% end %>

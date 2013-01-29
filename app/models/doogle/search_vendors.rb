@@ -6,5 +6,11 @@ class Doogle::SearchVendors
     group by vendor_name, m2m_vendor_id
     order by vendor_name
     SQL
+    results.each do |row|
+      if row[1].blank?
+        row[1] = 'unknown'
+      end
+    end
+    results
   end
 end

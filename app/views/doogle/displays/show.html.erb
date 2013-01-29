@@ -23,7 +23,7 @@
 <% @display.display_type.fields.each do |field| %>
 	<% next if field.source_specification? and !permitted_to?(:read_source_specification) %>
 	<% next if field.vendor_part_number? %>
-	<% if field.vendors? %>
+	<% if field.search_vendor? %>
 	<% @display.vendors.each do |vendor| %>
 	<tr>
 		<td>

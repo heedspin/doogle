@@ -15,18 +15,22 @@ class Doogle::DisplaysController < Doogle::DoogleController
       display_scope = Doogle::Display
       Doogle::FieldConfig.all.select { |f| f.searchable? and !f.composite? }.each do |field|
         if @search.search_field_specified?(field)
+          # logger.info("Doogle Search Field #{field.key} specified")
           @field_keys.add field.composite_parent.key
           display_scope = @search.search_scope(display_scope, field)
         end
       end
-      @displays = display_scope.by_model_number.paginate(:page => params[:page], :per_page => 100)
-      # Choose shown/hidden columns for results.
-      @search_result_fields = @displays.map(&:display_type).uniq.map(&:fields).flatten.uniq
-      @search_result_fields = @search_result_fields.select { |f| ![:datasheet, :specification, :source_specification].include?(f.key) }
-      @show_results_fields = Doogle::FieldConfig.top_level.select { |f| @field_keys.member?(f.key) }
+      @displays = display_scope.by_model_number
     end
     respond_to do |f|
       f.html do
+        if @displays
+          @displays = display_scope.paginate(:page => params[:page], :per_page => 100)
+          # Choose shown/hidden columns for results.
+          @search_result_fields = @displays.map(&:display_type).uniq.map(&:fields).flatten.uniq
+          @search_result_fields = @search_result_fields.select { |f| ![:datasheet, :specification, :source_specification].include?(f.key) }
+          @show_results_fields = Doogle::FieldConfig.top_level.select { |f| @field_keys.member?(f.key) }
+        end
         if request.xhr?
           render :action => '_search_results', :layout => false
         else

@@ -12,12 +12,42 @@ class Doogle::FieldConfig
     @description = config['description']
   end
 
+  def search_input
+    @search_input ||= if si = config['search_input']
+      si
+    elsif self.search_options?
+      "#{self.search_option_attribute}_id"
+    elsif self.belongs_to?
+      "#{self.key}_id"
+    else
+      self.key
+    end
+  end
+
+  def edit_input
+    @edit_input ||= if ei = config['edit_input']
+      ei
+    elsif self.belongs_to?
+      "#{self.key}_id"
+    elsif si = config['search_value']
+      si
+    else
+      self.key
+    end
+  end
+
   def search_value_key
-    @search_value_key ||= config['search_value'] || (self.belongs_to? ? "#{self.key}_id" : self.key)
+    @search_value_key ||= if self.search_options?
+      self.search_option_attribute
+    elsif sv = config['search_value']
+      sv
+    else
+      self.key
+    end
   end
 
   def render_value_key
-    @render_value_key ||= config['render_value'] || config['search_value'] || self.key
+    @render_value_key ||= (config['render_value'] || config['search_value'] || self.key)
   end
 
   def search_scope_key
@@ -392,15 +422,15 @@ class Doogle::FieldConfig
           "M2M Item #{display.item.id}"
         end
       end
-    elsif self.vendors?
+    elsif self.search_vendor?
       if format == :html
         display.vendors.map do |v|
           if v.m2m_vendor
             link_to( v.short_name,
                      Rails.application.routes.url_helpers.vendor_url(v.m2m_vendor, :host => AppConfig.hostname) )
-                   else
-                     v.short_name
-                   end
+          else
+            v.short_name
+          end
         end.join(', ')
       else
         display.vendors.map(&:short_name).join(', ')

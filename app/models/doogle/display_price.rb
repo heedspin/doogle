@@ -207,6 +207,8 @@ class Doogle::DisplayPrice < Doogle::Base
     end
   end
   
+  UNKNOWN='Unknown'
+  
   def self.import_from_display
     Doogle::Display.where('length(displays.source_model_number) > 0').by_model_number.each do |display|
       source_model_number = display.source_model_number.strip
@@ -217,7 +219,7 @@ class Doogle::DisplayPrice < Doogle::Base
         price.vendor_name = price.m2m_vendor.try(:name)
       end
       if price.vendor_name.blank?
-        price.vendor_name = 'Unknown'
+        price.vendor_name = UNKNOWN
       end
       action = price.new_record? ? 'Created' : 'Updated'
       price.save!
