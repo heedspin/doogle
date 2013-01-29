@@ -9,19 +9,19 @@
 		<% elsif field.search_options? %>
 		<%= f.input "#{field.search_option_attribute}_id", :as => :select, :collection => field.search_options_class.all, :member_label => field.search_options_class_member_label, :label => field.label, :include_blank => field.search_include_blank, :wrapper_html => { :id => "search_#{field.key}_input", :class => ssf(field) } %>
 		<% elsif field.has_many? %>
-		<%= f.input field.column, :as => :check_boxes, :collection => field.has_many_class.all, :label => field.label, :wrapper_html => { :id => "search_#{field.key}_input", :class => ssf(field) } %>
+		<%= f.input field.search_value_key, :as => :check_boxes, :collection => field.has_many_class.all, :label => field.label, :wrapper_html => { :id => "search_#{field.key}_input", :class => ssf(field) } %>
 		<% elsif field.belongs_to? %>
-		<%= f.input field.column, :as => :select, :collection => field.belongs_to_class.all, :label => field.label, :include_blank => field.search_include_blank, :wrapper_html => { :id => "search_#{field.key}_input", :class => ssf(field) } %>
+		<%= f.input field.search_value_key, :as => :select, :collection => field.belongs_to_class.all, :label => field.label, :include_blank => field.search_include_blank, :wrapper_html => { :id => "search_#{field.key}_input", :class => ssf(field) } %>
 		<% elsif field.dimension? %>
 		<%= render 'dimension', :f => f, :display => @search, :field => field, :search => true %>
 		<% elsif field.search_as %>
-	  <%= f.input field.column, :as => field.search_as, :label => field.label, :wrapper_html => { :id => "search_#{field.key}_input", :class => ssf(field) } %>
+	  <%= f.input field.search_value_key, :as => field.search_as, :label => field.label, :wrapper_html => { :id => "search_#{field.key}_input", :class => ssf(field) } %>
 		<% elsif field.original_customer_name? %>
 		<%= render 'original_customer_name', :f => f, :field => field, :object_name => 'search' %>
 		<% elsif field.model_number? %>
 		<%= f.input :model_number, :wrapper_html => { :class => 'wide_string' }, :label => field.label + '(s)' %>
 		<% else %>
-	  <%= f.input field.column, :label => field.label, :wrapper_html => { :id => "search_#{field.key}_input", :class => ssf(field) } %>
+	  <%= f.input field.search_value_key, :label => field.label, :wrapper_html => { :id => "search_#{field.key}_input", :class => ssf(field) } %>
 		<% end %>
 	<% end # end fields %>
 <% end # end inputs %>

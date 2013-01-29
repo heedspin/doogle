@@ -58,12 +58,13 @@ class Doogle::DisplayPrice < Doogle::Base
   scope :active_on, lambda { |date|
     where(['display_prices.start_date <= ? and (display_prices.last_date >= ? or display_prices.last_date is null)', date, date])
   }
-  after_save :unset_preferred_vendor
-  def unset_preferred_vendor
-    if self.preferred_vendor
-      Doogle::DisplayPrice.update_all({:preferred_vendor => false}, ['display_prices.id != ? and display_prices.preferred_vendor = true', self.id])
-    end
-  end
+  scope :vendors, :select => [:vendor_name, :m2m_vendor_id, :vendor_part_number], :group => [:vendor_name, :m2m_vendor_id, :vendor_part_number]
+  # after_save :unset_preferred_vendor
+  # def unset_preferred_vendor
+  #   if self.preferred_vendor
+  #     Doogle::DisplayPrice.update_all({:preferred_vendor => false}, ['display_prices.display_id = ? and display_prices.id != ? and display_prices.preferred_vendor = true', self.display_id, self.id])
+  #   end
+  # end
 
   before_save :set_m2m_vendor
   def set_m2m_vendor
@@ -82,8 +83,47 @@ class Doogle::DisplayPrice < Doogle::Base
     end
   end
   
+  after_create :log_create
+  def log_create
+    Doogle::DisplayLog.create(:display => self.display,
+                              :user_id => self.current_user.try(:id),
+                              :summary => 'Created Vendor',
+                              :details => Doogle::Display.inspect_changes(self.changes))
+  end
+  attr_accessor :current_user
+  before_destroy :log_destroy
+  def log_destroy
+    Doogle::DisplayLog.create(:display => self.display, :user_id => self.current_user.try(:id), :summary => 'Destroyed Vendor')
+  end
+  before_update :log_update
+  def log_update
+    Doogle::DisplayLog.create(:display => self.display,
+                              :user_id => self.current_user.try(:id),
+                              :summary => 'Updated Vendor',
+                              :details => Doogle::Display.inspect_changes(self.changes))
+  end
+  
+  # validate :check_source_model_number
+  # def check_source_model_number
+  #   return unless self.source_model_number.present?
+  #   conflicts = Doogle::Display.where(:source_model_number => self.source_model_number)
+  #   unless self.new_record?
+  #     conflicts = conflicts.scoped(:conditions => "displays.id != #{self.id}")
+  #   end
+  #   if self.previous_revision_id.nil?
+  #     if conflicts.size > 0
+  #       self.errors.add(:source_model_number, "Conflicts with: #{conflicts.map(&:model_number).join(', ')}")
+  #     end
+  #   else
+  #     conflicts = conflicts.all
+  #     unless (conflicts.size == 0) or (conflicts.any? { |c| c.id == self.previous_revision_id })
+  #       self.errors.add(:source_model_number, "Conflicts with: #{conflicts.map(&:model_number).join(', ')}")
+  #     end
+  #   end
+  # end
+  
   def self.clone_price(source_price, source_display, destination_display)
-    price = source_price.clone
+    price = source_price.dup
     price.display_id = destination_display.id
     price.notes = "Cloned from #{source_display.model_number}"
     price.save!
@@ -119,6 +159,71 @@ class Doogle::DisplayPrice < Doogle::Base
     level.cost = cost
     level.price = price
     level
+  end
+  
+  
+  def self.choose_vendor(display)
+    @jiya ||= Doogle::DisplayVendor.id_for_short_name('Jiya')
+    @jiyalf ||= Doogle::DisplayVendor.id_for_short_name('Jiya LF')
+    @mit ||= Doogle::DisplayVendor.id_for_short_name('MIT')
+    @nely ||= Doogle::DisplayVendor.id_for_short_name('Nely')
+    @innolux ||= Doogle::DisplayVendor.id_for_short_name('Innolux')
+    @wise ||= Doogle::DisplayVendor.id_for_short_name('Wise')
+    @rit ||= Doogle::DisplayVendor.id_for_short_name('RIT')
+    @etd ||= Doogle::DisplayVendor.id_for_short_name('ETD')
+    @prime ||= Doogle::DisplayVendor.id_for_short_name('Prime')
+    source_model_number = display.source_model_number
+    if source_model_number.starts_with?('JY')
+      if display.model_number[0..0] == 'H'
+        @jiya
+      elsif display.model_number[0..0] == 'M'
+        @jiyalf
+      else
+        nil
+      end
+    elsif source_model_number.starts_with?('MI')
+      @mit
+    elsif source_model_number.starts_with?('NT')
+      @nely
+    elsif source_model_number.starts_with?('UG-') or source_model_number.starts_with?('UC-')
+      @wise
+    elsif source_model_number.starts_with?('G')
+      @innolux
+    elsif source_model_number.starts_with?('PD')
+      @prime
+    elsif source_model_number =~ /^P\d+/
+      @rit
+    elsif source_model_number.starts_with?('T')
+      @etd
+    else
+      nil
+    end
+  end
+
+  def self.import_log(txt)
+    log txt
+    File.open(File.join(Rails.root, 'log/display_price_import.txt'), 'a') do |output|
+      output.puts txt
+    end
+  end
+  
+  def self.import_from_display
+    Doogle::Display.where('length(displays.source_model_number) > 0').by_model_number.each do |display|
+      source_model_number = display.source_model_number.strip
+      price = display.prices.detect { |p| p.vendor_part_number.strip == source_model_number }
+      price ||= display.prices.build(:vendor_part_number => source_model_number, :start_date => '2010-01-01')
+      if m2m_vendor_id = self.choose_vendor(display)
+        price.m2m_vendor_id = m2m_vendor_id
+        price.vendor_name = price.m2m_vendor.try(:name)
+      end
+      if price.vendor_name.blank?
+        price.vendor_name = 'Unknown'
+      end
+      action = price.new_record? ? 'Created' : 'Updated'
+      price.save!
+      import_log "#{display.model_number}: #{action} price for #{source_model_number} with vendor #{price.vendor_name}"
+    end
+    true
   end
   
 end

@@ -22,12 +22,29 @@
 	<tbody>
 <% @display.display_type.fields.each do |field| %>
 	<% next if field.source_specification? and !permitted_to?(:read_source_specification) %>
+	<% next if field.vendor_part_number? %>
+	<% if field.vendors? %>
+	<% @display.vendors.each do |vendor| %>
+	<tr>
+		<td>
+			<% if vendor.m2m_vendor %>
+			<%= link_to vendor.short_name, vendor_url(vendor.m2m_vendor) %> 
+			<% else %>
+			<%= vendor.short_name %>
+			<% end %>
+			Part Number
+		</td>
+		<td><%= vendor.vendor_part_number %></td>
+	</tr>
+	<% end %>
+	<% else %>
 	<tr>
 		<td><%= field.name %></td>
 		<td><%= field.render(@display) %></td>
 	</tr>
+	<% end %>
 <% end %>
 	</tbody>
 </table>
 
-<p><%= link_to 'New Spec Version', new_doogle_display_spec_version_url(@display) %></p>
+

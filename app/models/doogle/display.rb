@@ -13,7 +13,6 @@
 #  updated_at                        :datetime
 #  position                          :integer(4)
 #  colors                            :string(255)
-#  source_id                         :integer(4)
 #  source_model_number               :string(255)
 #  datasheet_file_name               :string(255)
 #  datasheet_content_type            :string(255)
@@ -92,15 +91,6 @@
 #  original_customer_name            :string(255)
 #  original_customer_part_number     :string(255)
 #  tft_type_id                       :integer(4)
-#  vendor_name1                      :string(255)
-#  m2m_vendor_id1                    :string(255)
-#  vendor_approval_id1               :integer(4)
-#  vendor_name2                      :string(255)
-#  m2m_vendor_id2                    :string(255)
-#  vendor_approval_id2               :integer(4)
-#  vendor_name3                      :string(255)
-#  m2m_vendor_id3                    :string(255)
-#  vendor_approval_id3               :integer(4)
 #
 
 # tim@concerto:~/Dropbox/p/lxd_m2mhub$ bundle exec annotate --model-dir ../doogle/app/models
@@ -114,7 +104,6 @@ class Doogle::Display < ApplicationModel
   validates_uniqueness_of :model_number
   validates_presence_of :type_key, :status
 
-  attr_accessor :display_type
   include Plutolib::ActiveHashSetter
   active_hash_setter(Doogle::Status)
   active_hash_setter(Doogle::TouchPanelType)
@@ -123,7 +112,6 @@ class Doogle::Display < ApplicationModel
   active_hash_setter(Doogle::Color, :pixel_color)
   active_hash_setter(Doogle::Color, :background_color)
   active_hash_setter(Doogle::DisplayMode)
-  active_hash_setter(Doogle::DisplaySource, :source)
   active_hash_setter(Doogle::DisplayImage)
   active_hash_setter(Doogle::PolarizerMode)
   active_hash_setter(Doogle::CharacterType)
@@ -181,7 +169,7 @@ class Doogle::Display < ApplicationModel
   }
   scope :display_type, lambda { |*types|
     type_keys = types.flatten.map { |t| t.is_a?(Doogle::DisplayConfig) ? t.key : t.to_s }
-    if type_keys.include?(:any)
+    if type_keys.include?('any')
       where({})
     else
       {
@@ -216,7 +204,7 @@ class Doogle::Display < ApplicationModel
       }
     }
   end
-  
+
   scope :model_number, lambda { |txt|
     model_numbers = txt.split(' ').select(&:present?).map(&:downcase).map { |m| "%#{m}%" }
     {
@@ -262,12 +250,29 @@ class Doogle::Display < ApplicationModel
   end
   scope :standard, :conditions => { :standard_classification_id => Doogle::StandardClassification.standard.id }
 
+  attr_accessor :search_vendor_id
+  # def vendor
+  #   self.vendor_id
+  # end
+  scope :search_vendor, lambda { |vendor_id|
+    # {
+    # :joins => :prices,
+    # :conditions => { :display_prices => { :m2m_vendor_id => vendor_id } }
+    # }
+    where('displays.id in (select distinct display_id from display_prices where m2m_vendor_id = ?)', vendor_id)
+  }
+
+  attr_accessor :vendor_part_number
+  scope :vendor_part_number, lambda { |txt|
+    where('displays.id in (select distinct display_id from display_prices where vendor_part_number like ?)', '%' + txt + '%')
+  }
+
   def search_field_specified?(field)
-    value = self.send(field.search_key)
+    value = self.send(field.search_value_key)
     value.present? || value.is_a?(FalseClass)
   end
   def search_scope(display_scope, field)
-    display_scope.send(field.search_key, self.send(field.search_key))
+    display_scope.send(field.search_scope_key, self.send(field.search_value_key))
   end
 
   def destroy
@@ -391,20 +396,20 @@ class Doogle::Display < ApplicationModel
       Doogle::FieldConfig.non_composites.each do |field|
         if field.sync_to_web?
           if field.has_many?
-            ids_method = field.column.to_s.singularize
+            ids_method = field.search_value_key.to_s.singularize
             dr.send("#{ids_method}_ids=", self.send("#{ids_method}_ids"))
           elsif field.attachment?
             # For now we will disable any attachments
             # [:file_name, :content_type, :file_size, :updated_at].each do |paperclip_key|
-            #   paperclip_column = "#{field.column}_#{paperclip_key}"
+            #   paperclip_column = "#{field.search_value_key}_#{paperclip_key}"
             #   dr.send("#{paperclip_column}=", self.send(paperclip_column))
             # end
           else
             # Avoid sending empty string (which will end up being different from nil).
-            if (!dr.respond_to?(field.column) or !dr.send(field.column).present?) and !self.send(field.column).present?
+            if (!dr.respond_to?(field.search_value_key) or !dr.send(field.search_value_key).present?) and !self.send(field.search_value_key).present?
               # Do nothing
             else
-              dr.attributes[field.column] = self.send(field.column)
+              dr.attributes[field.search_value_key] = self.send(field.search_value_key)
             end
           end
         end
@@ -575,6 +580,10 @@ class Doogle::Display < ApplicationModel
     self.display_type.attachment_fields
   end
 
+  def vendors
+    @vendors ||= self.prices.vendors.all.map { |p| Doogle::DisplayVendor.new(p) }
+  end
+
   protected
 
     after_create :log_create
@@ -604,24 +613,5 @@ class Doogle::Display < ApplicationModel
         details.push "#{attribute}: #{old_value} => #{new_value}"
       end
       details.join("\n")
-    end
-
-    validate :check_source_model_number
-    def check_source_model_number
-      return unless self.source_model_number.present?
-      conflicts = Doogle::Display.where(:source_model_number => self.source_model_number)
-      unless self.new_record?
-        conflicts = conflicts.scoped(:conditions => "displays.id != #{self.id}")
-      end
-      if self.previous_revision_id.nil?
-        if conflicts.size > 0
-          self.errors.add(:source_model_number, "Conflicts with: #{conflicts.map(&:model_number).join(', ')}")
-        end
-      else
-        conflicts = conflicts.all
-        unless (conflicts.size == 0) or (conflicts.any? { |c| c.id == self.previous_revision_id })
-          self.errors.add(:source_model_number, "Conflicts with: #{conflicts.map(&:model_number).join(', ')}")
-        end
-      end
     end
 end

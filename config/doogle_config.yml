@@ -2,7 +2,7 @@ _display_fields: &_display_fields
   display_fields:
     - key: display_type
       belongs_to: DisplayConfig
-      column: type_key
+      search_value: type_key
       web: sync_only
       name: Type
       search_include_blank: false
@@ -26,6 +26,18 @@ _display_fields: &_display_fields
     - key: source_model_number
       name: Vendor Part Number
       web: false
+    - key: vendors
+      name: Vendors
+      web: false
+      editable: false
+      belongs_to: SearchVendors
+      search_value: search_vendor_id
+      search_scope: search_vendor
+    - key: vendor_part_number
+      name: Vendor Part Number
+      web: false
+      editable: false
+      search_as: string
     - key: original_customer_name
       name: Original Customer
       web: false
@@ -37,9 +49,6 @@ _display_fields: &_display_fields
       web: false
     - key: publish_to_erp
       search_as: select
-      web: false
-    - key: source
-      belongs_to: DisplaySource
       web: false
     - key: tft_type
       name: TFT Type
@@ -74,12 +83,12 @@ _display_fields: &_display_fields
     - key: oled_diagonal_in
       name: Diagonal
       search_options: true
-      column: module_diagonal_in
+      search_value: module_diagonal_in
       sprintf_config: %s"
     - key: tft_diagonal_in
       name: Diagonal
       search_options: true
-      column: module_diagonal_in
+      search_value: module_diagonal_in
       sprintf_config: %s"
     - key: viewing_area
       dimension: viewing_width_mm, viewing_height_mm
@@ -190,19 +199,23 @@ _display_fields: &_display_fields
     - key: datasheet
       attachment: pdf
       web: sync_only
+      search: false
     - key: datasheet_public
       web: sync_only
       search_as: select
     - key: specification
       attachment: pdf
       web: false
+      search: false
     - key: source_specification
       attachment: pdf
       web: false
       name: Non-public Specification
+      search: false
     - key: drawing
       attachment: image
       web: sync_only
+      search: false
     - key: comments
       search_as: string
       web: false
@@ -211,13 +224,13 @@ display_types: &_display_types
   display_types:
     - key: any
       name: Any
-      fields: display_type, model_number, source_model_number, status, description, previous_revision_id, erp_id, comments, original_customer_name, original_customer_part_number, standard_classification, publish_to_web
-      default_search_fields: display_type, model_number, source_model_number
+      fields: display_type, model_number, vendors, vendor_part_number, status, description, previous_revision_id, erp_id, comments, original_customer_name, original_customer_part_number, standard_classification, publish_to_web
+      default_search_fields: display_type, model_number, vendors, vendor_part_number
 
     - key: tft_displays
       name: Digital TFT
-      fields: status, display_type, model_number, source_model_number, description, previous_revision_id, tft_type, erp_id, publish_to_web, bonding_type, polarizer_mode, viewing_direction, tft_diagonal_in, module_dimensions, active_area, resolution, active_area, backlight_type, operational_temperature, storage_temperature, interface_types, gamma_required, colors, touch_panel_type, datasheet, datasheet_public, specification, luminance_nits, integrated_controller, logic_operating_voltage, target_environment, comments, standard_classification, original_customer_name, original_customer_part_number
-      default_search_fields: display_type, model_number, tft_diagonal_in, resolution, interface_types
+      fields: status, display_type, model_number, vendors, vendor_part_number, description, previous_revision_id, tft_type, erp_id, publish_to_web, bonding_type, polarizer_mode, viewing_direction, tft_diagonal_in, module_dimensions, active_area, resolution, active_area, backlight_type, operational_temperature, storage_temperature, interface_types, gamma_required, colors, touch_panel_type, datasheet, datasheet_public, specification, luminance_nits, integrated_controller, logic_operating_voltage, target_environment, comments, standard_classification, original_customer_name, original_customer_part_number
+      default_search_fields: display_type, model_number, vendors, tft_diagonal_in, resolution, interface_types
       web_list: model_number, tft_diagonal_in, module_dimensions, active_area, resolution, backlight_type, operational_temperature, storage_temperature, interface_types, colors, touch_panel_type, luminance_nits
       m2m_group_code: TFTS
       m2m_product_class: TFTS
@@ -226,7 +239,7 @@ display_types: &_display_types
       
     - key: segment_glass_displays
       name: Segment Glass Display
-      fields: status, display_type, model_number, source_model_number, description, previous_revision_id, erp_id, publish_to_web, character_resolution, character_type, display_mode, viewing_direction, module_dimensions, viewing_area, active_area, digit_height_mm, polarizer_mode, display_image, no_of_pins, operational_temperature, datasheet, datasheet_public, specification, comments, standard_classification, multiplex_ratio, original_customer_name, original_customer_part_number
+      fields: status, display_type, model_number, vendors, vendor_part_number, description, previous_revision_id, erp_id, publish_to_web, character_resolution, character_type, display_mode, viewing_direction, module_dimensions, viewing_area, active_area, digit_height_mm, polarizer_mode, display_image, no_of_pins, operational_temperature, datasheet, datasheet_public, specification, comments, standard_classification, multiplex_ratio, original_customer_name, original_customer_part_number
       default_search_fields: display_type, model_number, character_resolution, display_mode
       web_list: model_number, character_resolution, display_mode, module_dimensions, digit_height_mm, polarizer_mode, no_of_pins, operational_temperature
       m2m_group_code: GLASS
@@ -235,7 +248,7 @@ display_types: &_display_types
       default_description: '#{clean_decimal(self.character_columns)} x #{clean_decimal(self.character_rows)} Character Glass'
       
     - key: graphic_glass_displays
-      fields: status, display_type, model_number, source_model_number, description, previous_revision_id, erp_id, publish_to_web, viewing_direction, resolution, module_dimensions, viewing_area, active_area, display_mode, polarizer_mode, display_image, operational_temperature, storage_temperature, datasheet, datasheet_public, specification, comments, standard_classification, multiplex_ratio, original_customer_name, original_customer_part_number
+      fields: status, display_type, model_number, vendors, vendor_part_number, description, previous_revision_id, erp_id, publish_to_web, viewing_direction, resolution, module_dimensions, viewing_area, active_area, display_mode, polarizer_mode, display_image, operational_temperature, storage_temperature, datasheet, datasheet_public, specification, comments, standard_classification, multiplex_ratio, original_customer_name, original_customer_part_number
       default_search_fields: display_type, model_number, resolution, display_mode
       web_list: model_number, resolution, module_dimensions, viewing_area, display_mode, polarizer_mode, operational_temperature, storage_temperature, datasheet
       m2m_group_code: GLASS
@@ -245,7 +258,7 @@ display_types: &_display_types
       
     - key: graphic_module_displays
       name: Graphic Module
-      fields: status, display_type, model_number, source_model_number, description, previous_revision_id, erp_id, publish_to_web, viewing_direction, logic_operating_voltage, resolution, bonding_type, module_dimensions, viewing_area, active_area, display_mode, polarizer_mode, display_image, backlight_type, backlight_color, operational_temperature, storage_temperature, interface_types, integrated_controller, datasheet, datasheet_public, specification, comments, standard_classification, touch_panel_type, original_customer_name, original_customer_part_number
+      fields: status, display_type, model_number, vendors, vendor_part_number, description, previous_revision_id, erp_id, publish_to_web, viewing_direction, logic_operating_voltage, resolution, bonding_type, module_dimensions, viewing_area, active_area, display_mode, polarizer_mode, display_image, backlight_type, backlight_color, operational_temperature, storage_temperature, interface_types, integrated_controller, datasheet, datasheet_public, specification, comments, standard_classification, touch_panel_type, original_customer_name, original_customer_part_number
       default_search_fields: display_type, model_number, resolution, bonding_type, display_mode
       web_list: model_number, resolution, bonding_type, module_dimensions, viewing_area, display_mode, polarizer_mode, backlight_type, backlight_color, operational_temperature, storage_temperature, datasheet
       m2m_group_code: MOD
@@ -255,7 +268,7 @@ display_types: &_display_types
       
     - key: character_module_displays
       name: Segmented Module
-      fields: status, display_type, model_number, source_model_number, description, previous_revision_id, erp_id, publish_to_web, viewing_direction, logic_operating_voltage, character_resolution, character_type, bonding_type, display_mode, module_dimensions, viewing_area, active_area, polarizer_mode, display_image, backlight_type, backlight_color, operational_temperature, storage_temperature, interface_types, integrated_controller, datasheet, datasheet_public, specification, comments, standard_classification, original_customer_name, original_customer_part_number
+      fields: status, display_type, model_number, vendors, vendor_part_number, description, previous_revision_id, erp_id, publish_to_web, viewing_direction, logic_operating_voltage, character_resolution, character_type, bonding_type, display_mode, module_dimensions, viewing_area, active_area, polarizer_mode, display_image, backlight_type, backlight_color, operational_temperature, storage_temperature, interface_types, integrated_controller, datasheet, datasheet_public, specification, comments, standard_classification, original_customer_name, original_customer_part_number
       default_search_fields: display_type, model_number, character_resolution, bonding_type, display_mode
       web_list: model_number, character_resolution, bonding_type, module_dimensions, viewing_area, display_mode, polarizer_mode, backlight_type, backlight_color, operational_temperature, storage_temperature, datasheet
       m2m_group_code: MOD
@@ -265,8 +278,8 @@ display_types: &_display_types
       
     - key: oled_displays
       name: OLED Graphic Module
-      fields: status, display_type, model_number, source_model_number, description, previous_revision_id, erp_id, publish_to_web, oled_diagonal_in, module_dimensions, resolution, colors, active_area, interface_types, comments, standard_classification, datasheet, datasheet_public, specification, original_customer_name, original_customer_part_number
-      default_search_fields: display_type, model_number, resolution, module_dimensions
+      fields: status, display_type, model_number, vendors, vendor_part_number, description, previous_revision_id, erp_id, publish_to_web, oled_diagonal_in, module_dimensions, resolution, colors, active_area, interface_types, comments, standard_classification, datasheet, datasheet_public, specification, original_customer_name, original_customer_part_number
+      default_search_fields: display_type, model_number, vendors, resolution, module_dimensions
       web_list: display_type, model_number, oled_diagonal_in, module_dimensions, resolution, colors, active_area, interface_types
       m2m_group_code: OLEDS
       m2m_product_class: OLEDS
@@ -275,8 +288,8 @@ display_types: &_display_types
 
     - key: oled_character_modules
       name: OLED Character Module
-      fields: status, display_type, model_number, source_model_number, description, previous_revision_id, erp_id, publish_to_web, oled_diagonal_in, module_dimensions, character_resolution, colors, active_area, interface_types, comments, standard_classification, datasheet, datasheet_public, specification, original_customer_name, original_customer_part_number
-      default_search_fields: display_type, model_number, character_resolution, module_dimensions
+      fields: status, display_type, model_number, vendors, vendor_part_number, description, previous_revision_id, erp_id, publish_to_web, oled_diagonal_in, module_dimensions, character_resolution, colors, active_area, interface_types, comments, standard_classification, datasheet, datasheet_public, specification, original_customer_name, original_customer_part_number
+      default_search_fields: display_type, model_number, vendors, character_resolution, module_dimensions
       web_list: display_type, model_number, oled_diagonal_in, module_dimensions, character_resolution, colors, active_area, interface_types
       m2m_group_code: OLEDS
       m2m_product_class: OLEDS
@@ -284,7 +297,7 @@ display_types: &_display_types
       default_description: '#{clean_decimal(self.character_columns)} x #{clean_decimal(self.character_rows)} OLED'
       
     - key: accessories
-      fields: status, display_type, source_model_number, model_number, description, previous_revision_id, erp_id, datasheet, specification, comments, original_customer_name, original_customer_part_number
+      fields: status, display_type, vendors, vendor_part_number, model_number, description, previous_revision_id, erp_id, datasheet, specification, comments, original_customer_name, original_customer_part_number
       default_search_fields: display_type, model_number, description
       m2m_group_code: OTHER
       m2m_product_class: ACCESSORIES
@@ -293,8 +306,8 @@ display_types: &_display_types
       
     - key: shutter
       name: Shutter
-      fields: status, display_type, source_model_number, model_number, description, previous_revision_id, erp_id, module_dimensions, datasheet, datasheet_public, specification, comments, original_customer_name, original_customer_part_number
-      default_search_fields: display_type, source_model_number, model_number, description, module_dimensions
+      fields: status, display_type, vendors, vendor_part_number, model_number, description, previous_revision_id, erp_id, module_dimensions, datasheet, datasheet_public, specification, comments, original_customer_name, original_customer_part_number
+      default_search_fields: display_type, model_number, description, module_dimensions
       model_number_prefix: H
       m2m_group_code: GLASS
       m2m_product_class: GLASS

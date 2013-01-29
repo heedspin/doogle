@@ -83,7 +83,11 @@ class Doogle::Displays::PricesController < Doogle::DoogleController
     end
     
     def current_object
-      @current_object ||= Doogle::DisplayPrice.find(params[:id])
+      if @current_object.nil?
+        @current_object = Doogle::DisplayPrice.find(params[:id])
+        @current_object.current_user = current_user
+      end
+      @current_object
     end
 
     def parent_object
@@ -91,7 +95,11 @@ class Doogle::Displays::PricesController < Doogle::DoogleController
     end
     
     def build_object
-      @current_object ||= parent_object.prices.build(params[model_name])
+      if @current_object.nil?
+        @current_object = parent_object.prices.build(params[model_name])
+        @current_object.current_object = current_object
+      end
+      @current_object
     end
 
 end

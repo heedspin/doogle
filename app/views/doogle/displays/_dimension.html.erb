@@ -6,7 +6,7 @@
 	<% if search and dimension.search_range? %>
 	<%= range_select_tag display, dimension.search_range_attribute, dimension.search_range_options %>
 	<% else %>
-	<%= f.text_field dimension.column %>
+	<%= f.text_field dimension.search_value_key %>
 	<% end %>
 	<% end %>
 </li>

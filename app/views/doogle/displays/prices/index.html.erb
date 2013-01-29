@@ -3,10 +3,10 @@
 <%= will_paginate @prices %>
 
 <% if @prices.size == 0 %>
-<h2>No pricing! Create some!</h2>
+<h2>No vendors! Create some!</h2>
 
 <% @cloneable_displays.each do |cloneable_display| %>
-<p><%= link_to "Clone pricing from revision #{cloneable_display.model_number}", clone_doogle_display_prices_url(cloneable_display, :clone_to => @display.id) %></p>
+<p><%= link_to "Clone vendor from revision #{cloneable_display.model_number}", clone_doogle_display_prices_url(cloneable_display, :clone_to => @display.id) %></p>
 <% end %>
 
 <% else %>
@@ -68,4 +68,4 @@
 	</tbody>
 </table>
 <% end %>
-<p><%= link_to 'New Pricing', new_doogle_display_price_url(@display) %></p>
+<p><%= link_to 'New Vendor', new_doogle_display_price_url(@display) %></p>

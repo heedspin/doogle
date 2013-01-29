@@ -12,12 +12,24 @@ class Doogle::FieldConfig
     @description = config['description']
   end
 
-  def column
-    @column ||= config['column'] || (self.belongs_to? ? "#{self.key}_id" : self.key)
+  def search_value_key
+    @search_value_key ||= config['search_value'] || (self.belongs_to? ? "#{self.key}_id" : self.key)
   end
 
-  def value_key
-    @value_key ||= config['value_key'] || (self.belongs_to? ? self.key : self.column)
+  def render_value_key
+    @render_value_key ||= config['render_value'] || config['search_value'] || self.key
+  end
+
+  def search_scope_key
+    @search_scope_key ||= if (c = config['search_scope'])
+      c
+    elsif self.search_range?
+      self.search_range_attribute
+    elsif self.search_options?
+      self.search_option_attribute
+    else
+      self.key
+    end
   end
 
   def display_type?
@@ -81,6 +93,10 @@ class Doogle::FieldConfig
     self.all.select { |f| !f.composite_child? }
   end
 
+  def self.editable
+    self.main.select { |f| f.editable? }
+  end
+
   def self.config_accessor(key, default)
     key = key.to_s
     self.class_eval <<-RUBY
@@ -112,19 +128,12 @@ class Doogle::FieldConfig
     @sync_to_web
   end
 
-  def searchable
+  def searchable?
     if @searchable.nil?
-      @searchable = config['search']
+      v = config['search']
+      @searchable = v.is_a?(TrueClass) || v.nil?
     end
     @searchable
-  end
-
-  def searchable?
-    if self.searchable.nil?
-      !self.attachment?
-    else
-      self.searchable.is_a?(String) ? true : self.searchable
-    end
   end
 
   def self.searchable
@@ -186,16 +195,6 @@ class Doogle::FieldConfig
     end
   end
 
-  def search_key
-    if self.search_range?
-      self.search_range_attribute
-    elsif self.search_options?
-      self.search_option_attribute
-    else
-      self.key
-    end
-  end
-
   config_accessor :search_include_blank, true
   config_accessor :edit_include_blank, true
   config_accessor :sprintf_config, false
@@ -217,6 +216,22 @@ class Doogle::FieldConfig
 
   def composite?
     self.dimension?
+  end
+
+  def web?
+    if @web.nil?
+      v = config['web']
+      @web = v.is_a?(TrueClass) || v.nil?
+    end
+    @web
+  end
+
+  def editable?
+    if @editable.nil?
+      v = config['editable']
+      @editable = v.is_a?(TrueClass) || v.nil?
+    end
+    @editable
   end
 
   def composite_children
@@ -337,9 +352,9 @@ class Doogle::FieldConfig
     elsif self.display_type?
       display.display_type.try(:name)
     elsif self.character_rows? or self.character_columns?
-      doogle_cm(display.send(self.column))
+      doogle_cm(display.send(self.render_value_key))
     elsif self.has_many?
-      display.send(self.column).map { |v| v.try(:name) }.join(', ')
+      display.send(self.render_value_key).map { |v| v.try(:name) }.join(', ')
     elsif self.dimension?
       dimension_values = []
       self.dimensions.each do |child_field|
@@ -350,11 +365,11 @@ class Doogle::FieldConfig
       dimension_joiner = self.key.to_s.include?('temperature') ? ' to ' : ' x '
       default_render_value dimension_values.join(dimension_joiner)
     elsif self.attachment?
-      if (latest_spec = display.latest_spec) and latest_spec.send("#{self.column}?")
+      if (latest_spec = display.latest_spec) and latest_spec.send("#{self.render_value_key}?")
         if format == :html
-          link_to latest_spec.send("#{self.column}_file_name"), latest_spec.send(self.column).try(:url), {:target => '_blank'}
+          link_to latest_spec.send("#{self.render_value_key}_file_name"), latest_spec.send(self.render_value_key).try(:url), {:target => '_blank'}
         else
-          "#{self.column}_file_name"
+          "#{self.render_value_key}_file_name"
         end
       else
         ''
@@ -377,6 +392,23 @@ class Doogle::FieldConfig
           "M2M Item #{display.item.id}"
         end
       end
+    elsif self.vendors?
+      if format == :html
+        display.vendors.map do |v|
+          if v.m2m_vendor
+            link_to( v.short_name,
+                     Rails.application.routes.url_helpers.vendor_url(v.m2m_vendor, :host => AppConfig.hostname) )
+                   else
+                     v.short_name
+                   end
+        end.join(', ')
+      else
+        display.vendors.map(&:short_name).join(', ')
+      end
+    elsif self.vendor_part_number?
+      display.vendors.map do |v|
+        doogle_search_excerpt(v.vendor_part_number, search.try(:vendor_part_number))
+      end.join(', ')
     else
       self.default_render_field(display)
     end
@@ -384,7 +416,7 @@ class Doogle::FieldConfig
   end
 
   def default_render_field(display)
-    val = display.send(self.value_key)
+    val = display.send(self.render_value_key)
     val = if val.is_a?(Numeric)
       val = sprintf("%.1f",val) if val.is_a?(Float)
       doogle_cm(val)

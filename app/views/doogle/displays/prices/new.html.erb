@@ -1,6 +1,9 @@
 <%= render 'doogle/displays/submenu' %>
 
-<% title "New Pricing for #{@price.display.model_number}" %>
+<% title "New Vendor for #{@price.display.model_number}" %>
+
+<br />
+<h3>Vendor for <%= @price.display.model_number %></h3>
 
 <%= semantic_form_for @price, :url => doogle_display_prices_url(@display), :html => {:class => 'doogle'} do |f| %>
   <%= render :partial=>'form', :locals =>{:f=>f} %>
