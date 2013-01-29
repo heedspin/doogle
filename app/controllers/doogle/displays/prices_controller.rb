@@ -97,7 +97,7 @@ class Doogle::Displays::PricesController < Doogle::DoogleController
     def build_object
       if @current_object.nil?
         @current_object = parent_object.prices.build(params[model_name])
-        @current_object.current_object = current_object
+        @current_object.current_user = current_user
       end
       @current_object
     end
