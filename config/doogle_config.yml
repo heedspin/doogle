@@ -2,7 +2,7 @@ _display_fields: &_display_fields
   display_fields:
     - key: display_type
       belongs_to: DisplayConfig
-      search_value: type_key
+      db_value: type_key
       web: sync_only
       name: Type
       search_include_blank: false
@@ -82,12 +82,12 @@ _display_fields: &_display_fields
     - key: oled_diagonal_in
       name: Diagonal
       search_options: true
-      search_value: module_diagonal_in
+      db_value: module_diagonal_in
       sprintf_config: %s"
     - key: tft_diagonal_in
       name: Diagonal
       search_options: true
-      search_value: module_diagonal_in
+      db_value: module_diagonal_in
       sprintf_config: %s"
     - key: viewing_area
       dimension: viewing_width_mm, viewing_height_mm

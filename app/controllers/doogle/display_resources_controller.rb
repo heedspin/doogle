@@ -22,6 +22,7 @@ class Doogle::DisplayResourcesController < ApplicationController
       render :json => @display
       # redirect_to :controller => 'doogle/display_resources', :action => 'show', :id => @display.id
     else
+      logger.error "Failed to create display #{@display.id}: " + @display.errors.full_messages.join("\n")
       render :json => {:errors => @display.errors.full_messages}, :status => :unprocessable_entity
     end
   end
@@ -31,6 +32,7 @@ class Doogle::DisplayResourcesController < ApplicationController
     if @display.update_attributes(params[:display_resource])
       render :json => @display
     else
+      logger.error "Failed to update display #{@display.id}: " + @display.errors.full_messages.join("\n")
       render :json => {:errors => @display.errors.full_messages}, :status => :unprocessable_entity
     end
   end

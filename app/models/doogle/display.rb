@@ -396,7 +396,7 @@ class Doogle::Display < ApplicationModel
       Doogle::FieldConfig.non_composites.each do |field|
         if field.sync_to_web?
           if field.has_many?
-            ids_method = field.search_value_key.to_s.singularize
+            ids_method = field.render_value_key.to_s.singularize
             dr.send("#{ids_method}_ids=", self.send("#{ids_method}_ids"))
           elsif field.attachment?
             # For now we will disable any attachments
@@ -406,10 +406,10 @@ class Doogle::Display < ApplicationModel
             # end
           else
             # Avoid sending empty string (which will end up being different from nil).
-            if (!dr.respond_to?(field.search_value_key) or !dr.send(field.search_value_key).present?) and !self.send(field.search_value_key).present?
+            if (!dr.respond_to?(field.db_value_key) or !dr.send(field.db_value_key).present?) and !self.send(field.db_value_key).present?
               # Do nothing
             else
-              dr.attributes[field.search_value_key] = self.send(field.search_value_key)
+              dr.attributes[field.db_value_key] = self.send(field.db_value_key)
             end
           end
         end

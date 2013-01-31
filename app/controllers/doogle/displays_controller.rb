@@ -9,13 +9,12 @@ class Doogle::DisplaysController < Doogle::DoogleController
       @search.status_option_id = Doogle::StatusOption.draft_and_published.id
     end
     @search.type_key ||= 'any'
-    # Rails.logger.debug "Search params: #{search_params.inspect}\nSearch object: #{@search.inspect}"
     if search_params
       @field_keys = Set.new ; @field_keys.add :model_number ; @field_keys.add :type
       display_scope = Doogle::Display
       Doogle::FieldConfig.all.select { |f| f.searchable? and !f.composite? }.each do |field|
         if @search.search_field_specified?(field)
-          # logger.info("Doogle Search Field #{field.key} specified")
+          # logger.info("Doogle Search Field #{field.key} specified. Scoping with #{field.search_scope_key}(#{@search.send(field.search_value_key).inspect})")
           @field_keys.add field.composite_parent.key
           display_scope = @search.search_scope(display_scope, field)
         end

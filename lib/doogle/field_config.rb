@@ -29,8 +29,8 @@ class Doogle::FieldConfig
       ei
     elsif self.belongs_to?
       "#{self.key}_id"
-    elsif si = config['search_value']
-      si
+    elsif v = config['db_value']
+      v
     else
       self.key
     end
@@ -41,13 +41,29 @@ class Doogle::FieldConfig
       self.search_option_attribute
     elsif sv = config['search_value']
       sv
+    elsif self.belongs_to?
+      self.key
+    elsif self.search_range?
+      self.search_range_attribute
+    elsif v = config['db_value']
+      v
+    else
+      self.key
+    end
+  end
+
+  def db_value_key
+    @db_value_key ||= if v = config['db_value']
+      v
+    elsif self.belongs_to?
+      "#{self.key}_id"
     else
       self.key
     end
   end
 
   def render_value_key
-    @render_value_key ||= (config['render_value'] || config['search_value'] || self.key)
+    @render_value_key ||= (config['render_value'] || config['db_value'] || self.key)
   end
 
   def search_scope_key

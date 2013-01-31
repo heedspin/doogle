@@ -35,11 +35,11 @@ class Doogle::PriceLevel
     "Cost #{@index}"
   end
   def margin
-    return nil unless self.used?
+    return nil unless (self.price.present? and (self.price > 0)) and (self.cost.present?)
     (self.price - self.cost) / self.price
   end
   def used?
-    self.quantity.present? && self.cost.present? && self.price.present? # && (self.quantity > 0) && (self.cost > 0) and (self.price > 0)
+    self.quantity.present? || self.cost.present? || self.price.present? # && (self.quantity > 0) && (self.cost > 0) and (self.price > 0)
   end
   def to_s
     "#{self.quantity}: #{self.cost || 'nil'} - #{self.price || 'nil'}"
