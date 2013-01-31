@@ -168,7 +168,7 @@ class Doogle::Display < ApplicationModel
     }
   }
   scope :display_type, lambda { |*types|
-    type_keys = types.flatten.map { |t| t.is_a?(Doogle::DisplayConfig) ? t.key : t.to_s }
+    type_keys = types.flatten.map { |t| t.is_a?(Doogle::DisplayConfig) ? t.key.to_s : t.to_s }
     if type_keys.include?('any')
       where({})
     else
