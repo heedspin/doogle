@@ -1,7 +1,7 @@
 <div class="admintoolbar">
 <h3><%= cm @displays.total_entries %> Displays<h3>
 <%= will_paginate @displays %>
-<%= select_tag(:field_id, options_from_collection_for_select(@search_result_fields.sort_by(&:name), :key, :name, @show_results_fields.map(&:key)), {:id => 'search_results_filter', :multiple => true}) %>
+<%= select_tag(:field_id, options_from_collection_for_select(@search_result_fields.sort_by(&:name), :key, :name, @fields_to_show.map(&:key)), {:id => 'search_results_filter', :multiple => true}) %>
 </div>
 
 <%= render 'search_results_table', :result_fields => @search_result_fields, :displays => @displays %>

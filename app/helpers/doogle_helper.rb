@@ -23,7 +23,7 @@ module DoogleHelper
   end
 
   def field_class(field, display=nil)
-    hide = 'hide ' unless (@show_results_fields.nil? || @show_results_fields.include?(field))
+    hide = 'hide ' unless (@fields_to_show.nil? || @fields_to_show.include?(field))
     "#{hide}#{field.key}_cell"
   end
 

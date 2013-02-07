@@ -240,6 +240,14 @@ class Doogle::FieldConfig
       :name
     end
   end
+  
+  def renderable?
+    if @renderable.nil?
+      v = config['renderable']
+      @renderable = v.is_a?(TrueClass) || v.nil?
+    end
+    @renderable
+  end
 
   config_accessor :search_include_blank, true
   config_accessor :edit_include_blank, true

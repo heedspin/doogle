@@ -10,12 +10,12 @@ class Doogle::DisplaysController < Doogle::DoogleController
     end
     @search.type_key ||= 'any'
     if search_params
-      @field_keys = Set.new ; @field_keys.add :model_number ; @field_keys.add :type
+      @filter_fields = Set.new ; @filter_fields.add :model_number ; @filter_fields.add :display_type
       display_scope = Doogle::Display
       Doogle::FieldConfig.all.select { |f| f.searchable? and !f.composite? }.each do |field|
         if @search.search_field_specified?(field)
           # logger.info("Doogle Search Field #{field.key} specified. Scoping with #{field.search_scope_key}(#{@search.send(field.search_value_key).inspect})")
-          @field_keys.add field.composite_parent.key
+          @filter_fields.add field.composite_parent.key
           display_scope = @search.search_scope(display_scope, field)
         end
       end
@@ -27,13 +27,14 @@ class Doogle::DisplaysController < Doogle::DoogleController
           @displays = display_scope.paginate(:page => params[:page], :per_page => 100)
           # Choose shown/hidden columns for results.
           @search_result_fields = @displays.map(&:display_type).uniq.map(&:fields).flatten.uniq
-          @search_result_fields = @search_result_fields.select { |f| ![:datasheet, :specification, :source_specification].include?(f.key) }
-          @show_results_fields = Doogle::FieldConfig.top_level.select { |f| @field_keys.member?(f.key) }
+          @search_result_fields = @search_result_fields.select { |f| f.renderable? && ![:datasheet, :specification, :source_specification].include?(f.key) }
+          # @fields_to_show = Doogle::FieldConfig.top_level.select { |f| @filter_fields.member?(f.key) }
+          @fields_to_show = @filter_fields.map { |k| Doogle::FieldConfig.for_key(k) }
         end
         if request.xhr?
           render :action => '_search_results', :layout => false
         else
-          @show_search_fields = @fields || @search.display_type.try(:default_search_fields)
+          @show_search_fields = @search.display_type.try(:default_search_fields)
         end
       end
       f.xls do

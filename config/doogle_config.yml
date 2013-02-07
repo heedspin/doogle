@@ -220,6 +220,7 @@ _display_fields: &_display_fields
       web: false
     - key: sql_query
       web: false
+      renderable: false
 
 display_types: &_display_types
   display_types:
