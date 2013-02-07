@@ -221,6 +221,7 @@ _display_fields: &_display_fields
     - key: sql_query
       web: false
       renderable: false
+      editable: false
 
 display_types: &_display_types
   display_types:
