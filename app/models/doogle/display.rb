@@ -264,7 +264,12 @@ class Doogle::Display < ApplicationModel
 
   attr_accessor :vendor_part_number
   scope :vendor_part_number, lambda { |txt|
-    where('displays.id in (select distinct display_id from display_prices where vendor_part_number like ?)', '%' + txt + '%')
+    where('displays.id in (select distinct display_id from display_prices where vendor_part_number like ?)', '%' + txt.strip + '%')
+  }
+  
+  attr_accessor :sql_query
+  scope :sql_query, lambda { |txt|
+    where(txt)
   }
 
   def search_field_specified?(field)
