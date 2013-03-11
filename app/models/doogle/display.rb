@@ -206,7 +206,7 @@ class Doogle::Display < ApplicationModel
   end
 
   scope :model_number, lambda { |txt|
-    model_numbers = txt.split(' ').select(&:present?).map(&:downcase).map { |m| "%#{m}%" }
+    model_numbers = txt.split(/[ ,]/).select(&:present?).map { |m| "%#{m.strip.downcase}%" }
     {
       :conditions => [ model_numbers.map { |m| 'LOWER(displays.model_number) like ?' }.join(' OR '), *model_numbers ]
     }
@@ -264,7 +264,9 @@ class Doogle::Display < ApplicationModel
 
   attr_accessor :vendor_part_number
   scope :vendor_part_number, lambda { |txt|
-    where('displays.id in (select distinct display_id from display_prices where vendor_part_number like ?)', '%' + txt.strip + '%')
+    vendor_part_numbers = txt.split(/[ ,]/).select(&:present?).map { |m| "%#{m.strip.downcase}%" }    
+    conditions = vendor_part_numbers.map { |m| 'LOWER(vendor_part_number) like ?' }.join(' OR ')
+    where(["displays.id in (select distinct display_id from display_prices where #{conditions})", *vendor_part_numbers])
   }
   
   attr_accessor :sql_query

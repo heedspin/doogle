@@ -18,9 +18,6 @@
 	</div>
 
 	<%= semantic_form_for @search, :as => :search, :url => doogle_displays_path, :html => {:method => :get, :class => 'doogle'} do |f| %>
-	<%= f.buttons :class => 'buttons right' do %>
-	  <%= f.commit_button 'Search' %>
-	<% end %>
 	<%= f.inputs :class => 'horizontal' do %>
 		<%= f.input :type_key, :as => :select, :collection => Doogle::DisplayConfig.all, :label => 'Type', :include_blank => false, :wrapper_html => { :id => "search_type_key_input" } %>
 		<% Doogle::DisplayConfig.all.each do |dc| %>

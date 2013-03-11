@@ -14,14 +14,16 @@
 		<%= f.input field.search_input, :as => :select, :collection => field.belongs_to_class.all, :label => field.label, :include_blank => field.search_include_blank, :wrapper_html => { :id => "search_#{field.key}_input", :class => ssf(field) } %>
 		<% elsif field.dimension? %>
 		<%= render 'dimension', :f => f, :display => @search, :field => field, :search => true %>
-		<% elsif field.search_as %>
-	  <%= f.input field.search_input, :as => field.search_as, :label => field.label, :wrapper_html => { :id => "search_#{field.key}_input", :class => ssf(field) } %>
 		<% elsif field.original_customer_name? %>
 		<%= render 'original_customer_name', :f => f, :field => field, :object_name => 'search' %>
 		<% elsif field.model_number? %>
-		<%= f.input :model_number, :wrapper_html => { :class => 'wide_string', :class => ssf(field) }, :label => field.label + '(s)' %>
+		<%= f.input :model_number, :wrapper_html => { :class => "wide_string #{ssf(field)}" }, :label => field.label + '(s)' %>
+		<% elsif field.vendor_part_number? %>
+		<%= f.input :vendor_part_number, :wrapper_html => { :class => "wide_string #{ssf(field)}" }, :label => field.label + '(s)' %>
 		<% elsif field.sql_query? %>
 		<%= f.input :sql_query, :wrapper_html => { :class => 'wide_string', :class => ssf(field) }, :label => field.label %>
+		<% elsif field.search_as %>
+	  <%= f.input field.search_input, :as => field.search_as, :label => field.label, :wrapper_html => { :id => "search_#{field.key}_input", :class => ssf(field) } %>
 		<% else %>
 	  <%= f.input field.search_input, :label => field.label, :wrapper_html => { :id => "search_#{field.key}_input", :class => ssf(field) } %>
 		<% end %>
