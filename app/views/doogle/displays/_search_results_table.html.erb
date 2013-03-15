@@ -19,7 +19,7 @@
 				<% end %>
 				<% if display.latest_spec.try(:datasheet?) %>
 			  <td>
-					<%= link_to 'Datasheet', display.datasheet.url, {:target => '_blank'} %>
+					<%= link_to 'Datasheet', display.latest_spec.datasheet.url, {:target => '_blank'} %>
 				</td>
 				<% end %>
 				<% if display.latest_spec.try(:specification?) %>
