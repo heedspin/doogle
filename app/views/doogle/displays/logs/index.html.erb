@@ -14,9 +14,17 @@
 	<tbody>
 		<% @display_logs.each do |dl| %>
 		<tr>
-			<td><%= dl.created_at.to_s(:number_date_time) %></td>
+			<td><%= dl.event_time.to_s(:short_human_date) %></td>
 			<td><%= dl.summary %></td>
-			<td><%= simple_format dl.details %></td>
+			<td>
+				<% if dl.log_type.try(:opportunity?) and dl.opportunity %>
+				<%= link_to dl.opportunity.number_and_title, opportunity_url(dl.opportunity) %>
+				<% elsif dl.log_type.try(:quote?) and dl.quote %>
+				<%= link_to "Quote #{dl.quote.quote_number}", sales_quote_url(dl.quote) %>
+				<% else %>
+				<%= simple_format dl.details %>
+				<% end %>
+			</td>
 			<td><%= dl.user.try(:full_name) %></td>
 		</tr>
 		<% end %>

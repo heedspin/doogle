@@ -2,7 +2,7 @@
 #
 # Table name: doogle_interface_types
 #
-#  id   :integer(4)      not null, primary key
+#  id   :integer          not null, primary key
 #  name :string(255)
 #
 

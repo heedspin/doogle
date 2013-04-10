@@ -48,6 +48,7 @@ class Doogle::DisplaysController < Doogle::DoogleController
 
   def show
     @display = current_object
+    @display_logs = @display.logs.by_date_desc.log_type(Doogle::LogType.opportunity,Doogle::LogType.quote,Doogle::LogType.create,Doogle::LogType.spec,Doogle::LogType.vendor).limit(40)
   end
   
   def next_model_number

@@ -1,0 +1,23 @@
+<h3><%= link_to 'Display Logs', doogle_display_display_logs_url(@display) %></h3>
+<table class="data">
+	<tbody>
+		<% display_logs.each do |dl| %>
+		<tr>
+			<td><%= dl.event_time.to_s(:short_human_date) %></td>
+			<td>
+				<% if dl.log_type.try(:opportunity?) and dl.opportunity %>
+				Opportunity <%= link_to dl.opportunity.number_title_and_customer, opportunity_url(dl.opportunity) %>
+				<% elsif dl.log_type.try(:quote?) and dl.quote %>
+				<%= link_to "Quoted #{dl.quote.customer_name}", sales_quote_url(dl.quote) %>
+				<% elsif dl.log_type.spec? %>
+				New specification
+				<% elsif dl.log_type.vendor? %>
+				Vendor information
+				<% else %>
+				<%= dl.summary %>
+				<% end %>				
+			</td>
+		</tr>
+		<% end %>
+	</tbody>
+</table>

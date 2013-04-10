@@ -2,36 +2,36 @@
 #
 # Table name: display_prices
 #
-#  id                 :integer(4)      not null, primary key
-#  display_id         :integer(4)
+#  id                 :integer          not null, primary key
+#  display_id         :integer
 #  m2m_vendor_id      :string(255)
 #  vendor_name        :string(255)
 #  vendor_part_number :string(255)
-#  preferred_vendor   :boolean(1)
+#  preferred_vendor   :boolean
 #  start_date         :date
 #  last_date          :date
-#  quantity1          :integer(4)
+#  quantity1          :integer
 #  cost1              :decimal(12, 2)
 #  price1             :decimal(12, 2)
-#  quantity2          :integer(4)
+#  quantity2          :integer
 #  cost2              :decimal(12, 2)
 #  price2             :decimal(12, 2)
-#  quantity3          :integer(4)
+#  quantity3          :integer
 #  cost3              :decimal(12, 2)
 #  price3             :decimal(12, 2)
-#  quantity4          :integer(4)
+#  quantity4          :integer
 #  cost4              :decimal(12, 2)
 #  price4             :decimal(12, 2)
-#  quantity5          :integer(4)
+#  quantity5          :integer
 #  cost5              :decimal(12, 2)
 #  price5             :decimal(12, 2)
-#  quantity6          :integer(4)
+#  quantity6          :integer
 #  cost6              :decimal(12, 2)
 #  price6             :decimal(12, 2)
-#  quantity7          :integer(4)
+#  quantity7          :integer
 #  cost7              :decimal(12, 2)
 #  price7             :decimal(12, 2)
-#  quantity8          :integer(4)
+#  quantity8          :integer
 #  cost8              :decimal(12, 2)
 #  price8             :decimal(12, 2)
 #  import_token       :string(255)
@@ -47,8 +47,8 @@ class Doogle::DisplayPrice < Doogle::Base
   belongs_to :display, :class_name => 'Doogle::Display'
   belongs_to :m2m_vendor, :class_name => 'M2m::Vendor', :primary_key => 'fvendno'
   validates_presence_of :start_date, :display, :vendor_name
-  
-  scope :by_start_date_desc, :order => 'display_prices.start_date desc'  
+
+  scope :by_start_date_desc, :order => 'display_prices.start_date desc'
   scope :display, lambda { |display|
     where(:display_id => display.id)
   }
@@ -73,7 +73,7 @@ class Doogle::DisplayPrice < Doogle::Base
     end
     true
   end
-  
+
   after_save :set_last_dates
   def set_last_dates
     if self.last_date
@@ -82,27 +82,32 @@ class Doogle::DisplayPrice < Doogle::Base
       self.class.update_all({:last_date => self.start_date.advance(:days => -1)}, ["display_prices.id != ? and display_prices.display_id = ? and display_prices.last_date is null and display_prices.vendor_name = ?", self.id, self.display_id, self.vendor_name])
     end
   end
-  
+
   after_create :log_create
   def log_create
     Doogle::DisplayLog.create(:display => self.display,
                               :user_id => self.current_user.try(:id),
                               :summary => 'Created Vendor',
-                              :details => Doogle::Display.inspect_changes(self.changes))
+                              :details => Doogle::Display.inspect_changes(self.changes),
+                              :log_type_id => Doogle::DisplayLog.vendor.id)
   end
   attr_accessor :current_user
   before_destroy :log_destroy
   def log_destroy
-    Doogle::DisplayLog.create(:display => self.display, :user_id => self.current_user.try(:id), :summary => 'Destroyed Vendor')
+    Doogle::DisplayLog.create(:display => self.display,
+                              :user_id => self.current_user.try(:id),
+                              :summary => 'Destroyed Vendor',
+                              :log_type_id => Doogle::DisplayLog.vendor.id)
   end
   before_update :log_update
   def log_update
     Doogle::DisplayLog.create(:display => self.display,
                               :user_id => self.current_user.try(:id),
                               :summary => 'Updated Vendor',
-                              :details => Doogle::Display.inspect_changes(self.changes))
+                              :details => Doogle::Display.inspect_changes(self.changes),
+                              :log_type_id => Doogle::DisplayLog.vendor.id)
   end
-  
+
   # validate :check_source_model_number
   # def check_source_model_number
   #   return unless self.source_model_number.present?
@@ -121,15 +126,15 @@ class Doogle::DisplayPrice < Doogle::Base
   #     end
   #   end
   # end
-  
+
   def self.clone_price(source_price, source_display, destination_display)
     price = source_price.dup
     price.display_id = destination_display.id
     price.notes = "Cloned from #{source_display.model_number}"
     price.save!
     price
-  end  
-  
+  end
+
   TOTAL_LEVELS=8
   def levels
     @levels ||= (1..TOTAL_LEVELS).map { |x| Doogle::PriceLevel.new(x, self) }
@@ -143,7 +148,7 @@ class Doogle::DisplayPrice < Doogle::Base
       self.send("cost#{x}=", nil)
       self.send("price#{x}=", nil)
     end
-    @levels = []    
+    @levels = []
   end
   def next_level
     if @levels.size == TOTAL_LEVELS
@@ -160,8 +165,8 @@ class Doogle::DisplayPrice < Doogle::Base
     level.price = price
     level
   end
-  
-  
+
+
   def self.choose_vendor(display)
     @jiya ||= Doogle::DisplayVendor.id_for_short_name('Jiya')
     @jiyalf ||= Doogle::DisplayVendor.id_for_short_name('Jiya LF')
@@ -206,9 +211,9 @@ class Doogle::DisplayPrice < Doogle::Base
       output.puts txt
     end
   end
-  
+
   UNKNOWN='Unknown'
-  
+
   def self.import_from_display
     Doogle::Display.where('length(displays.source_model_number) > 0').by_model_number.each do |display|
       source_model_number = display.source_model_number.strip
@@ -227,5 +232,5 @@ class Doogle::DisplayPrice < Doogle::Base
     end
     true
   end
-  
+
 end

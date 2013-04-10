@@ -2,9 +2,9 @@
 #
 # Table name: display_interface_types
 #
-#  id                :integer(4)      not null, primary key
-#  display_id        :integer(4)
-#  interface_type_id :integer(4)
+#  id                :integer          not null, primary key
+#  display_id        :integer
+#  interface_type_id :integer
 #
 
 class Doogle::DisplayInterfaceType < ApplicationModel

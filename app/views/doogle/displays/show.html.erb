@@ -18,6 +18,7 @@
 	</div>
 <% end %>
 
+<div class="display_summary">
 <table class="data">
 	<tbody>
 <% @display.display_type.fields.each do |field| %>
@@ -47,4 +48,5 @@
 	</tbody>
 </table>
 
-
+<%= render 'doogle/displays/logs/summary', :display_logs => @display_logs %>
+</div>

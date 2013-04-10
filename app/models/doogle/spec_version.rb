@@ -2,31 +2,31 @@
 #
 # Table name: doogle_spec_versions
 #
-#  id                                :integer(4)      not null, primary key
-#  status_id                         :integer(4)
-#  display_id                        :integer(4)
-#  version                           :integer(4)
+#  id                                :integer          not null, primary key
+#  status_id                         :integer
+#  display_id                        :integer
+#  version                           :integer
 #  comments                          :text
 #  source_specification_file_name    :string(255)
 #  source_specification_content_type :string(255)
-#  source_specification_file_size    :integer(4)
+#  source_specification_file_size    :integer
 #  source_specification_updated_at   :datetime
 #  specification_file_name           :string(255)
 #  specification_content_type        :string(255)
-#  specification_file_size           :integer(4)
+#  specification_file_size           :integer
 #  specification_updated_at          :datetime
-#  specification_public              :boolean(1)
+#  specification_public              :boolean
 #  datasheet_updated_at              :datetime
 #  datasheet_file_name               :string(255)
 #  datasheet_content_type            :string(255)
-#  datasheet_file_size               :integer(4)
-#  datasheet_public                  :boolean(1)
+#  datasheet_file_size               :integer
+#  datasheet_public                  :boolean
 #  drawing_updated_at                :datetime
 #  drawing_file_name                 :string(255)
 #  drawing_content_type              :string(255)
-#  drawing_file_size                 :integer(4)
-#  drawing_public                    :boolean(1)
-#  updated_by_id                     :integer(4)
+#  drawing_file_size                 :integer
+#  drawing_public                    :boolean
+#  updated_by_id                     :integer
 #  created_at                        :datetime
 #  updated_at                        :datetime
 #
@@ -111,7 +111,8 @@ class Doogle::SpecVersion < ApplicationModel
     Doogle::DisplayLog.create(:display => self.display,
                               :user_id => self.updated_by.try(:id),
                               :summary => 'Create Spec Version',
-                              :details => Doogle::Display.inspect_changes(self.changes))
+                              :details => Doogle::Display.inspect_changes(self.changes),
+                              :log_type_id => Doogle::DisplayLog.spec.id)
   end
 
   before_update :log_update
@@ -119,7 +120,8 @@ class Doogle::SpecVersion < ApplicationModel
     Doogle::DisplayLog.create(:display => self.display,
                               :user_id => self.updated_by.try(:id),
                               :summary => 'Updated Spec Version',
-                              :details => Doogle::Display.inspect_changes(self.changes))
+                              :details => Doogle::Display.inspect_changes(self.changes),
+                              :log_type_id => Doogle::DisplayLog.spec.id)
   end
 
   def self.import_log(txt)
