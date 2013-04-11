@@ -112,7 +112,7 @@ class Doogle::SpecVersion < ApplicationModel
                               :user_id => self.updated_by.try(:id),
                               :summary => 'Create Spec Version',
                               :details => Doogle::Display.inspect_changes(self.changes),
-                              :log_type_id => Doogle::DisplayLog.spec.id)
+                              :log_type_id => Doogle::LogType.spec.id)
   end
 
   before_update :log_update
@@ -121,7 +121,7 @@ class Doogle::SpecVersion < ApplicationModel
                               :user_id => self.updated_by.try(:id),
                               :summary => 'Updated Spec Version',
                               :details => Doogle::Display.inspect_changes(self.changes),
-                              :log_type_id => Doogle::DisplayLog.spec.id)
+                              :log_type_id => Doogle::LogType.spec.id)
   end
 
   def self.import_log(txt)

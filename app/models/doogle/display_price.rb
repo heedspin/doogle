@@ -89,7 +89,7 @@ class Doogle::DisplayPrice < Doogle::Base
                               :user_id => self.current_user.try(:id),
                               :summary => 'Created Vendor',
                               :details => Doogle::Display.inspect_changes(self.changes),
-                              :log_type_id => Doogle::DisplayLog.vendor.id)
+                              :log_type_id => Doogle::LogType.vendor.id)
   end
   attr_accessor :current_user
   before_destroy :log_destroy
@@ -97,7 +97,7 @@ class Doogle::DisplayPrice < Doogle::Base
     Doogle::DisplayLog.create(:display => self.display,
                               :user_id => self.current_user.try(:id),
                               :summary => 'Destroyed Vendor',
-                              :log_type_id => Doogle::DisplayLog.vendor.id)
+                              :log_type_id => Doogle::LogType.vendor.id)
   end
   before_update :log_update
   def log_update
@@ -105,7 +105,7 @@ class Doogle::DisplayPrice < Doogle::Base
                               :user_id => self.current_user.try(:id),
                               :summary => 'Updated Vendor',
                               :details => Doogle::Display.inspect_changes(self.changes),
-                              :log_type_id => Doogle::DisplayLog.vendor.id)
+                              :log_type_id => Doogle::LogType.vendor.id)
   end
 
   # validate :check_source_model_number
