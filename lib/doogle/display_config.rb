@@ -115,6 +115,17 @@ class Doogle::DisplayConfig
     end
     @web_list_fields
   end
+
+  def master_list_fields
+    if @master_list_fields.nil?
+      @master_list_fields = if (keys = @config['master_list'])
+        keys.split(',').map(&:strip).uniq.map { |k| Doogle::FieldConfig.for_key(k.strip) }
+      else
+        []
+      end
+    end
+    @master_list_fields
+  end
   
   def attachment_fields
     @attachment_fields ||= self.fields.select(&:attachment?)

@@ -42,6 +42,7 @@ class Doogle::PriceLevel
     self.quantity.present? || self.cost.present? || self.price.present? # && (self.quantity > 0) && (self.cost > 0) and (self.price > 0)
   end
   def to_s
-    "#{self.quantity}: #{self.cost || 'nil'} - #{self.price || 'nil'}"
+    # "#{self.quantity}: #{self.cost || 'nil'} - #{self.price || 'nil'}"
+    "#{self.quantity}: #{self.cost || 'nil'}"
   end
 end

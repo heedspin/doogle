@@ -20,8 +20,6 @@
 			<th>Last Date</th>
 			<th>Quantity</th>
 			<th>Cost</th>
-			<th>Price</th>
-			<th>Margin</th>
 			<th>Notes</th>
 		</tr>
 	</thead>
@@ -42,8 +40,6 @@
 			<% level = p.levels_used.first %>
 			<td><%= cm level.try(:quantity) %></td>
 			<td><%= cm level.try(:cost), :dollars %></td>
-			<td><%= cm level.try(:price), :dollars %></td>
-			<td><%= percent0 level.try(:margin) %>%</td>
 			<td rowspan="<%= p.levels_used.size %>"><%= simple_format p.notes %></td>
 			<% if permitted_to? :manage, :doogle_display_prices %>
 			<td>
@@ -59,8 +55,6 @@
 				<% end %>
 				<td><%= cm level.quantity %></td>
 				<td><%= cm level.cost, :dollars %></td>
-				<td><%= cm level.price, :dollars %></td>
-				<td><%= percent0 level.margin %>%</td>
 			</tr>
 			<% end %>
 			<% end %>

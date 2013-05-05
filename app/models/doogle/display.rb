@@ -91,6 +91,7 @@
 #  original_customer_name            :string(255)
 #  original_customer_part_number     :string(255)
 #  tft_type_id                       :integer
+#  on_master_list                    :boolean
 #
 
 # tim@concerto:~/Dropbox/p/lxd_m2mhub$ bundle exec annotate --model-dir ../doogle/app/models
@@ -214,7 +215,7 @@ class Doogle::Display < ApplicationModel
   }
 
   scope :web, :conditions => { :publish_to_web => true }
-  %w(datasheet_public publish_to_web publish_to_erp).each do |key|
+  %w(datasheet_public publish_to_web publish_to_erp on_master_list).each do |key|
     self.class_eval <<-RUBY
     scope :#{key}, lambda { |v|
     {
@@ -249,7 +250,9 @@ class Doogle::Display < ApplicationModel
   def oled_diagonal_in_option
     Doogle::OledDiagonalInOption.from_diagonal(self.oled_diagonal_in_option_id)
   end
+
   scope :standard, :conditions => { :standard_classification_id => Doogle::StandardClassification.standard.id }
+  scope :on_master_list, where(:on_master_list => true)
 
   attr_accessor :search_vendor_id
   # def vendor
@@ -590,6 +593,10 @@ class Doogle::Display < ApplicationModel
 
   def vendors
     @vendors ||= self.prices.vendors.all.map { |p| Doogle::DisplayVendor.new(p) }
+  end
+  
+  def preferred_vendor_price(date=nil)
+    @preferred_vendor_price ||= self.prices.active_on(date || Date.current).all.select(&:preferred_vendor).first
   end
 
   protected

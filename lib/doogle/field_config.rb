@@ -420,10 +420,14 @@ class Doogle::FieldConfig
       default_render_value dimension_values.join(dimension_joiner)
     elsif self.attachment?
       if (latest_spec = display.latest_spec) and latest_spec.send("#{self.render_value_key}?")
+        filename = latest_spec.send("#{self.render_value_key}_file_name")
         if format == :html
-          link_to latest_spec.send("#{self.render_value_key}_file_name"), latest_spec.send(self.render_value_key).try(:url), {:target => '_blank'}
+          link_to filename, latest_spec.send(self.render_value_key).try(:url), {:target => '_blank'}
+        elsif format == :xls
+          url = 'https://' + AppConfig.hostname + latest_spec.send(self.render_value_key).try(:url)
+          Spreadsheet::Link.new url, filename
         else
-          "#{self.render_value_key}_file_name"
+          filename
         end
       else
         ''
@@ -466,7 +470,7 @@ class Doogle::FieldConfig
     else
       self.default_render_field(display)
     end
-    value.try(:html_safe)
+    (value.is_a?(String) and (format == :html)) ? value.try(:html_safe) : value
   end
 
   def default_render_field(display)

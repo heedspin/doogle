@@ -41,6 +41,9 @@ class Doogle::DisplayLog < ApplicationModel
       where ['log_type_id in (?)', log_types.map(&:id)]
     end
   }
+  scope :after, lambda { |after_date|
+    where ['display_logs.event_time >= ?', after_date]
+  }
   before_create :set_event_time
   def set_event_time
     self.event_time ||= Time.now
