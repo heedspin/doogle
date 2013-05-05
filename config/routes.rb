@@ -18,4 +18,5 @@ Rails.application.routes.draw do
     resources :spec_versions, :only => :index
   end
   resources :display_assets, :only => [ :show ]
+  match '/display_assets/', :controller => 'display_assets', :action => 'options', :constraints => {:method => 'OPTIONS'}
 end

@@ -32,12 +32,20 @@ class DisplayAssetsController < ApplicationController
     end
   end
 
+  skip_before_filter :require_login, :only => [:options]
+  def options
+    # logger.info request.env.select {|k,v| k.match("^HTTP.*")}.inspect
+    # logger.info request.env.select {|k,v| k.match(".*requested.*")}.inspect
+    headers['Access-Control-Allow-Methods'] = 'GET,HEAD,OPTIONS'
+    head :ok
+  end
+
   protected
-  
+
     def not_found
       render :template => "errors/404", :status => 404
     end
-    
+
     def not_authorized
       render :template => "errors/403", :status => 403
     end
