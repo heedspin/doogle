@@ -3,6 +3,8 @@ require 'menu_selected'
 class DisplayAssetsController < ApplicationController
   include MenuSelected
   def show
+    logger.info request.env.select {|k,v| k.match("^HTTP.*")}.inspect
+    logger.info request.env.select {|k,v| k.match(".*requested.*")}.inspect
     @display = current_object
     asset = params[:asset] || :datasheet
     version = params[:version]
@@ -34,8 +36,8 @@ class DisplayAssetsController < ApplicationController
 
   skip_before_filter :require_login, :only => [:options]
   def options
-    # logger.info request.env.select {|k,v| k.match("^HTTP.*")}.inspect
-    # logger.info request.env.select {|k,v| k.match(".*requested.*")}.inspect
+    logger.info request.env.select {|k,v| k.match("^HTTP.*")}.inspect
+    logger.info request.env.select {|k,v| k.match(".*requested.*")}.inspect
     headers['Access-Control-Allow-Methods'] = 'GET,HEAD,OPTIONS'
     head :ok
   end
