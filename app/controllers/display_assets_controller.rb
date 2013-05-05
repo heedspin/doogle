@@ -4,19 +4,20 @@ class DisplayAssetsController < ApplicationController
   include MenuSelected
   skip_before_filter :require_login
 
-  before_filter :maybe_require_login, :only => :show
-  def maybe_require_login
-    if request.env['HTTP_USER_AGENT'].include?('Excel')
-      true
-    else
-      true #require_login
-    end
-  end
-  
+  # before_filter :maybe_require_login, :only => :show
+  # def maybe_require_login
+  #   if request.env['HTTP_USER_AGENT'].include?('Excel')
+  #     true
+  #   else
+  #     true #require_login
+  #   end
+  # end
+  # 
   def show
-    logger.info request.env.select {|k,v| k.match("^HTTP.*")}.inspect
-    logger.info request.env.select {|k,v| k.match(".*requested.*")}.inspect
+    # logger.info request.env.select {|k,v| k.match("^HTTP.*")}.inspect
+    # logger.info request.env.select {|k,v| k.match(".*requested.*")}.inspect
     if request.env['HTTP_USER_AGENT'].include?('Excel')
+      # Convince Excel it's ok to send request to external browser (which must authenticate).
       render :text => 'hello excel', :status => 200
     else
       @display = current_object
@@ -49,7 +50,7 @@ class DisplayAssetsController < ApplicationController
     end
   end
 
-  # skip_before_filter :require_login, :only => [:options]
+  skip_before_filter :require_login, :only => [:options]
   def options
     logger.info request.env.select {|k,v| k.match("^HTTP.*")}.inspect
     logger.info request.env.select {|k,v| k.match(".*requested.*")}.inspect
