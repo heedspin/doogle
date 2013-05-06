@@ -1,5 +1,11 @@
 _display_fields: &_display_fields
   display_fields:
+    - key: status
+      belongs_to: Status
+      web: sync_only
+      search_options: true
+      search_include_blank: false
+      edit_include_blank: false
     - key: display_type
       belongs_to: DisplayConfig
       db_value: type_key
@@ -16,13 +22,6 @@ _display_fields: &_display_fields
       web: false
       search: false
       name: ERP Item
-    - key: status
-      belongs_to: Status
-      web: sync_only
-      search_options: true
-      search_include_blank: false
-      # edit_include_blank: false
-      editable: false
     - key: description
     - key: source_model_number
       name: Vendor Part Number
@@ -232,12 +231,12 @@ display_types: &_display_types
   display_types:
     - key: any
       name: Any
-      fields: display_type, model_number, search_vendor, vendor_part_number, description, previous_revision_id, erp_id, comments, original_customer_name, original_customer_part_number, standard_classification, publish_to_web, on_master_list, sql_query
+      fields: status, display_type, model_number, search_vendor, vendor_part_number, description, previous_revision_id, erp_id, comments, original_customer_name, original_customer_part_number, standard_classification, publish_to_web, on_master_list, sql_query
       default_search_fields: display_type, model_number, search_vendor, vendor_part_number
 
     - key: tft_displays
       name: Digital TFT
-      fields: display_type, model_number, search_vendor, vendor_part_number, description, previous_revision_id, tft_type, erp_id, publish_to_web, on_master_list, bonding_type, polarizer_mode, viewing_direction, tft_diagonal_in, module_dimensions, active_area, resolution, active_area, backlight_type, no_of_pins, operational_temperature, storage_temperature, interface_types, gamma_required, colors, touch_panel_type, datasheet, datasheet_public, specification, luminance_nits, integrated_controller, logic_operating_voltage, target_environment, comments, standard_classification, original_customer_name, original_customer_part_number, sql_query
+      fields: status, display_type, model_number, search_vendor, vendor_part_number, description, previous_revision_id, tft_type, erp_id, publish_to_web, on_master_list, bonding_type, polarizer_mode, viewing_direction, tft_diagonal_in, module_dimensions, active_area, resolution, active_area, backlight_type, no_of_pins, operational_temperature, storage_temperature, interface_types, gamma_required, colors, touch_panel_type, datasheet, datasheet_public, specification, luminance_nits, integrated_controller, logic_operating_voltage, target_environment, comments, standard_classification, original_customer_name, original_customer_part_number, sql_query
       default_search_fields: display_type, model_number, search_vendor, tft_diagonal_in, resolution, interface_types
       web_list: model_number, tft_diagonal_in, module_dimensions, active_area, resolution, backlight_type, operational_temperature, storage_temperature, interface_types, colors, touch_panel_type, luminance_nits
       master_list: model_number, search_vendor, vendor_part_number, description, tft_type, bonding_type, polarizer_mode, tft_diagonal_in, module_dimensions, active_area, resolution, active_area, backlight_type, operational_temperature, storage_temperature, interface_types, gamma_required, colors, touch_panel_type, datasheet, specification, luminance_nits, integrated_controller, target_environment, comments, standard_classification
@@ -248,7 +247,7 @@ display_types: &_display_types
       
     - key: segment_glass_displays
       name: Segment Glass Display
-      fields: display_type, model_number, search_vendor, vendor_part_number, description, previous_revision_id, erp_id, publish_to_web, on_master_list, character_resolution, character_type, display_mode, viewing_direction, module_dimensions, viewing_area, active_area, digit_height_mm, polarizer_mode, display_image, no_of_pins, operational_temperature, datasheet, datasheet_public, specification, comments, standard_classification, multiplex_ratio, original_customer_name, original_customer_part_number, sql_query
+      fields: status, display_type, model_number, search_vendor, vendor_part_number, description, previous_revision_id, erp_id, publish_to_web, on_master_list, character_resolution, character_type, display_mode, viewing_direction, module_dimensions, viewing_area, active_area, digit_height_mm, polarizer_mode, display_image, no_of_pins, operational_temperature, datasheet, datasheet_public, specification, comments, standard_classification, multiplex_ratio, original_customer_name, original_customer_part_number, sql_query
       default_search_fields: display_type, model_number, character_resolution, display_mode
       web_list: model_number, character_resolution, display_mode, module_dimensions, digit_height_mm, polarizer_mode, no_of_pins, operational_temperature
       master_list: model_number, search_vendor, vendor_part_number, description, character_resolution, character_type, display_mode, viewing_direction, module_dimensions, viewing_area, active_area, digit_height_mm, polarizer_mode, display_image, no_of_pins, operational_temperature, datasheet, specification, comments, standard_classification, multiplex_ratio, original_customer_name
@@ -258,7 +257,7 @@ display_types: &_display_types
       default_description: '#{clean_decimal(self.character_columns)} x #{clean_decimal(self.character_rows)} Character Glass'
       
     - key: graphic_glass_displays
-      fields: display_type, model_number, search_vendor, vendor_part_number, description, previous_revision_id, erp_id, publish_to_web, on_master_list, viewing_direction, resolution, module_dimensions, viewing_area, active_area, display_mode, polarizer_mode, display_image, operational_temperature, storage_temperature, datasheet, datasheet_public, specification, comments, standard_classification, multiplex_ratio, original_customer_name, original_customer_part_number, sql_query
+      fields: status, display_type, model_number, search_vendor, vendor_part_number, description, previous_revision_id, erp_id, publish_to_web, on_master_list, viewing_direction, resolution, module_dimensions, viewing_area, active_area, display_mode, polarizer_mode, display_image, operational_temperature, storage_temperature, datasheet, datasheet_public, specification, comments, standard_classification, multiplex_ratio, original_customer_name, original_customer_part_number, sql_query
       default_search_fields: display_type, model_number, resolution, display_mode
       web_list: model_number, resolution, module_dimensions, viewing_area, display_mode, polarizer_mode, operational_temperature, storage_temperature, datasheet
       master_list: display_type, model_number, search_vendor, vendor_part_number, description, viewing_direction, resolution, module_dimensions, viewing_area, active_area, display_mode, polarizer_mode, display_image, operational_temperature, storage_temperature, datasheet, specification, comments, standard_classification, multiplex_ratio, original_customer_name
@@ -269,7 +268,7 @@ display_types: &_display_types
       
     - key: graphic_module_displays
       name: Graphic Module
-      fields: display_type, model_number, search_vendor, vendor_part_number, description, previous_revision_id, erp_id, publish_to_web, on_master_list, viewing_direction, logic_operating_voltage, resolution, bonding_type, module_dimensions, viewing_area, active_area, display_mode, polarizer_mode, display_image, backlight_type, backlight_color, operational_temperature, storage_temperature, interface_types, integrated_controller, datasheet, datasheet_public, specification, comments, standard_classification, touch_panel_type, original_customer_name, original_customer_part_number, sql_query
+      fields: status, display_type, model_number, search_vendor, vendor_part_number, description, previous_revision_id, erp_id, publish_to_web, on_master_list, viewing_direction, logic_operating_voltage, resolution, bonding_type, module_dimensions, viewing_area, active_area, display_mode, polarizer_mode, display_image, backlight_type, backlight_color, operational_temperature, storage_temperature, interface_types, integrated_controller, datasheet, datasheet_public, specification, comments, standard_classification, touch_panel_type, original_customer_name, original_customer_part_number, sql_query
       default_search_fields: display_type, model_number, resolution, bonding_type, display_mode
       web_list: model_number, resolution, bonding_type, module_dimensions, viewing_area, display_mode, polarizer_mode, backlight_type, backlight_color, operational_temperature, storage_temperature, datasheet
       master_list: display_type, model_number, search_vendor, vendor_part_number, description, viewing_direction, logic_operating_voltage, resolution, bonding_type, module_dimensions, viewing_area, active_area, display_mode, polarizer_mode, display_image, backlight_type, backlight_color, operational_temperature, storage_temperature, interface_types, integrated_controller, datasheet, specification, comments, standard_classification, touch_panel_type, original_customer_name
@@ -280,7 +279,7 @@ display_types: &_display_types
       
     - key: character_module_displays
       name: Segmented Module
-      fields: display_type, model_number, search_vendor, vendor_part_number, description, previous_revision_id, erp_id, publish_to_web, on_master_list, viewing_direction, logic_operating_voltage, character_resolution, character_type, bonding_type, display_mode, module_dimensions, viewing_area, active_area, polarizer_mode, display_image, backlight_type, backlight_color, operational_temperature, storage_temperature, interface_types, integrated_controller, datasheet, datasheet_public, specification, comments, standard_classification, original_customer_name, original_customer_part_number, sql_query
+      fields: status, display_type, model_number, search_vendor, vendor_part_number, description, previous_revision_id, erp_id, publish_to_web, on_master_list, viewing_direction, logic_operating_voltage, character_resolution, character_type, bonding_type, display_mode, module_dimensions, viewing_area, active_area, polarizer_mode, display_image, backlight_type, backlight_color, operational_temperature, storage_temperature, interface_types, integrated_controller, datasheet, datasheet_public, specification, comments, standard_classification, original_customer_name, original_customer_part_number, sql_query
       default_search_fields: display_type, model_number, character_resolution, bonding_type, display_mode
       web_list: model_number, character_resolution, bonding_type, module_dimensions, viewing_area, display_mode, polarizer_mode, backlight_type, backlight_color, operational_temperature, storage_temperature, datasheet
       master_list: display_type, model_number, search_vendor, vendor_part_number, description, viewing_direction, logic_operating_voltage, character_resolution, character_type, bonding_type, display_mode, module_dimensions, viewing_area, active_area, polarizer_mode, display_image, backlight_type, backlight_color, operational_temperature, storage_temperature, interface_types, integrated_controller, datasheet, specification, comments, standard_classification, original_customer_name
@@ -291,7 +290,7 @@ display_types: &_display_types
       
     - key: oled_displays
       name: OLED Graphic Module
-      fields: display_type, model_number, search_vendor, vendor_part_number, description, previous_revision_id, erp_id, publish_to_web, on_master_list, oled_diagonal_in, module_dimensions, resolution, colors, active_area, interface_types, comments, standard_classification, touch_panel_type, datasheet, datasheet_public, specification, original_customer_name, original_customer_part_number, sql_query
+      fields: status, display_type, model_number, search_vendor, vendor_part_number, description, previous_revision_id, erp_id, publish_to_web, on_master_list, oled_diagonal_in, module_dimensions, resolution, colors, active_area, interface_types, comments, standard_classification, touch_panel_type, datasheet, datasheet_public, specification, original_customer_name, original_customer_part_number, sql_query
       default_search_fields: display_type, model_number, search_vendor, resolution, module_dimensions
       web_list: display_type, model_number, oled_diagonal_in, module_dimensions, resolution, colors, active_area, interface_types
       master_list: model_number, search_vendor, vendor_part_number, description, oled_diagonal_in, module_dimensions, resolution, colors, active_area, interface_types, comments, standard_classification, touch_panel_type, datasheet, specification
@@ -302,7 +301,7 @@ display_types: &_display_types
 
     - key: oled_character_modules
       name: OLED Character Module
-      fields: display_type, model_number, search_vendor, vendor_part_number, description, previous_revision_id, erp_id, publish_to_web, on_master_list, oled_diagonal_in, module_dimensions, character_resolution, colors, active_area, interface_types, comments, standard_classification, touch_panel_type, datasheet, datasheet_public, specification, original_customer_name, original_customer_part_number, sql_query
+      fields: status, display_type, model_number, search_vendor, vendor_part_number, description, previous_revision_id, erp_id, publish_to_web, on_master_list, oled_diagonal_in, module_dimensions, character_resolution, colors, active_area, interface_types, comments, standard_classification, touch_panel_type, datasheet, datasheet_public, specification, original_customer_name, original_customer_part_number, sql_query
       default_search_fields: display_type, model_number, search_vendor, character_resolution, module_dimensions
       web_list: display_type, model_number, oled_diagonal_in, module_dimensions, character_resolution, colors, active_area, interface_types
       master_list: display_type, model_number, search_vendor, vendor_part_number, description, oled_diagonal_in, module_dimensions, character_resolution, colors, active_area, interface_types, comments, standard_classification, touch_panel_type, datasheet, specification
@@ -312,7 +311,7 @@ display_types: &_display_types
       default_description: '#{clean_decimal(self.character_columns)} x #{clean_decimal(self.character_rows)} OLED'
       
     - key: accessories
-      fields: display_type, search_vendor, vendor_part_number, model_number, description, previous_revision_id, erp_id, datasheet, specification, comments, original_customer_name, original_customer_part_number, sql_query
+      fields: status, display_type, search_vendor, vendor_part_number, model_number, description, previous_revision_id, erp_id, datasheet, specification, comments, original_customer_name, original_customer_part_number, sql_query
       master_list: display_type, search_vendor, vendor_part_number, model_number, description, datasheet, specification, comments, original_customer_name
       default_search_fields: display_type, model_number, description
       m2m_group_code: OTHER
@@ -322,7 +321,7 @@ display_types: &_display_types
       
     - key: shutter
       name: Shutter
-      fields: display_type, search_vendor, vendor_part_number, model_number, description, previous_revision_id, erp_id, module_dimensions, datasheet, datasheet_public, specification, comments, original_customer_name, original_customer_part_number, sql_query
+      fields: status, display_type, search_vendor, vendor_part_number, model_number, description, previous_revision_id, erp_id, module_dimensions, datasheet, datasheet_public, specification, comments, original_customer_name, original_customer_part_number, sql_query
       master_list: display_type, search_vendor, vendor_part_number, model_number, description, module_dimensions, datasheet, specification, comments, original_customer_name
       default_search_fields: display_type, model_number, description, module_dimensions
       model_number_prefix: H

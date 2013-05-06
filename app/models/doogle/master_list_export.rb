@@ -56,7 +56,7 @@ class Doogle::MasterListExport
         })
       end
       
-      displays = Doogle::Display.display_type(display_type).on_master_list.by_model_number
+      displays = Doogle::Display.not_deleted.display_type(display_type).on_master_list.by_model_number
       yield(sheet_name, fields, displays)
     end
   end

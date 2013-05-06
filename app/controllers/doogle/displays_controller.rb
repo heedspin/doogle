@@ -68,10 +68,10 @@ class Doogle::DisplaysController < Doogle::DoogleController
       @display.interface_types = @revising.interface_types
       @display.model_number = @display.model_number.succ
       @display.errors.add(:model_number, "New Revision")
-      @display.status = Doogle::Status.draft
+      @display.status = Doogle::Status.published
     else
       @display = build_object
-      @display.status ||= Doogle::Status.draft
+      @display.status ||= Doogle::Status.published
       @display.publish_to_web = @display.publish_to_erp = false
       @display.on_master_list = true
     end
@@ -95,6 +95,7 @@ class Doogle::DisplaysController < Doogle::DoogleController
         redirect_to doogle_display_url(@display)
       end
     else
+      logger.info 'Failed to save display: ' + @display.errors.full_messages.join("\n")
       render :action => "new"
     end
   end
