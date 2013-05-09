@@ -5,16 +5,21 @@ class DisplayAssetsController < ApplicationController
   skip_before_filter :require_login
   before_filter :maybe_require_login, :only => :show
   def maybe_require_login
-    if request.env['HTTP_USER_AGENT'].include?('Excel')
+    if self.ms_office_request?
       true # do not require login
     else
-      logger.info 'Redirecting to login, user agent: ' + request.env['HTTP_USER_AGENT']
       require_login
     end
   end
   
+  def ms_office_request?
+    result = (user_agent = request.env['HTTP_USER_AGENT']) && (user_agent.include?('Excel') || user_agent.include?('ms-office'))
+    logger.info 'Redirecting to login, user agent: ' + request.env['HTTP_USER_AGENT']
+    result
+  end
+  
   def show
-    if request.env['HTTP_USER_AGENT'].include?('Excel')
+    if self.ms_office_request?
       # Convince Excel it's ok to send request to external browser (which must authenticate).
       render :text => 'hello excel', :status => 200
     else
