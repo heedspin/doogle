@@ -158,7 +158,7 @@ class Doogle::DisplayPrice < Doogle::Base
     @levels.push level
     level
   end
-  def set_next_level(quantity, cost, price)
+  def set_next_level(quantity, cost, price=nil)
     level = self.next_level
     level.quantity = quantity
     level.cost = cost

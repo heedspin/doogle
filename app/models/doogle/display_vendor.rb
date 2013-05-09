@@ -10,7 +10,8 @@ class Doogle::DisplayVendor
     '000104' => 'Jiya LF',
     '000139' => 'Nely',
     '000346' => 'Wise',
-    '000161' => 'Prime'
+    '000161' => 'Prime',
+    '000365' => 'YJE'
   }
   
   attr_accessor :m2m_vendor, :vendor_name, :short_name, :vendor_part_number
