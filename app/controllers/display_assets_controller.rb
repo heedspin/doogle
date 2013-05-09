@@ -8,6 +8,7 @@ class DisplayAssetsController < ApplicationController
     if request.env['HTTP_USER_AGENT'].include?('Excel')
       true # do not require login
     else
+      logger.info 'Redirecting to login, user agent: ' + request.env['HTTP_USER_AGENT']
       require_login
     end
   end

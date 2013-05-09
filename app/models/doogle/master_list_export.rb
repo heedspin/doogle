@@ -11,9 +11,19 @@ class Doogle::MasterListExport
     [['tft_displays', 'TFTs'], ['oled_displays', 'OLED Graph'], ['oled_character_modules', 'OLED Char'], ['segment_glass_displays', 'Segment Glass'], ['graphic_glass_displays', 'Graphic Glass'], ['graphic_module_displays', 'Graphic Modules'], ['character_module_displays', 'Character Module'], ['accessories', 'Accessories'], ['shutter', 'Shutters']].each do |type_key, sheet_name|
       display_type = Doogle::DisplayConfig.find_by_key(type_key)
       fields = display_type.master_list_fields.map do |field|
-        format = field.attachment? ? Spreadsheet::Format.new(:color => :blue) : nil
-        Plutolib::ToXls::Field.new(field.name, format) do |d| 
-          field.render(d, :format => :xls) 
+        if field.search_vendor?
+          Plutolib::ToXls::Field.new('Vendor') do |d|
+            if price = d.preferred_vendor_price
+              price.vendor_name
+            else
+              field.render(d, :format => :xls) 
+            end
+          end
+        else
+          format = field.attachment? ? Spreadsheet::Format.new(:color => :blue) : nil
+          Plutolib::ToXls::Field.new(field.name, format) do |d| 
+            field.render(d, :format => :xls) 
+          end
         end
       end
       fields.push(Plutolib::ToXls::Field.new('On Hand', self.xls_no_decimals_format) { |d| d.item.try(:quantity_on_hand) })
@@ -48,7 +58,7 @@ class Doogle::MasterListExport
       fields.push(Plutolib::ToXls::Field.new('Price Updated', self.xls_date_format) { |d| d.preferred_vendor_price.try(:updated_at) })
       (1..Doogle::DisplayPrice::TOTAL_LEVELS).each do |level|
         fields.push(Plutolib::ToXls::Field.new("Price Level #{level}") { |d|
-          if d.preferred_vendor_price and (price_level = d.preferred_vendor_price.levels[level]) and (price_level.cost)
+          if d.preferred_vendor_price and (price_level = d.preferred_vendor_price.levels[level-1]) and price_level.cost
             "Cost #{price_level.quantity}: " + sprintf('$%.2f', price_level.cost)
           else
             nil
