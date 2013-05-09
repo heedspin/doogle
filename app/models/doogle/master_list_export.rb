@@ -13,8 +13,8 @@ class Doogle::MasterListExport
       fields = display_type.master_list_fields.map do |field|
         if field.search_vendor?
           Plutolib::ToXls::Field.new('Vendor') do |d|
-            if price = d.preferred_vendor_price
-              price.vendor_name
+            if vendor = d.preferred_vendor
+              vendor.short_name
             else
               field.render(d, :format => :xls) 
             end

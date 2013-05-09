@@ -596,7 +596,15 @@ class Doogle::Display < ApplicationModel
   end
   
   def preferred_vendor_price(date=nil)
-    @preferred_vendor_price ||= self.prices.active_on(date || Date.current).all.select(&:preferred_vendor).first
+    self.prices.active_on(date || Date.current).all.select(&:preferred_vendor).first
+  end
+  
+  def preferred_vendor(date=nil)
+    if p = self.preferred_vendor_price(date)
+      Doogle::DisplayVendor.new(p)
+    else
+      nil
+    end
   end
 
   protected
