@@ -19,6 +19,11 @@ class Doogle::Displays::PricesController < Doogle::DoogleController
   def new
     @display = parent_object
     @price = build_object
+    @price.preferred_vendor = true
+    if last_price = @display.preferred_vendor_price
+      @price.vendor_name = last_price.vendor_name
+      @price.vendor_part_number = last_price.vendor_part_number
+    end
   end
   
   def create

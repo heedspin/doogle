@@ -59,12 +59,12 @@ class Doogle::DisplayPrice < Doogle::Base
     where(['display_prices.start_date <= ? and (display_prices.last_date >= ? or display_prices.last_date is null)', date, date])
   }
   scope :vendors, :select => [:vendor_name, :m2m_vendor_id, :vendor_part_number], :group => [:vendor_name, :m2m_vendor_id, :vendor_part_number]
-  # after_save :unset_preferred_vendor
-  # def unset_preferred_vendor
-  #   if self.preferred_vendor
-  #     Doogle::DisplayPrice.update_all({:preferred_vendor => false}, ['display_prices.display_id = ? and display_prices.id != ? and display_prices.preferred_vendor = true', self.display_id, self.id])
-  #   end
-  # end
+  after_save :unset_preferred_vendor
+  def unset_preferred_vendor
+    if self.preferred_vendor
+      Doogle::DisplayPrice.update_all({:preferred_vendor => false}, ['display_prices.display_id = ? and display_prices.id != ? and display_prices.preferred_vendor = true', self.display_id, self.id])
+    end
+  end
 
   before_save :set_m2m_vendor
   def set_m2m_vendor
