@@ -59,6 +59,10 @@ class Doogle::DisplayPrice < Doogle::Base
     where(['display_prices.start_date <= ? and (display_prices.last_date >= ? or display_prices.last_date is null)', date, date])
   }
   scope :vendors, :select => [:vendor_name, :m2m_vendor_id, :vendor_part_number], :group => [:vendor_name, :m2m_vendor_id, :vendor_part_number]
+  def self.vendor_part_number_like(pn)
+    where(['display_prices.vendor_part_number like ?', "%#{pn}%"])
+  end
+  
   after_save :unset_preferred_vendor
   def unset_preferred_vendor
     if self.preferred_vendor

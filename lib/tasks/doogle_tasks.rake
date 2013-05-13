@@ -1,4 +1,4 @@
-# 02 10 * * * /var/www/lxdhub/script/runner.sh 'Sales::SalesReportRunner.new.run_in_background!(:update_nightly)'
+# 02 10 * * * cd /var/www/lxdhub ; bundle exec rake doogle:export_master_list
 namespace :doogle do
   desc "Export the master list xls file."
   task :export_master_list => :environment do
