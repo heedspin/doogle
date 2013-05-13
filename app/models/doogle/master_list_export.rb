@@ -59,7 +59,7 @@ class Doogle::MasterListExport
       (1..Doogle::DisplayPrice::TOTAL_LEVELS).each do |level|
         fields.push(Plutolib::ToXls::Field.new("Price Level #{level}") { |d|
           if d.preferred_vendor_price and (price_level = d.preferred_vendor_price.levels[level-1]) and price_level.cost
-            "Cost #{price_level.quantity}: " + sprintf('$%.2f', price_level.cost)
+            "#{price_level.quantity}: " + sprintf('$%.2f', price_level.cost)
           else
             nil
           end
