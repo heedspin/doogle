@@ -8,7 +8,7 @@ class Doogle::SearchVendors
     SQL
     results.each do |row|
       if row[1].blank?
-        row[1] = 'unknown'
+        row[1] = row[0]
       end
     end
     results

@@ -259,10 +259,10 @@ class Doogle::Display < ApplicationModel
   #   self.vendor_id
   # end
   scope :search_vendor, lambda { |vendor_id|
-    if vendor_id == 'unknown'
-      where('displays.id in (select distinct display_id from display_prices where vendor_name = ?)', Doogle::DisplayPrice::UNKNOWN)
-    else
+    if vendor_id =~ /^\d+$/
       where('displays.id in (select distinct display_id from display_prices where m2m_vendor_id = ?)', vendor_id)
+    else
+      where('displays.id in (select distinct display_id from display_prices where vendor_name = ?)', vendor_id)
     end
   }
 
