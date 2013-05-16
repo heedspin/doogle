@@ -111,6 +111,15 @@ class Doogle::DisplayPrice < Doogle::Base
                               :details => Doogle::Display.inspect_changes(self.changes),
                               :log_type_id => Doogle::LogType.vendor.id)
   end
+  
+  def same_as?(price)
+    (1..TOTAL_LEVELS).each do |x|
+      %w(quantity cost price).each do |key|
+        return false unless (self.send("#{key}#{x}") == price.send("#{key}#{x}"))
+      end
+    end
+    true
+  end
 
   # validate :check_source_model_number
   # def check_source_model_number
