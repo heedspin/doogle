@@ -2,96 +2,100 @@
 #
 # Table name: displays
 #
-#  id                                :integer          not null, primary key
-#  type_key                          :string(255)
-#  model_number                      :string(255)
-#  integrated_controller             :string(255)
-#  status_id                         :integer
-#  creator_id                        :integer
-#  updater_id                        :integer
-#  created_at                        :datetime
-#  updated_at                        :datetime
-#  position                          :integer
-#  colors                            :string(255)
-#  source_model_number               :string(255)
-#  datasheet_file_name               :string(255)
-#  datasheet_content_type            :string(255)
-#  datasheet_file_size               :integer
-#  datasheet_updated_at              :datetime
-#  touch_panel_type_id               :integer
-#  timing_controller_type_id         :integer
-#  specification_type_id             :integer
-#  viewing_cone                      :integer
-#  resolution_x                      :integer
-#  resolution_y                      :integer
-#  storage_temperature_min           :integer
-#  storage_temperature_max           :integer
-#  operational_temperature_min       :integer
-#  operational_temperature_max       :integer
-#  module_width_mm                   :decimal(12, 4)
-#  module_height_mm                  :decimal(12, 4)
-#  module_thickness_mm               :decimal(12, 4)
-#  module_diagonal_in                :decimal(12, 4)
-#  bonding_type_id                   :integer
-#  backlight_color_id                :integer
-#  graphic_type_id                   :integer
-#  character_rows                    :decimal(12, 4)
-#  character_columns                 :decimal(12, 4)
-#  luminance_nits                    :integer
-#  display_mode_id                   :integer
-#  pixel_color_id                    :integer
-#  display_image_id                  :integer
-#  viewing_width_mm                  :decimal(12, 4)
-#  viewing_height_mm                 :decimal(12, 4)
-#  polarizer_mode_id                 :integer
-#  character_type_id                 :integer
-#  active_area_width_mm              :decimal(12, 4)
-#  active_area_height_mm             :decimal(12, 4)
-#  backlight_type_id                 :integer
-#  interface_id                      :integer
-#  icon_type_id                      :integer
-#  comments                          :text
-#  standard_classification_id        :integer
-#  mask_type_id                      :integer
-#  background_color_id               :integer
-#  logic_operating_voltage           :decimal(12, 4)
-#  target_environment_id             :integer
-#  viewing_direction_id              :integer
-#  digit_height_mm                   :decimal(12, 4)
-#  total_power_consumption           :decimal(12, 4)
-#  no_of_pins                        :integer
-#  contrast_ratio                    :integer
-#  field_of_view                     :integer
-#  current_revision                  :boolean
-#  revision                          :string(255)
-#  approval_status_id                :integer
-#  publish_to_erp                    :boolean
-#  erp_id                            :integer
-#  publish_to_web                    :boolean
-#  needs_pushed_to_web               :boolean
-#  datasheet_public                  :boolean
-#  source_specification_file_name    :string(255)
-#  source_specification_content_type :string(255)
-#  source_specification_file_size    :integer
-#  source_specification_updated_at   :datetime
-#  specification_file_name           :string(255)
-#  specification_content_type        :string(255)
-#  specification_file_size           :integer
-#  specification_updated_at          :datetime
-#  specification_public              :boolean
-#  drawing_file_name                 :string(255)
-#  drawing_content_type              :string(255)
-#  drawing_file_size                 :integer
-#  drawing_updated_at                :datetime
-#  drawing_public                    :boolean
-#  description                       :string(255)
-#  gamma_required                    :boolean
-#  multiplex_ratio                   :integer
-#  previous_revision_id              :integer
-#  original_customer_name            :string(255)
-#  original_customer_part_number     :string(255)
-#  tft_type_id                       :integer
-#  on_master_list                    :boolean
+#  id                                 :integer          not null, primary key
+#  type_key                           :string(255)
+#  model_number                       :string(255)
+#  integrated_controller              :string(255)
+#  status_id                          :integer
+#  creator_id                         :integer
+#  updater_id                         :integer
+#  created_at                         :datetime
+#  updated_at                         :datetime
+#  position                           :integer
+#  colors                             :string(255)
+#  source_model_number                :string(255)
+#  datasheet_file_name                :string(255)
+#  datasheet_content_type             :string(255)
+#  datasheet_file_size                :integer
+#  datasheet_updated_at               :datetime
+#  touch_panel_type_id                :integer
+#  timing_controller_type_id          :integer
+#  specification_type_id              :integer
+#  viewing_cone                       :integer
+#  resolution_x                       :integer
+#  resolution_y                       :integer
+#  storage_temperature_min            :integer
+#  storage_temperature_max            :integer
+#  operational_temperature_min        :integer
+#  operational_temperature_max        :integer
+#  module_width_mm                    :decimal(12, 4)
+#  module_height_mm                   :decimal(12, 4)
+#  module_thickness_mm                :decimal(12, 4)
+#  module_diagonal_in                 :decimal(12, 4)
+#  bonding_type_id                    :integer
+#  backlight_color_id                 :integer
+#  graphic_type_id                    :integer
+#  character_rows                     :decimal(12, 4)
+#  character_columns                  :decimal(12, 4)
+#  luminance_nits                     :integer
+#  display_mode_id                    :integer
+#  pixel_color_id                     :integer
+#  display_image_id                   :integer
+#  viewing_width_mm                   :decimal(12, 4)
+#  viewing_height_mm                  :decimal(12, 4)
+#  polarizer_mode_id                  :integer
+#  character_type_id                  :integer
+#  active_area_width_mm               :decimal(12, 4)
+#  active_area_height_mm              :decimal(12, 4)
+#  backlight_type_id                  :integer
+#  interface_id                       :integer
+#  icon_type_id                       :integer
+#  comments                           :text
+#  standard_classification_id         :integer
+#  mask_type_id                       :integer
+#  background_color_id                :integer
+#  logic_operating_voltage            :decimal(12, 4)
+#  target_environment_id              :integer
+#  viewing_direction_id               :integer
+#  digit_height_mm                    :decimal(12, 4)
+#  total_power_consumption            :decimal(12, 4)
+#  no_of_pins                         :integer
+#  contrast_ratio                     :integer
+#  field_of_view                      :integer
+#  current_revision                   :boolean
+#  revision                           :string(255)
+#  approval_status_id                 :integer
+#  publish_to_erp                     :boolean
+#  erp_id                             :integer
+#  publish_to_web                     :boolean
+#  needs_pushed_to_web                :boolean
+#  datasheet_public                   :boolean
+#  source_specification_file_name     :string(255)
+#  source_specification_content_type  :string(255)
+#  source_specification_file_size     :integer
+#  source_specification_updated_at    :datetime
+#  specification_file_name            :string(255)
+#  specification_content_type         :string(255)
+#  specification_file_size            :integer
+#  specification_updated_at           :datetime
+#  specification_public               :boolean
+#  drawing_file_name                  :string(255)
+#  drawing_content_type               :string(255)
+#  drawing_file_size                  :integer
+#  drawing_updated_at                 :datetime
+#  drawing_public                     :boolean
+#  description                        :string(255)
+#  gamma_required                     :boolean
+#  multiplex_ratio                    :integer
+#  previous_revision_id               :integer
+#  original_customer_name             :string(255)
+#  original_customer_part_number      :string(255)
+#  tft_type_id                        :integer
+#  on_master_list                     :boolean
+#  display_component_vendor_name      :string(255)
+#  display_component_model_number     :string(255)
+#  touch_panel_component_vendor_name  :string(255)
+#  touch_panel_component_model_number :string(255)
 #
 
 # tim@concerto:~/Dropbox/p/lxd_m2mhub$ bundle exec annotate --model-dir ../doogle/app/models
@@ -265,6 +269,28 @@ class Doogle::Display < ApplicationModel
       where('displays.id in (select distinct display_id from display_prices where vendor_name = ?)', vendor_id)
     end
   }
+  
+  def self.display_component_vendor_name(vendor_name)
+    where(:display_component_vendor_name => vendor_name)
+  end
+  def self.display_component_model_number(model_number)
+    where(:display_component_model_number => model_number)
+  end
+  def self.touch_panel_component_vendor_name(vendor_name)
+    where(:touch_panel_component_vendor_name => vendor_name)
+  end
+  def self.touch_panel_component_model_number(model_number)
+    where(:touch_panel_component_model_number => model_number)
+  end
+  def self.set_default_component_vendor_names
+    self.display_type(:tft_displays).all.each do |d|
+      if txt = d.preferred_vendor.try(:vendor_name)
+        d.display_component_vendor_name = txt
+        d.save! if d.changed?
+      end
+    end
+    true
+  end
 
   attr_accessor :vendor_part_number
   scope :vendor_part_number, lambda { |txt|

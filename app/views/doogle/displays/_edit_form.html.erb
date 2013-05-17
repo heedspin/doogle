@@ -33,6 +33,10 @@
 		
 		<% elsif field.original_customer_name? %>
 		<%= render 'original_customer_name', :f => f, :display => @display, :field => field, :object_name => 'display' %>
+		<% elsif field.display_component_vendor_name? %>
+		<%= render 'display_component_vendor_name', :f => f, :display => @display, :field => field %>
+		<% elsif field.touch_panel_component_vendor_name? %>
+		<%= render 'touch_panel_component_vendor_name', :f => f, :display => @display, :field => field %>
 		<% else %>
 	  <%= f.input field.edit_input, :label => field.label, :wrapper_html => { :id => field.wrapper_id, :class => hosf(field) } %>
 		<% end %>

@@ -1,0 +1,34 @@
+<li class="flat string input optional stringish <%= ssf(field) %>" id="display_touch_panel_component_vendor_name_input">
+	<label class=" label" for="display_touch_panel_component_vendor_name"><%= field.label %></label>
+	<%= f.text_field field.edit_input %>
+	<span id="touch_panel_component_vendor_name_inprogress" class="hide">
+	<%= image_tag AppConfig.in_progress_image %>
+	</span>
+</li>
+
+<% content_for :javascripts do %>
+<script type="text/javascript">
+$(function() {
+	$("input#display_touch_panel_component_vendor_name").autocomplete({
+		source: "<%= doogle_touch_panel_component_vendors_url %>",
+		search: function(event, ui) { 
+			$("input#display_touch_panel_component_vendor_name").autocomplete("close");
+			$("#touch_panel_component_vendor_name_inprogress").show();
+		},
+		open: function(event, ui) { 
+			$("#touch_panel_component_vendor_name_inprogress").hide();
+		},
+		select: function(event, ui) { 
+			if (ui.item.value == "No Results") {
+				// $(this).val( "" ); 
+				// Do nothing.
+			}	else {
+				$(this).val( ui.item.value ); 
+			}
+			return false; 
+		}		
+	});
+})
+</script>
+<% end %>
+

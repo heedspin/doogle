@@ -17,7 +17,7 @@ class Doogle::FieldConfig
       si
     elsif self.search_options?
       "#{self.search_option_attribute}_id"
-    elsif self.belongs_to?
+    elsif self.search_belongs_to?
       "#{self.key}_id"
     else
       self.key
@@ -41,7 +41,7 @@ class Doogle::FieldConfig
       self.search_option_attribute
     elsif sv = config['search_value']
       sv
-    elsif self.belongs_to?
+    elsif self.search_belongs_to?
       self.key
     elsif self.search_range?
       self.search_range_attribute
@@ -333,6 +333,22 @@ class Doogle::FieldConfig
       @belongs_to = config['belongs_to'].present?
     end
     @belongs_to
+  end
+
+  def search_belongs_to?
+    if @search_belongs_to.nil?
+      @search_belongs_to = config['search_belongs_to'].present? || self.belongs_to?
+    end
+    @search_belongs_to
+  end
+
+  def search_belongs_to_class
+    if @search_belongs_to_class.nil?
+      collection_class_name = config['search_belongs_to'] || config['belongs_to']
+      collection_class_name = collection_class_name.is_a?(String) ? collection_class_name : self.key.to_s.classify
+      @search_belongs_to_class = "Doogle::#{collection_class_name}".constantize
+    end
+    @search_belongs_to_class
   end
 
   def belongs_to_class

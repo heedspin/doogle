@@ -13,6 +13,8 @@ Rails.application.routes.draw do
         end
       end
     end
+    resources :display_component_vendors, :only => :index
+    resources :touch_panel_component_vendors, :only => :index
     resources :display_resources, :only => [ :show, :create, :update, :destroy ]
     resources :logs, :only => [ :show, :index ]
     resources :spec_versions, :only => :index

@@ -10,8 +10,8 @@
 		<%= f.input field.search_input, :as => :select, :collection => field.search_options_class.all, :member_label => field.search_options_class_member_label, :label => field.label, :include_blank => field.search_include_blank, :wrapper_html => { :id => "search_#{field.key}_input", :class => ssf(field) } %>
 		<% elsif field.has_many? %>
 		<%= f.input field.search_input, :as => :check_boxes, :collection => field.has_many_class.all, :label => field.label, :wrapper_html => { :id => "search_#{field.key}_input", :class => ssf(field) } %>
-		<% elsif field.belongs_to? %>
-		<%= f.input field.search_input, :as => :select, :collection => field.belongs_to_class.all, :label => field.label, :include_blank => field.search_include_blank, :wrapper_html => { :id => "search_#{field.key}_input", :class => ssf(field) } %>
+		<% elsif field.search_belongs_to? %>
+		<%= f.input field.search_input, :as => :select, :collection => field.search_belongs_to_class.all, :label => field.label, :include_blank => field.search_include_blank, :wrapper_html => { :id => "search_#{field.key}_input", :class => ssf(field) } %>
 		<% elsif field.dimension? %>
 		<%= render 'dimension', :f => f, :display => @search, :field => field, :search => true %>
 		<% elsif field.original_customer_name? %>

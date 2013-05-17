@@ -62,12 +62,13 @@ class Doogle::DisplayPrice < Doogle::Base
   def self.vendor_part_number_like(pn)
     where(['display_prices.vendor_part_number like ?', "%#{pn}%"])
   end
-  
+
   after_save :unset_preferred_vendor
   def unset_preferred_vendor
     if self.preferred_vendor
       Doogle::DisplayPrice.update_all({:preferred_vendor => false}, ['display_prices.display_id = ? and display_prices.id != ? and display_prices.preferred_vendor = true', self.display_id, self.id])
     end
+    true
   end
 
   before_save :set_m2m_vendor
@@ -85,6 +86,19 @@ class Doogle::DisplayPrice < Doogle::Base
     else
       self.class.update_all({:last_date => self.start_date.advance(:days => -1)}, ["display_prices.id != ? and display_prices.display_id = ? and display_prices.last_date is null and display_prices.vendor_name = ?", self.id, self.display_id, self.vendor_name])
     end
+    true
+  end
+
+  after_create :set_display_default_display_component_vendor
+  def set_display_default_display_component_vendor
+    if self.vendor_name.present? and self.display.display_component_vendor_name.blank?
+      if self.display.update_attributes(:display_component_vendor_name => self.vendor_name)
+        logger.info "Set #{self.display.model_number} display component vendor name to #{self.vendor_name}"
+      else
+        logger.info "Failed to set #{self.display.model_number} display component vendor name to #{self.vendor_name}"
+      end
+    end
+    true
   end
 
   after_create :log_create
@@ -94,6 +108,7 @@ class Doogle::DisplayPrice < Doogle::Base
                               :summary => 'Created Vendor',
                               :details => Doogle::Display.inspect_changes(self.changes),
                               :log_type_id => Doogle::LogType.vendor.id)
+    true
   end
   attr_accessor :current_user
   before_destroy :log_destroy
@@ -102,6 +117,7 @@ class Doogle::DisplayPrice < Doogle::Base
                               :user_id => self.current_user.try(:id),
                               :summary => 'Destroyed Vendor',
                               :log_type_id => Doogle::LogType.vendor.id)
+    true
   end
   before_update :log_update
   def log_update
@@ -110,8 +126,9 @@ class Doogle::DisplayPrice < Doogle::Base
                               :summary => 'Updated Vendor',
                               :details => Doogle::Display.inspect_changes(self.changes),
                               :log_type_id => Doogle::LogType.vendor.id)
+    true
   end
-  
+
   def same_as?(price)
     (1..TOTAL_LEVELS).each do |x|
       %w(quantity cost price).each do |key|
@@ -178,7 +195,7 @@ class Doogle::DisplayPrice < Doogle::Base
     level.price = price
     level
   end
-  
+
   def self.set_preferred_vendors
     Doogle::Display.all.each do |display|
       if price = display.prices.order('display_prices.id desc').first
@@ -231,16 +248,16 @@ class Doogle::DisplayPrice < Doogle::Base
   #     nil
   #   end
   # end
-  # 
+  #
   # def self.import_log(txt)
   #   log txt
   #   File.open(File.join(Rails.root, 'log/display_price_import.txt'), 'a') do |output|
   #     output.puts txt
   #   end
   # end
-  # 
+  #
   # UNKNOWN='Unknown'
-  # 
+  #
   # def self.import_from_display
   #   Doogle::Display.where('length(displays.source_model_number) > 0').by_model_number.each do |display|
   #     source_model_number = display.source_model_number.strip
