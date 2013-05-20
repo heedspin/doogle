@@ -282,15 +282,15 @@ class Doogle::Display < ApplicationModel
   def self.touch_panel_component_model_number(model_number)
     where(:touch_panel_component_model_number => model_number)
   end
-  def self.set_default_component_vendor_names
-    self.display_type(:tft_displays).all.each do |d|
-      if txt = d.preferred_vendor.try(:vendor_name)
-        d.display_component_vendor_name = txt
-        d.save! if d.changed?
-      end
-    end
-    true
-  end
+  # def self.set_default_component_vendor_names
+  #   self.display_type(:tft_displays).all.each do |d|
+  #     if txt = d.preferred_vendor.try(:vendor_name)
+  #       d.display_component_vendor_name = txt
+  #       d.save! if d.changed?
+  #     end
+  #   end
+  #   true
+  # end
 
   attr_accessor :vendor_part_number
   scope :vendor_part_number, lambda { |txt|

@@ -13,6 +13,10 @@
 				New specification
 				<% elsif dl.log_type.vendor? %>
 				Vendor information
+				<% elsif dl.log_type.comment? %>
+				<%= dl.log_type.name %>: <%= limit_string dl.details, 20 %>
+				<% elsif dl.log_type.eol? %>
+				<h3><%= dl.log_type.name %>: <%= limit_string dl.details, 20 %></h3>
 				<% else %>
 				<%= dl.summary %>
 				<% end %>				

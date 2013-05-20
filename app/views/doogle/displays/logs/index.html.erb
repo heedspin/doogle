@@ -1,4 +1,14 @@
+<% content_for :javascripts, javascript_include_tag('m2mhub/inplace.js') %>
 <%= render 'doogle/displays/submenu' %>
+
+<% if @display_logs.current_page == 1 %>
+<%= semantic_form_for @comment, :url => doogle_display_display_logs_url(@display), :html => {:class => 'doogle'} do |f| %>
+  <%= render :partial=>'doogle/displays/logs/form', :locals =>{:f=>f} %>
+  <%= f.buttons do %>
+    <%= f.commit_button 'Add Comment' %>
+  <% end %>
+<% end %>
+<% end %>
 
 <%= will_paginate @display_logs %>
 
@@ -15,7 +25,13 @@
 		<% @display_logs.each do |dl| %>
 		<tr>
 			<td><%= dl.event_time.to_s(:short_human_date) %></td>
-			<td><%= dl.summary %></td>
+			<td>
+				<% if dl.log_type.try(:eol?) %>
+				<h3><%= dl.log_type.name %></h3>
+				<% else %>
+				<%= dl.summary %>
+				<% end %>
+			</td>
 			<td>
 				<% if dl.log_type.try(:opportunity?) and dl.opportunity %>
 				<%= link_to dl.opportunity.number_and_title, opportunity_url(dl.opportunity) %>
@@ -26,6 +42,19 @@
 				<% end %>
 			</td>
 			<td><%= dl.user.try(:full_name) %></td>
+			<% if dl.log_type.try(:editable?) and permitted_to?(:destroy, :doogle_display_logs) %>
+			<td class="deletastic_container">
+				<%= semantic_form_for dl, :url => doogle_display_display_log_url(@display, dl) do |f| %>
+					<%= link_to 'Delete', '#', :class => 'deletastic_delete_link' %>
+					<div class="deletastic_confirmation">
+						Are you sure?
+						<%= link_to 'Delete', '#', :class => 'deletastic_boom' %>
+						<br />
+						<%= link_to 'Cancel', '#', :class => 'deletastic_delete_cancel_link' %>
+					</div>
+				<% end %>
+			</td>
+			<% end %>
 		</tr>
 		<% end %>
 	</tbody>

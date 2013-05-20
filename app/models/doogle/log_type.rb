@@ -8,6 +8,17 @@ class Doogle::LogType < ActiveHash::Base
     {:id => 5, :name => 'Specification / Datasheet', :cmethod => 'spec'},
     {:id => 6, :name => 'Opportunity'},
     {:id => 7, :name => 'Quote'},
+    {:id => 8, :name => 'Comment'},
+    {:id => 9, :name => 'EOL'}
   ]
   include Plutolib::ActiveHashMethods
+  
+  def self.comment_options
+    [self.comment, self.eol].map { |dc| [ dc.name, dc.id ] }
+  end
+  
+  def editable?
+    [8, 9].include?(self.id)
+  end
+  
 end

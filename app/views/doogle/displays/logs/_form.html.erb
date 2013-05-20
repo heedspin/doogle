@@ -1,0 +1,6 @@
+<%= f.semantic_errors :base %>
+
+<%= f.inputs do %>
+	<%= f.input :log_type, :as => :select, :collection => Doogle::LogType.comment_options, :include_blank => false %>
+	<%= f.input :details, :wrapper_html => { :class => 'widetext' } %>
+<% end %>
