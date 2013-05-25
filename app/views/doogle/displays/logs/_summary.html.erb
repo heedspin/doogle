@@ -6,7 +6,7 @@
 			<td><%= dl.event_time.to_s(:short_human_date) %></td>
 			<td>
 				<% if dl.log_type.try(:opportunity?) and dl.opportunity %>
-				Opportunity <%= link_to dl.opportunity.number_title_and_customer, opportunity_url(dl.opportunity) %>
+				Opportunity <%= dl.opportunity.xnumber %> - <%= link_to dl.opportunity.title_and_customer, opportunity_url(dl.opportunity) %>
 				<% elsif dl.log_type.try(:quote?) and dl.quote %>
 				<%= link_to "Quoted #{dl.quote.customer_name}", sales_quote_url(dl.quote) %>
 				<% elsif dl.log_type.spec? %>
