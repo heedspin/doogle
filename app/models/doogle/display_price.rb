@@ -38,6 +38,7 @@
 #  notes              :text
 #  created_at         :datetime
 #  updated_at         :datetime
+#  vendor_revision    :string(255)
 #
 
 require 'plutolib/logger_utils'
@@ -61,6 +62,10 @@ class Doogle::DisplayPrice < Doogle::Base
   scope :vendors, :select => [:vendor_name, :m2m_vendor_id, :vendor_part_number], :group => [:vendor_name, :m2m_vendor_id, :vendor_part_number]
   def self.vendor_part_number_like(pn)
     where(['display_prices.vendor_part_number like ?', "%#{pn}%"])
+  end
+  
+  def vendor_part_number_and_revision
+    [self.vendor_part_number, self.vendor_revision].select(&:present?).join(' &mdash; ').html_safe
   end
 
   after_save :unset_preferred_vendor

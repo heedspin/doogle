@@ -1,9 +1,0 @@
-en:
-  activerecord:
-    attributes:
-      doogle/display_price:
-        vendor_name: Vendor Name
-        vendor_part_number: Vendor Part Number
-        preferred_vendor: Preferred Vendor
-        start_date: Start Date
-        last_date: Last Date

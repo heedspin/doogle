@@ -33,7 +33,7 @@
 				<%= p.vendor_name %>
 				<% end %>
 			</td>
-			<td><%= p.vendor_part_number %></td>
+			<td><%= p.vendor_part_number_and_revision %></td>
 			<td><%= p.preferred_vendor ? 'X' : '' %></td>
 			<td><%= p.start_date.to_s(:number_date) %></td>
 			<td><%= p.last_date.try(:to_s, :number_date) %></td>
