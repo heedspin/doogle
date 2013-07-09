@@ -4,8 +4,8 @@
 <% if @display_logs.current_page == 1 %>
 <%= semantic_form_for @comment, :url => doogle_display_display_logs_url(@display), :html => {:class => 'doogle'} do |f| %>
   <%= render :partial=>'doogle/displays/logs/form', :locals =>{:f=>f} %>
-  <%= f.buttons do %>
-    <%= f.commit_button 'Add Comment' %>
+  <%= f.actions do %>
+    <%= f.action :submit, :label => 'Add Comment' %>
   <% end %>
 <% end %>
 <% end %>

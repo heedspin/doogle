@@ -26,8 +26,8 @@
 		<% end %>
 	<% end %>
 	<%= render :partial=>'search_form', :locals =>{:f=>f} %>
-	<%= f.buttons do %>
-	  <%= f.commit_button 'Search' %>
+	<%= f.actions do %>
+	  <%= f.action :submit, :label => 'Search' %>
 		<li class="link">
 			<%= link_to 'Export XLS', '#', :id => 'export_xls' %>
 		</li>
@@ -184,7 +184,7 @@ $(function() {
 	
 	$("#export_xls").click(function() {
 		var input = $("<input>").attr("type", "hidden").attr("name", "format").attr("id","export_xls_input").val("xls");
-		$("#search_new").append($(input)).submit();
+		$("#new_search").append($(input)).submit();
 		$("#export_xls_input").remove();
 		return false;
 	})

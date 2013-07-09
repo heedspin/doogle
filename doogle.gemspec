@@ -16,7 +16,8 @@ Gem::Specification.new do |s|
   s.files = Dir["{app,config,db,lib}/**/*"] + ["MIT-LICENSE", "Rakefile", "README.rdoc"]
   s.test_files = Dir["test/**/*"]
 
-  s.add_dependency "rails", "~> 3.1.3"
+  s.add_dependency "rails", "~> 3.2.13"
+  s.add_dependency 'declarative_authorization', '0.5.7'
   s.add_dependency "acts_as_list"
   s.add_dependency 'aws-sdk' #, :require => 'aws/s3'
   # s.add_development_dependency "sqlite3"

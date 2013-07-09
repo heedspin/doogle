@@ -5,8 +5,8 @@
 <%= semantic_form_for @display, :as => :display, :url => doogle_displays_url, :html => {:class => 'doogle'} do |f| %>
   <%= f.semantic_errors %>
   <%= render :partial=>'edit_form', :locals =>{:f=>f, :display => @display} %>
-  <%= f.buttons do %>
-    <%= f.commit_button 'Save' %>
+  <%= f.actions do %>
+    <%= f.action :submit %>
     <li class="link"><%= link_to 'Cancel', (params[:return_to] || doogle_displays_url) %></li>
   <% end %>
 <% end %>

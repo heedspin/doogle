@@ -6,9 +6,9 @@
   <%= hidden_field_tag :_method, :put %>
   <%= f.semantic_errors %>
   <%= render :partial=>'edit_form', :locals =>{:f=>f} %>
-  <%= f.buttons do %>
-	  <%= f.commit_button 'Save' %>
-	  <%= f.commit_button 'Save & Edit' %>
+  <%= f.actions do %>
+	  <%= f.action :submit %>
+	  <%= f.action :submit, :label => 'Save & Edit' %>
     <li class="link"><%= link_to 'Cancel', (params[:return_to] || doogle_display_path(@display)) %></li>
     <li class="link"><%= link_to 'Show Display', doogle_display_path(@display) %></li>
     <li class="link"><%= link_to 'Destroy', doogle_display_path(@display), :confirm => 'Are you sure?', :method => :delete %></li>
