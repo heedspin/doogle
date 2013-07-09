@@ -1,1 +1,3 @@
-//= require_tree .
+//= require jquery.multiselect.filter
+//= require jquery.multiselect
+
