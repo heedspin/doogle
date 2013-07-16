@@ -144,6 +144,7 @@ var show_field_selector = function(e) {
 var reset_form = function($form) {
 	$form.find('input:text, input:password, input:file, select').not(".raw_field_selector").val('');
 	$form.find('input:radio, input:checkbox').removeAttr('checked').not(".raw_field_selector").removeAttr('selected');
+	$("#search_type_key").val("any");
 }
 var handle_search_click = function(event, ui){
 	if (ui.checked) {
@@ -155,7 +156,7 @@ var handle_search_click = function(event, ui){
 $(function() {
 	$("a.clear_form").on("click",function() {
 		$("#search_results").html("");
-		$("#show_search_form_link").hide();
+		$("#show_search_form").hide();
 		$("form#new_search").show();
 		reset_form($("form#new_search"));
 		show_field_selector();
