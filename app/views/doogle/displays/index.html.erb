@@ -2,17 +2,17 @@
 
 <% title 'Display Search' %>
 
-<% show_form_html = image_tag(AppConfig.arrow_collapse_image) + ' Show Search Form' %>
-<% hide_form_html = image_tag(AppConfig.arrow_expand_image) + ' Hide Search Form' %>
-
 <div class="doogle_search_box">
 	<div class="dooglemenu">
 		<ul>
 			<li>
 				<%= link_to 'Clear', '#', :class => 'clear_form' %>
 			</li>
-			<li>
-				<a href="#" class="hide" id="show_search_form_link"><%= show_form_html %></a>
+			<li id="show_search_form" style="<%= @displays.present? ? '' : 'display:none;' %>">
+				<span><%= image_tag(AppConfig.arrow_collapse_image) %>Show Search Form</span>
+			</li>
+			<li id="hide_search_form" style="display:none;">
+				<span><%= image_tag(AppConfig.arrow_expand_image) %>Hide Search Form</span>
 			</li>
 		</ul>
 	</div>
@@ -49,15 +49,19 @@
 <% content_for :javascripts do %>
 <script type="text/javascript">
 var hide_search_form = function() {
-	$("form#search_new").hide();
-	$("#show_search_form_link").html("<%= escape_javascript(show_form_html) %>").show().unbind('click').toggle(function() { 
-		$("form#search_new").show();
-	  $(this).html("<%= escape_javascript(hide_form_html) %>");
-	}, function() {
-		$("form#search_new").hide();
-	  $(this).html("<%= escape_javascript(show_form_html) %>");
-	});
+	$("form#new_search").hide();
+	$("#hide_search_form").hide();
+	$("#hide_search_form span").unbind("click");
+	$("#show_search_form").show();
+	$("#show_search_form span").on("click", show_search_form);
 };
+var show_search_form = function() {
+	$("form#new_search").show();
+	$("#show_search_form").hide();
+	$("#show_search_form span").unbind("click");
+	$("#hide_search_form").show();
+	$("#hide_search_form span").on("click", hide_search_form);
+}
 var show_or_hide_result_column = function(field_key, show, doitslow) {
 	if (show) {
 		$("." + field_key + "_cell").show(doitslow ? "fast" : null);
@@ -149,25 +153,22 @@ var handle_search_click = function(event, ui){
 	}
 }
 $(function() {
-  // $("form#search_new").change(function() {
-  // 		display_dynamic_form();
-  // });
-	$("a.clear_form").click(function() {
+	$("a.clear_form").on("click",function() {
 		$("#search_results").html("");
 		$("#show_search_form_link").hide();
-		$("form#search_new").show();
-		reset_form($("form#search_new"));
+		$("form#new_search").show();
+		reset_form($("form#new_search"));
 		show_field_selector();
 		return false;
 	});
-	$("input.create").click(function() {
+	$("li#search_submit_action input").on("click",function() {
     $('form').ajaxSubmit(search_options);
 		return false;
 	});
   $("select#search_type_key").change(show_field_selector);
 	<% if @displays %>
-	hide_search_form();
-	setup_results_filter();
+		$("#show_search_form").show().children("span").on("click", show_search_form);
+		setup_results_filter();
 	<% end %>
 	<% Doogle::DisplayConfig.all.each do |dc| %>
 	$(<%= "\"#raw_#{dc.key}_field_selector\"".html_safe %>).multiselect({
