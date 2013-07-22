@@ -72,8 +72,7 @@ class Doogle::DisplaysController < Doogle::DoogleController
     else
       @display = build_object
       @display.status ||= Doogle::Status.published
-      @display.publish_to_web = @display.publish_to_erp = false
-      @display.on_master_list = true
+      @display.on_master_list = @display.publish_to_web = @display.publish_to_erp = false
     end
   end
 
