@@ -28,7 +28,6 @@ class Doogle::DisplaysController < Doogle::DoogleController
           # Choose shown/hidden columns for results.
           @search_result_fields = @displays.map(&:display_type).uniq.map(&:fields).flatten.uniq
           @search_result_fields = @search_result_fields.select { |f| f.renderable? && ![:datasheet, :specification, :source_specification].include?(f.key) }
-          # @fields_to_show = Doogle::FieldConfig.top_level.select { |f| @filter_fields.member?(f.key) }
           @fields_to_show = @filter_fields.map { |k| Doogle::FieldConfig.for_key(k) }
         end
         if request.xhr?

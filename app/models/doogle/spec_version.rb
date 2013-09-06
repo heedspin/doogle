@@ -33,7 +33,7 @@
 
 require 'active_hash'
 
-class Doogle::SpecVersion < ApplicationModel
+class Doogle::SpecVersion < ActiveRecord::Base
   set_table_name 'doogle_spec_versions'
   extend ActiveHash::Associations::ActiveRecordExtensions
   belongs_to_active_hash :status, :class_name => 'Doogle::SpecVersionStatus'

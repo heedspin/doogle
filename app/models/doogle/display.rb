@@ -254,6 +254,13 @@ class Doogle::Display < ApplicationModel
   def oled_diagonal_in_option
     Doogle::OledDiagonalInOption.from_diagonal(self.oled_diagonal_in_option_id)
   end
+  def viewing_area_diagonal
+    if self.viewing_height_mm and self.viewing_width_mm
+      Math.sqrt(self.viewing_height_mm * self.viewing_height_mm + self.viewing_width_mm * self.viewing_width_mm) / 25.4
+    else
+      nil
+    end
+  end
 
   scope :standard, :conditions => { :standard_classification_id => Doogle::StandardClassification.standard.id }
   scope :on_master_list, where(:on_master_list => true)
