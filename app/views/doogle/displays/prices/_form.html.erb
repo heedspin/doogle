@@ -2,7 +2,7 @@
 <script type="text/javascript">
 $(function() {
 	$("input#doogle_display_price_vendor_name").autocomplete({
-		source: "<%= vendors_url %>",
+		source: "<%= doogle_vendor_names_url %>",
 		search: function(event, ui) { 
 			$("input#doogle_display_price_vendor_name").autocomplete("close");
 			$("#vendor_name_inprogress").show();

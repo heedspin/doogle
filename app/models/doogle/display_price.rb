@@ -63,6 +63,16 @@ class Doogle::DisplayPrice < Doogle::Base
   def self.vendor_part_number_like(pn)
     where(['display_prices.vendor_part_number like ?', "%#{pn}%"])
   end
+
+  def self.uniq_vendor_names_like(txt)
+    results = connection.select_rows <<-SQL
+      select distinct(display_prices.vendor_name) from display_prices 
+      where display_prices.vendor_name like '%#{txt}%'
+      order by display_prices.vendor_name
+      limit 20
+    SQL
+    results.map(&:first)
+  end
   
   def vendor_part_number_and_revision
     [self.vendor_part_number, self.vendor_revision].select(&:present?).join(' &mdash; ').html_safe

@@ -18,6 +18,7 @@ Rails.application.routes.draw do
     resources :display_resources, :only => [ :show, :create, :update, :destroy ]
     resources :logs, :only => [ :show, :index ]
     resources :spec_versions, :only => :index
+    resources :vendor_names, :only => :index
   end
   resources :display_assets, :only => [ :show ]
   match '/display_assets/', :controller => 'display_assets', :action => 'options', :constraints => {:method => 'OPTIONS'}
