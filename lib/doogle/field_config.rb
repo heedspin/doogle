@@ -167,13 +167,6 @@ class Doogle::FieldConfig
     @web
   end
 
-  def sync_to_web?
-    if @sync_to_web.nil?
-      @sync_to_web = self.web? || (config['web'] == 'sync_only')
-    end
-    @sync_to_web
-  end
-
   def searchable?
     if @searchable.nil?
       v = config['search']

@@ -438,16 +438,17 @@ class Doogle::Display < ApplicationModel
     else
       dr ||= Doogle::DisplayResource.new(:new_display_id => self.id)
       Doogle::FieldConfig.non_composites.each do |field|
-        if field.sync_to_web?
+        if field.web?
           if field.has_many?
             ids_method = field.render_value_key.to_s.singularize
             dr.send("#{ids_method}_ids=", self.send("#{ids_method}_ids"))
           elsif field.attachment?
-            # For now we will disable any attachments
-            # [:file_name, :content_type, :file_size, :updated_at].each do |paperclip_key|
-            #   paperclip_column = "#{field.search_value_key}_#{paperclip_key}"
-            #   dr.send("#{paperclip_column}=", self.send(paperclip_column))
-            # end
+            if spec_version = self.spec_versions.latest.first
+              [:file_name, :content_type, :file_size, :updated_at].each do |paperclip_key|
+                paperclip_column = "#{field.key}_#{paperclip_key}"
+                dr.send("#{paperclip_column}=", spec_version.send(paperclip_column))
+              end
+            end
           else
             # Avoid sending empty string (which will end up being different from nil).
             if (!dr.respond_to?(field.db_value_key) or !dr.send(field.db_value_key).present?) and !self.send(field.db_value_key).present?

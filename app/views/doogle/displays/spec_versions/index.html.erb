@@ -31,6 +31,9 @@
 				<% if v.try(:source_specification?) and permitted_to?(:read_source_specification) %>
 					Non-public Specification: <%= link_to v.source_specification_file_name, v.source_specification.url, {:target => '_blank'} %><br />
 				<% end %>
+				<% if v.drawing? %>
+					Web Datasheet: <%= link_to v.drawing_file_name, v.drawing.url, {:target => '_blank'} %><br />
+				<% end %>
 			</td>
 			<td>
 				<%= simple_format v.comments %>
