@@ -11,7 +11,10 @@ class Doogle::DisplayVendor
     '000139' => 'Nely',
     '000346' => 'Wise',
     '000161' => 'Prime',
-    '000365' => 'YJE'
+    '000365' => 'YJE',
+    '000389' => 'URT',
+    '000014' => 'Ampire',
+    '000304' => 'Winsonic'
   }
   
   attr_accessor :m2m_vendor, :vendor_name, :short_name, :vendor_part_number

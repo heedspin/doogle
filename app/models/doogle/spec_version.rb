@@ -34,7 +34,7 @@
 require 'active_hash'
 
 class Doogle::SpecVersion < ActiveRecord::Base
-  set_table_name 'doogle_spec_versions'
+  self.table_name = 'doogle_spec_versions'
   extend ActiveHash::Associations::ActiveRecordExtensions
   belongs_to_active_hash :status, :class_name => 'Doogle::SpecVersionStatus'
   belongs_to :updated_by, :class_name => 'User', :foreign_key => :updated_by_id
