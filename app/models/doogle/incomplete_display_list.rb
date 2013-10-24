@@ -12,6 +12,7 @@ class Doogle::IncompleteDisplayList
   end
 
   def xls_initialize
+    xls_field('Notes') { |d| d.original_opportunity.try(:safe_title) }
     xls_field('Created Date') { |d| d.created_at }
     xls_field('Model Number') { |d| d.model_number }
     xls_field('X Num') { |d| d.original_xnumber }
