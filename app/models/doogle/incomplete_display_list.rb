@@ -48,7 +48,7 @@ class Doogle::IncompleteDisplayList
   		@displays[d.id] ||= Doogle::Display.find(d.id)
   	end
   	Doogle::DisplayPrice.not_deleted.active.created_after(start_date).without_displays(@displays.values).includes(:display).where('(display_prices.cost1 is null or display_prices.cost1 = \'\') or (display_prices.notes is null or display_prices.notes = \'\')').each do |p|
-  		@displays[d.id] ||= p.display
+  		@displays[p.id] ||= p.display
   	end
   	Doogle::Display.not_deleted.created_after(start_date).without_displays(@displays.values).includes(:spec_versions).select('displays.id').group('displays.id').having('count(doogle_spec_versions.id) = 0').each do |d|
   		@displays[d.id] ||= Doogle::Display.find(d.id)
