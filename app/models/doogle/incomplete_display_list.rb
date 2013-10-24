@@ -14,7 +14,7 @@ class Doogle::IncompleteDisplayList
   def xls_initialize
     xls_field('Created Date') { |d| d.created_at }
     xls_field('Model Number') { |d| d.model_number }
-    xls_field('Original X Number') { |d| d.original_xnumber.present? ? 'X' : '' }
+    xls_field('X Num') { |d| d.original_xnumber }
     xls_field('Owner') { |d| d.original_opportunity.try(:owner).try(:first_name) }
     xls_field('Why') { |d| d.why.present? ? 'X' : '' }
     xls_field('Original Customer') { |d| d.original_customer_name.present? ? 'X' : '' }
