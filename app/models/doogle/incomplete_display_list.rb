@@ -22,7 +22,7 @@ class Doogle::IncompleteDisplayList
     (1..3).each do |index|
 	    xls_field("Pricing #{index}") { |d| 
 	    	if p = d.prices.active.order(:id)[index-1]
-	    		(p.vendor_part_number.present? and p.cost1.present? and p.notes.present?) ? 'X' : '' 
+	    		(p.cost1.present? and p.notes.present?) ? 'X' : '' 
 	    	else
 	    		'n/a'
 	    	end
@@ -46,7 +46,7 @@ class Doogle::IncompleteDisplayList
   	Doogle::Display.not_deleted.created_after(start_date).without_displays(@displays.values).includes(:prices).select('displays.id').group('displays.id').having('count(display_prices.id) = 0').each do |d|
   		@displays[d.id] ||= Doogle::Display.find(d.id)
   	end
-  	Doogle::DisplayPrice.not_deleted.active.created_after(start_date).without_displays(@displays.values).includes(:display).where('(display_prices.vendor_part_number is null or display_prices.vendor_part_number = \'\') or (display_prices.cost1 is null or display_prices.cost1 = \'\') or (display_prices.notes is null or display_prices.notes = \'\')').each do |p|
+  	Doogle::DisplayPrice.not_deleted.active.created_after(start_date).without_displays(@displays.values).includes(:display).where('(display_prices.cost1 is null or display_prices.cost1 = \'\') or (display_prices.notes is null or display_prices.notes = \'\')').each do |p|
   		@displays[d.id] ||= p.display
   	end
   	Doogle::Display.not_deleted.created_after(start_date).without_displays(@displays.values).includes(:spec_versions).select('displays.id').group('displays.id').having('count(doogle_spec_versions.id) = 0').each do |d|
