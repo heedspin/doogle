@@ -63,6 +63,14 @@ class Doogle::DisplayPrice < Doogle::Base
   def self.vendor_part_number_like(pn)
     where(['display_prices.vendor_part_number like ?', "%#{pn}%"])
   end
+  scope :not_deleted, includes(:display).where(['displays.status_id != ?', Doogle::Status.deleted.id])
+  def self.created_after(date)
+    includes(:display).where(['displays.created_at > ?', date])
+  end
+  def self.without_displays(displays)
+    includes(:display).where(['displays.id not in (?)', displays.map(&:id)])
+  end
+  scope :active, where('display_prices.last_date is null')
 
   def self.uniq_vendor_names_like(txt)
     results = connection.select_rows <<-SQL

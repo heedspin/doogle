@@ -155,26 +155,22 @@ class Doogle::Display < ApplicationModel
     has_attached_file key, options
   end
 
+  def original_opportunity
+    if self.original_xnumber.present?
+      Sales::Opportunity.xnumber(self.original_xnumber).first
+    else
+      nil
+    end  
+  end
+
   acts_as_list
   def scope_condition
     "type_key = '#{type_key}'"
   end
 
-  scope :not_deleted, lambda {
-    {
-      :conditions => ['displays.status_id != ?', Doogle::Status.deleted.id]
-    }
-  }
-  scope :published, lambda {
-    {
-      :conditions => ['displays.status_id = ?', Doogle::Status.published.id]
-    }
-  }
-  scope :draft, lambda {
-    {
-      :conditions => ['displays.status_id = ?', Doogle::Status.draft.id]
-    }
-  }
+  scope :not_deleted, where(['displays.status_id != ?', Doogle::Status.deleted.id])
+  scope :published, where(['displays.status_id = ?', Doogle::Status.published.id])
+  scope :draft, where(['displays.status_id = ?', Doogle::Status.draft.id])
   scope :display_type, lambda { |*types|
     type_keys = types.flatten.map { |t| t.is_a?(Doogle::DisplayConfig) ? t.key.to_s : t.to_s }
     if type_keys.include?('any')
@@ -312,6 +308,13 @@ class Doogle::Display < ApplicationModel
   scope :sql_query, lambda { |txt|
     where(txt)
   }
+
+  def self.without_displays(displays)
+    where ['displays.id not in (?)', displays.map(&:id)]
+  end
+  def self.created_after(date)
+    where ['displays.created_at > ?', date]
+  end
 
   def search_field_specified?(field)
     value = self.send(field.search_value_key)

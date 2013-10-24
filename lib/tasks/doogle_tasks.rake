@@ -8,4 +8,14 @@ namespace :doogle do
     export.to_xls(destination_file)
     puts "Wrote #{destination_file}"
   end
+
+  desc "Export a list of all displays missing key information"
+  task :export_incomplete_display_list => :environment do
+    export = Doogle::IncompleteDisplayList.new
+    basedir = Rails.env.development? ? Rails.root : AppConfig.sales_dropbox_root
+    destination_file = File.join(basedir, export.xls_filename)
+    export.to_xls(destination_file)
+    puts "Wrote #{destination_file}"
+  end
+
 end
