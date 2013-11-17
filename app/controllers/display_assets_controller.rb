@@ -8,14 +8,13 @@ class DisplayAssetsController < ApplicationController
     if self.ms_office_request?
       true # do not require login
     else
+      logger.info 'Redirecting to login, user agent: ' + request.env['HTTP_USER_AGENT']
       require_login
     end
   end
   
   def ms_office_request?
-    result = (user_agent = request.env['HTTP_USER_AGENT']) && (user_agent.include?('Excel') || user_agent.include?('ms-office'))
-    logger.info 'Redirecting to login, user agent: ' + request.env['HTTP_USER_AGENT']
-    result
+    (user_agent = request.env['HTTP_USER_AGENT']) && (user_agent.include?('Excel') || user_agent.include?('ms-office'))
   end
   
   def show
@@ -33,7 +32,7 @@ class DisplayAssetsController < ApplicationController
         spec = if version
           @display.spec_versions.version(version).first
         else
-          @display.spec_versions.latest.first
+          @display.latest_spec
         end
         if spec.nil?
           not_found

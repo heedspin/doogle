@@ -13,11 +13,11 @@ end
 Paperclip.interpolates :s3_is_my_bitch_url do |attachment, style|
   display = attachment.instance.is_a?(Doogle::Display) ? attachment.instance : attachment.instance.display
   model_number = URI.escape(display.model_number, "/")
-  version = if attachment.instance.is_a?(Doogle::SpecVersion)
-    attachment.instance.status.try(:latest?) ? '' : "&version=#{attachment.instance.version}"
-  else
-    ''
+  options = [ ]
+  if attachment.instance.is_a?(Doogle::SpecVersion)
+    options.push "version=#{attachment.instance.version}"
   end
-  "/display_assets/#{model_number}?asset=#{attachment.options[:asset_key]}#{version}"
+  options.push "asset=#{attachment.options[:asset_key]}"
+  "/display_assets/#{model_number}?" + options.join('&')
 end
 

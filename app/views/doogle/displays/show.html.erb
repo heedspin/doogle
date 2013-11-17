@@ -17,6 +17,11 @@
 		</ul>
 	</div>
 <% end %>
+<% if @display.status.deleted? %>
+	<div class="errorExplanation error">
+		<strong>The <%= @display.model_number %> is in a Deleted state!</strong>
+	</div>
+<% end %>
 
 <div class="display_summary">
 <table class="data">

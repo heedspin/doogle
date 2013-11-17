@@ -15,6 +15,7 @@ class Doogle::Displays::SpecVersionsController < Doogle::DoogleController
     @spec_version = build_object
     @spec_version.updated_by = current_user
     if @spec_version.save
+      @spec_version.maybe_sync_to_web
       redirect_to doogle_display_spec_versions_url(@display)
     else
       render :action => 'new'
@@ -31,6 +32,7 @@ class Doogle::Displays::SpecVersionsController < Doogle::DoogleController
     @spec_version = current_object
     @spec_version.updated_by = current_user
     if @spec_version.update_attributes(params[model_name])
+      @spec_version.maybe_sync_to_web
       redirect_to doogle_display_spec_versions_url(@display)
     else
       render :action => 'edit'

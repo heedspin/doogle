@@ -133,7 +133,7 @@ class Doogle::Display < ApplicationModel
   has_many :interface_types, :through => :display_interface_types, :source => :interface_type
   belongs_to :item, :class_name => 'M2m::Item', :foreign_key => 'erp_id'
   belongs_to :previous_revision, :class_name => 'Doogle::Display', :foreign_key => 'previous_revision_id'
-  has_one :next_revision, :class_name => 'Doogle::Display', :foreign_key => 'previous_revision_id'
+  has_one :next_revision, :class_name => 'Doogle::Display', :foreign_key => 'previous_revision_id', :conditions => ['displays.status_id != ?', Doogle::Status.deleted.id]
   has_many :spec_versions, :class_name => 'Doogle::SpecVersion', :dependent => :destroy
   has_many :prices, :class_name => 'Doogle::DisplayPrice', :dependent => :destroy
   has_many :logs, :class_name => 'Doogle::DisplayLog'
@@ -436,6 +436,7 @@ class Doogle::Display < ApplicationModel
     if !self.publish_to_web or self.status.deleted?
       result = if dr.present? and !dr.status.try(:deleted?)
         dr.destroy
+        self.spec_versions.latest.first.sync_to_web
         :delete
       else
         :no_change
@@ -447,14 +448,7 @@ class Doogle::Display < ApplicationModel
           if field.has_many?
             ids_method = field.render_value_key.to_s.singularize
             dr.send("#{ids_method}_ids=", self.send("#{ids_method}_ids"))
-          elsif field.attachment?
-            if spec_version = self.spec_versions.latest.first
-              [:file_name, :content_type, :file_size, :updated_at].each do |paperclip_key|
-                paperclip_column = "#{field.key}_#{paperclip_key}"
-                dr.send("#{paperclip_column}=", spec_version.send(paperclip_column))
-              end
-            end
-          else
+          elsif !field.attachment?
             # Avoid sending empty string (which will end up being different from nil).
             if (!dr.respond_to?(field.db_value_key) or !dr.send(field.db_value_key).present?) and !self.send(field.db_value_key).present?
               # Do nothing
@@ -472,6 +466,7 @@ class Doogle::Display < ApplicationModel
       self.previous_revision.destroy # should already be destroyed
       self.previous_revision.sync_to_web
     end
+    self.latest_spec.try(:synchronous_sync_to_web)
     result
   end
 
@@ -582,7 +577,7 @@ class Doogle::Display < ApplicationModel
 
   def latest_spec
     if @latest_spec_set.nil?
-      @latest_spec = self.spec_versions.latest.first
+      @latest_spec = self.spec_versions.by_version_desc.latest.first
       @latest_spec_set = true
     end
     @latest_spec

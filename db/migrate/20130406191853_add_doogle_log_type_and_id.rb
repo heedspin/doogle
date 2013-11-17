@@ -9,9 +9,6 @@ class AddDoogleLogTypeAndId < ActiveRecord::Migration
     execute "update display_logs set log_type_id = #{Doogle::LogType.destroy.id} where summary = 'Destroy'"
     execute "update display_logs set log_type_id = #{Doogle::LogType.vendor.id} where summary like '%Vendor%'"
     execute "update display_logs set log_type_id = #{Doogle::LogType.spec.id} where summary like '%Spec%'"
-    Doogle::DisplayLog.reset_column_information
-    Sales::Opportunity.all.each(&:create_display_logs)
-    Sales::QuoteItem.all.each(&:create_display_log)
   end
 
   def self.down

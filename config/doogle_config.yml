@@ -275,6 +275,7 @@ display_types: &_display_types
       
     - key: segment_glass_displays
       name: Segment Glass Display
+      web_page_key: glass
       fields: status, display_type, model_number, search_vendor, vendor_part_number, description, previous_revision_id, erp_id, publish_to_web, on_master_list, character_resolution, character_type, display_mode, viewing_direction, module_dimensions, viewing_area, active_area, digit_height_mm, polarizer_mode, display_image, no_of_pins, operational_temperature, datasheet, specification, drawing, why, comments, standard_classification, multiplex_ratio, original_customer_name, original_customer_part_number, original_xnumber, sql_query
       default_search_fields: display_type, model_number, character_resolution, display_mode
       web_list: model_number, character_resolution, display_mode, module_dimensions, digit_height_mm, polarizer_mode, no_of_pins, operational_temperature
@@ -285,6 +286,7 @@ display_types: &_display_types
       default_description: '#{clean_decimal(self.character_columns)} x #{clean_decimal(self.character_rows)} Character Glass'
       
     - key: graphic_glass_displays
+      web_page_key: glass
       fields: status, display_type, model_number, search_vendor, vendor_part_number, description, previous_revision_id, erp_id, publish_to_web, on_master_list, viewing_direction, resolution, module_dimensions, viewing_area, active_area, display_mode, polarizer_mode, display_image, operational_temperature, storage_temperature, datasheet, specification, drawing, why, comments, standard_classification, multiplex_ratio, original_customer_name, original_customer_part_number, original_xnumber, sql_query
       default_search_fields: display_type, model_number, resolution, display_mode
       web_list: model_number, resolution, module_dimensions, viewing_area, display_mode, polarizer_mode, operational_temperature, storage_temperature, datasheet
@@ -298,7 +300,7 @@ display_types: &_display_types
       name: Graphic Module
       fields: status, display_type, model_number, search_vendor, vendor_part_number, description, previous_revision_id, erp_id, publish_to_web, on_master_list, viewing_direction, logic_operating_voltage, resolution, bonding_type, module_dimensions, viewing_area, viewing_area_diagonal, active_area, display_mode, polarizer_mode, display_image, backlight_type, backlight_color, operational_temperature, storage_temperature, interface_types, integrated_controller, datasheet, specification, drawing, why, comments, standard_classification, touch_panel_type, original_customer_name, original_customer_part_number, original_xnumber, sql_query
       default_search_fields: display_type, model_number, resolution, bonding_type, display_mode
-      web_list: model_number, resolution, bonding_type, module_dimensions, viewing_area, display_mode, polarizer_mode, backlight_type, backlight_color, operational_temperature, storage_temperature, datasheet
+      web_list: model_number, resolution, bonding_type, module_dimensions, viewing_area, display_mode, polarizer_mode, backlight_type, backlight_color, operational_temperature, storage_temperature
       master_list: display_type, model_number, search_vendor, vendor_part_number, viewing_direction, logic_operating_voltage, resolution, bonding_type, module_dimensions, viewing_area, viewing_area_diagonal, active_area, display_mode, polarizer_mode, display_image, backlight_type, backlight_color, operational_temperature, storage_temperature, interface_types, integrated_controller, datasheet, specification, drawing, why, comments, standard_classification, touch_panel_type, original_customer_name, original_xnumber
       m2m_group_code: MOD
       m2m_product_class: MODULES
@@ -339,7 +341,7 @@ display_types: &_display_types
       default_description: '#{clean_decimal(self.character_columns)} x #{clean_decimal(self.character_rows)} OLED'
       
     - key: accessories
-      fields: status, display_type, search_vendor, vendor_part_number, model_number, description, previous_revision_id, erp_id, datasheet, specification, drawing, why, comments, original_customer_name, original_customer_part_number, original_xnumber, sql_query
+      fields: status, display_type, search_vendor, vendor_part_number, model_number, description, previous_revision_id, erp_id, on_master_list, datasheet, specification, drawing, why, comments, original_customer_name, original_customer_part_number, original_xnumber, sql_query
       master_list: display_type, search_vendor, vendor_part_number, model_number, description, datasheet, specification, drawing, why, comments, original_customer_name, original_xnumber
       default_search_fields: display_type, model_number, description
       m2m_group_code: OTHER
@@ -349,7 +351,7 @@ display_types: &_display_types
       
     - key: shutter
       name: Shutter
-      fields: status, display_type, search_vendor, vendor_part_number, model_number, description, previous_revision_id, erp_id, module_dimensions, datasheet, datasheet_public, drawing, specification, why, comments, original_customer_name, original_customer_part_number, original_xnumber, sql_query
+      fields: status, display_type, search_vendor, vendor_part_number, model_number, description, previous_revision_id, erp_id,on_master_list,  module_dimensions, datasheet, datasheet_public, drawing, specification, why, comments, original_customer_name, original_customer_part_number, original_xnumber, sql_query
       master_list: display_type, search_vendor, vendor_part_number, model_number, description, module_dimensions, datasheet, specification, drawing, why, comments, original_customer_name, original_xnumber
       default_search_fields: display_type, model_number, description, module_dimensions
       model_number_prefix: H

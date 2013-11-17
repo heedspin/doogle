@@ -51,6 +51,18 @@ class Doogle::DisplayConfig
     @config = config
     @name = config['name'] || self.key.to_s.humanize.titleize.singularize
   end
+
+  def web_page_key
+    if @web_page_key.nil?
+      unless @web_page_key = config['web_page_key']
+        @web_page_key = @key.to_s
+        if @web_page_key.include?('_displays')
+          @web_page_key = @web_page_key[0..(@web_page_key.size - 10)]
+        end
+      end
+    end
+    @web_page_key
+  end
   
   def web_name
     @web_name ||= self.config['web_name'] || self.name.pluralize
@@ -102,6 +114,10 @@ class Doogle::DisplayConfig
     else
       self.fields
     end
+  end
+
+  def web_fields
+    @web_fields ||= self.fields.select(&:web?)
   end
 
   def web_list_fields

@@ -32,6 +32,7 @@
 #
 
 require 'active_hash'
+require 'doogle/spec_version_synchronizer'
 
 class Doogle::SpecVersion < ActiveRecord::Base
   self.table_name = 'doogle_spec_versions'
@@ -50,6 +51,7 @@ class Doogle::SpecVersion < ActiveRecord::Base
   scope :latest, :conditions => { :status_id => Doogle::SpecVersionStatus.latest.id }
   scope :by_version_desc, :order => 'doogle_spec_versions.version desc'
   scope :by_updated_at_desc, :order => 'doogle_spec_versions.updated_at desc'
+  scope :not_deleted, where(['doogle_spec_versions.status_id != ?', Doogle::SpecVersionStatus.deleted.id])
 
   [ [:datasheet, ':display_type/:model_number/v:version/LXD-:model_number-datasheet.:extension'],
     [:specification, ':display_type/:model_number/v:version/LXD-:model_number-spec.:extension'],
@@ -124,37 +126,48 @@ class Doogle::SpecVersion < ActiveRecord::Base
                               :log_type_id => Doogle::LogType.spec.id)
   end
 
-  def self.import_log(txt)
-    File.open(File.join(Rails.root, 'log/spec_version_import.txt'), 'a') do |output|
-      output.puts txt
+  def maybe_sync_to_web
+    if !self.display.status.draft?
+      Doogle::SpecVersionSynchronizer.new(self.id).run_in_background!
+    else
+      false
     end
   end
 
-  def self.import
-    import_log "Starting import at " + Time.now.to_s
-    Doogle::Display.by_model_number.all.each do |display|
-      if display.spec_versions.count == 0
-        begin
-          dosave = false
-          sr = display.spec_versions.build
-          sr.comments = 'Initial import'
-          display.attachment_fields.each do |field|
-            if display.send("#{field.key}?")
-              sr.send("#{field.key}=", display.send(field.key))
-              dosave = true
-            end
-            if display.respond_to?("#{field.key}_public")
-              sr.send("#{field.key}_public=", display.send("#{field.key}_public"))
-            end
-          end
-          if dosave
-            import_log "Creating spec revision for #{display.model_number}"
-            sr.save!
-          end
-        rescue AWS::S3::Errors::NoSuchKey
-          import_log "Datasheet for #{display.model_number} has moved! Did the type change?"
-        end
-      end
+  def synchronous_sync_to_web
+    s = Doogle::SpecVersionSynchronizer.new
+    s.sync_single_display(self) && s.success(nil) # log results
+  end
+
+  def sync_to_web
+    r = nil
+    begin
+      r = Doogle::SpecVersionResource.find(self.id)
+    rescue ActiveResource::ResourceNotFound
     end
+
+    if !self.display.publish_to_web or self.display.status.deleted? or self.status.deleted?
+      result = if r.present? and !r.status.try(:deleted?)
+        r.destroy
+        :delete
+      else
+        :no_change
+      end
+    else
+      r ||= Doogle::SpecVersionResource.new(:new_spec_version_id => self.id, :display_id => self.display_id, :version => self.version)
+      [:file_name, :content_type, :file_size, :updated_at].each do |paperclip_key|
+        paperclip_column = "drawing_#{paperclip_key}"
+        r.send("#{paperclip_column}=", self.send(paperclip_column))
+      end
+      r.status_id = Doogle::SpecVersionStatus.latest.id
+      success_result = r.new_record? ? :create : :update
+      result = r.save ? success_result : :error
+    end
+    Doogle::DisplayLog.create(:display => self.display, :summary => 'Web Sync: Drawing', :details => "result = #{result}")
+    result
+  end
+
+  def destroy
+    self.update_attributes(:status_id => Doogle::SpecVersionStatus.deleted.id)
   end
 end
