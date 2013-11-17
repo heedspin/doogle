@@ -436,7 +436,6 @@ class Doogle::Display < ApplicationModel
     if !self.publish_to_web or self.status.deleted?
       result = if dr.present? and !dr.status.try(:deleted?)
         dr.destroy
-        self.spec_versions.latest.first.sync_to_web
         :delete
       else
         :no_change
