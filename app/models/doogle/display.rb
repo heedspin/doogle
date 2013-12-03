@@ -488,6 +488,11 @@ class Doogle::Display < ApplicationModel
     true
   end
 
+  def self.sync_all_to_erp
+    Doogle::Display.where(:erp_id => nil).each(&:sync_to_erp!)
+    true
+  end
+
   def deprecated_sync_to_erp
     return unless self.publish_to_erp
     product_class_number = M2m::ProductClass.with_name(self.display_type.m2m_product_class).first.try(:number) || (raise "No m2m product class for display type #{self.display_type.key} with name #{self.display_type.m2m_product_class}")
