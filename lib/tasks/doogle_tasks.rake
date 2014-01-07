@@ -1,5 +1,5 @@
-# 02 10 * * * cd /var/www/lxdhub ; bundle exec rake doogle:export_master_list
 namespace :doogle do
+  # 02 10 * * * cd /var/www/lxdhub ; bundle exec rake doogle:export_master_list
   desc "Export the master list xls file."
   task :export_master_list => :environment do
     export = Doogle::MasterListExport.new
@@ -9,6 +9,7 @@ namespace :doogle do
     puts "Wrote #{destination_file}"
   end
 
+  # 00 8-17 * * * cd /var/www/lxdhub ; bundle exec rake doogle:export_incomplete_display_list
   desc "Export a list of all displays missing key information"
   task :export_incomplete_display_list => :environment do
     export = Doogle::IncompleteDisplayList.new

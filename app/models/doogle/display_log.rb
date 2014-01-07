@@ -17,9 +17,9 @@
 require 'active_hash'
 
 class Doogle::DisplayLog < ApplicationModel
+  extend ActiveHash::Associations::ActiveRecordExtensions
   belongs_to :display, :class_name => 'Doogle::Display'
   belongs_to :user
-  extend ActiveHash::Associations::ActiveRecordExtensions
   belongs_to_active_hash :log_type, :class_name => 'Doogle::LogType'
   belongs_to :opportunity, :class_name => 'Sales::Opportunity', :foreign_key => 'object_id'
   belongs_to :quote, :class_name => 'Sales::Quote', :foreign_key => 'object_id'

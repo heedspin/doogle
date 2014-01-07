@@ -106,18 +106,18 @@ _display_fields: &_display_fields
       name: Diagonal
       search_options: true
       db_value: module_diagonal_in
-      sprintf_config: %s"
+      sprintf_config: "%s\""
     - key: tft_diagonal_in
       name: Diagonal
       search_options: true
       db_value: module_diagonal_in
-      sprintf_config: %s"
+      sprintf_config: "%s\""
     - key: viewing_area_diagonal
       editable: false
       web: false
       search: false
       renderable: true
-      sprintf_config: %s"
+      sprintf_config: "%s\""
     - key: viewing_area
       dimension: viewing_width_mm, viewing_height_mm
       search: false
@@ -227,7 +227,7 @@ _display_fields: &_display_fields
       web: false
     - key: field_of_view
       search_range: true
-      units_short: &deg;
+      units_short: "&deg;"
     - key: datasheet
       attachment: pdf
       web: true

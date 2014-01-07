@@ -9,7 +9,8 @@ class Doogle::Color < ActiveHash::Base
     {:id => 6, :name => 'White', :aliases => %w(wht)},
     {:id => 7, :name => 'Yellow-Green', :aliases => %w(y/g)},
     {:id => 8, :name => 'Gray'},
-    {:id => 9, :name => 'White-Red'}
+    {:id => 9, :name => 'White-Red'},
+    {:id => 10, :name => 'Red'}
   ]
   include Plutolib::ActiveHashMethods
   
