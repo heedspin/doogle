@@ -118,6 +118,7 @@ _display_fields: &_display_fields
       search: false
       renderable: true
       sprintf_config: "%s\""
+      # " - fix formatting
     - key: viewing_area
       dimension: viewing_width_mm, viewing_height_mm
       search: false
@@ -147,7 +148,6 @@ _display_fields: &_display_fields
       units_short: mm
     - key: no_of_pins
       name: Number of Pins
-      search: false
     - key: multiplex_ratio
     - key: contrast_ratio
       search: false

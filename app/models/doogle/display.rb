@@ -315,6 +315,9 @@ class Doogle::Display < ApplicationModel
   def self.created_after(date)
     where ['displays.created_at > ?', date]
   end
+  def self.no_of_pins(numpins)
+    where :no_of_pins => numpins.to_i
+  end
 
   def search_field_specified?(field)
     value = self.send(field.search_value_key)
