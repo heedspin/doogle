@@ -1,4 +1,4 @@
-_display_fields: &_display_fields
+display_fields: &display_fields
   display_fields:
     - key: status
       belongs_to: Status
@@ -259,7 +259,7 @@ _display_fields: &_display_fields
       renderable: false
       editable: false
 
-display_types: &_display_types
+display_types: &display_types
   display_types:
     - key: any
       name: Any
@@ -364,8 +364,8 @@ display_types: &_display_types
       default_description: Shutter
       
 shared_config: &shared_config
-  <<: *_display_fields
-  <<: *_display_types
+  <<: *display_fields
+  <<: *display_types
     
 <% local_config = File.join(Doogle::Engine.root, 'config/doogle_config_local.yml') %>
 <% if File.exists?(local_config) %>
