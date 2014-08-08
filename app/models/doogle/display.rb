@@ -217,7 +217,7 @@ class Doogle::Display < ApplicationModel
   }
 
   scope :web, :conditions => { :publish_to_web => true }
-  %w(datasheet_public publish_to_web publish_to_erp on_master_list).each do |key|
+  %w(datasheet_public publish_to_web publish_to_erp).each do |key|
     self.class_eval <<-RUBY
     scope :#{key}, lambda { |v|
     {
