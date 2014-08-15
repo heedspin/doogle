@@ -47,6 +47,7 @@ class Doogle::DisplaysController < Doogle::DoogleController
 
   def show
     @display = current_object
+    @display_vendors = @display.latest_vendors.sort_by(&:last_date).reverse
     @display_logs = @display.logs.by_date_desc.log_type(Doogle::LogType.opportunity,Doogle::LogType.quote,Doogle::LogType.create,Doogle::LogType.spec,Doogle::LogType.vendor, Doogle::LogType.comment, Doogle::LogType.eol).limit(40)
   end
   

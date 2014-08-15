@@ -30,8 +30,8 @@
 	<% next if field.source_specification? and !permitted_to?(:read_source_specification) %>
 	<% next if field.vendor_part_number? or !field.renderable? %>
 	<% if field.search_vendor? %>
-	<% @display.vendors.each do |vendor| %>
-	<tr>
+	<% @display_vendors.each do |vendor| %>
+	<tr class="<%= vendor.preferred_vendor ? 'preferred' : '' %>">
 		<td>
 			<% if vendor.m2m_vendor %>
 			<%= link_to vendor.short_name, vendor_url(vendor.m2m_vendor) %> 

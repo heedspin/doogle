@@ -635,6 +635,18 @@ class Doogle::Display < ApplicationModel
   def vendors
     @vendors ||= self.prices.vendors.all.map { |p| Doogle::DisplayVendor.new(p) }
   end
+
+  def latest_vendors
+    if @latest_vendors.nil?
+      @latest_vendors = []
+      self.vendors.group_by(&:vendor_name).each do |vendor_name, vendors|
+        if vendor_name.present?
+          @latest_vendors.push vendors.max_by(&:last_date)
+        end
+      end
+    end
+    @latest_vendors
+  end
   
   def preferred_vendor_price(date=nil)
     self.prices.active_on(date || Date.current).all.select(&:preferred_vendor).first
