@@ -26,6 +26,9 @@ class Doogle::MasterListExport
           end
         end
       end
+      fields.push(Plutolib::ToXls::Field.new('Demos') { |d| 
+        d.demo_items.map { |i| "#{i.part_number} #{i.quantity_on_hand.to_i}" }.join(', ')
+      })
       fields.push(Plutolib::ToXls::Field.new('On Hand', self.xls_no_decimals_format) { |d| d.item.try(:quantity_on_hand) })
       fields.push(Plutolib::ToXls::Field.new('Available', self.xls_no_decimals_format) { |d| d.item.try(:quantity_available)})
       fields.push(Plutolib::ToXls::Field.new('Last Quote', self.xls_date_format) { |d| d.logs.log_type(Doogle::LogType.quote).by_date_desc.first.try(:event_time).try(:to_date) })

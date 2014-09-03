@@ -163,6 +163,17 @@ class Doogle::Display < ApplicationModel
     end  
   end
 
+  def model_number_without_rev
+    if self.model_number =~ /^([A-Z]+\d+)[A-Z]+$/
+      $1
+    else
+      self.model_number
+    end
+  end
+  def demo_items
+    M2m::Item.part_number_like(self.model_number_without_rev + '%DEMO')
+  end
+
   acts_as_list
   def scope_condition
     "type_key = '#{type_key}'"

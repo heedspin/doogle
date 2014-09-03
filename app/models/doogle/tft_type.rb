@@ -4,7 +4,7 @@ class Doogle::TftType < ActiveHash::Base
     {:id => 1, :name => 'TN'},
     {:id => 2, :name => 'IPS'},
     {:id => 3, :name => 'MVA'},
-    {:id => 4, :name => 'F-MVA'}
+    {:id => 4, :name => 'OVA-Film'}
   ]
   include Plutolib::ActiveHashMethods
 end
