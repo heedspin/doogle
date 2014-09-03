@@ -171,7 +171,7 @@ class Doogle::Display < ApplicationModel
     end
   end
   def demo_items
-    M2m::Item.part_number_like(self.model_number_without_rev + '%DEMO')
+    M2m::Item.part_number_like(self.model_number_without_rev + '%DEMO').all + M2m::Item.part_number_like(self.model_number_without_rev + '%ADBOARD').all
   end
 
   acts_as_list
