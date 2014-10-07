@@ -98,6 +98,7 @@
 #  touch_panel_component_model_number :string(255)
 #  why                                :string(255)
 #  original_xnumber                   :string(255)
+#  ctp_ic                             :string(255)
 #
 
 # tim@concerto:~/Dropbox/p/lxd_m2mhub$ bundle exec annotate --model-dir ../doogle/app/models
@@ -212,7 +213,7 @@ class Doogle::Display < ApplicationModel
       :conditions => [ 'display_interface_types.interface_type_id in (?)', itypes.map(&:id) ]
     }
   }
-  %w(why comments description colors source_model_number integrated_controller original_customer_name original_customer_part_number original_xnumber).each do |key|
+  %w(why comments description colors source_model_number integrated_controller original_customer_name original_customer_part_number original_xnumber ctp_ic).each do |key|
     scope key, lambda { |text|
       {
         :conditions => [ "LOWER(displays.#{key}) like ?", '%' + (text.strip.downcase || '') + '%' ]
