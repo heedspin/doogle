@@ -38,7 +38,8 @@ class Doogle::MasterListExport
       })
       fields.push(Plutolib::ToXls::Field.new('Last Shipped', self.xls_date_format) { |d|
         if d.item
-          M2m::Shipper.for_item(d.item).by_ship_date_desc.first.try(:ship_date).try(:to_date)
+          # Need _with_duplicates to get sort to work correctly.
+          M2m::Shipper.for_item_with_duplicates(d.item).by_ship_date_desc.first.try(:ship_date).try(:to_date)
         else
           nil
         end
@@ -47,7 +48,7 @@ class Doogle::MasterListExport
         d.sync_to_erp!
         if d.item
           result = M2m::SalesOrder.connection.select_rows <<-SQL
-          	select distinct(somast.fcompany)
+            select distinct(somast.fcompany)
             from soitem 
             left join somast on soitem.fsono = somast.fsono
           where soitem.fpartno = N'#{d.item.part_number}'
