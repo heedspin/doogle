@@ -185,16 +185,16 @@ class Doogle::DisplayConfig
     result = if self.key == :tft_displays
       Doogle::Display.connection.select_one <<-SQL
       select max(substring(model_number, 2)) from displays
-      where (model_number like "_7%")
+      where (model_number like "_7____")
       SQL
     else
       Doogle::Display.connection.select_one <<-SQL
       select max(substring(model_number, 2)) from displays
-      where ((model_number like "H%")
-             or (model_number like "M%")
-             or (model_number like "A%")
-             or (model_number like "L%"))
-      and (model_number not like "_7%")
+      where ((model_number like "H_____")
+             or (model_number like "M_____")
+             or (model_number like "A_____")
+             or (model_number like "L_____"))
+      and (model_number not like "_7____")
       SQL
     end
     if result.values.size > 0
