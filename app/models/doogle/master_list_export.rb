@@ -53,7 +53,9 @@ class Doogle::MasterListExport
             left join somast on soitem.fsono = somast.fsono
           where soitem.fpartno = N'#{d.item.part_number}'
           SQL
-          result.map { |row| row.first.strip.titleize }.sort.join(', ')
+          result.map do |row| 
+            Iconv.iconv('utf-8', 'latin1', row.first.strip).first.titleize
+          end.sort.join(', ')
         else
           nil
         end
