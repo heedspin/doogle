@@ -49,7 +49,7 @@ class Doogle::DisplayPrice < Doogle::Base
   belongs_to :m2m_vendor, :class_name => 'M2m::Vendor', :primary_key => 'fvendno'
   validates_presence_of :start_date, :display, :vendor_name
 
-  scope :by_start_date_desc, :order => 'display_prices.start_date desc'
+  scope :by_start_date_desc, lambda { order('display_prices.start_date desc') }
   scope :display, lambda { |display|
     where(:display_id => display.id)
   }
@@ -59,29 +59,32 @@ class Doogle::DisplayPrice < Doogle::Base
   scope :active_on, lambda { |date|
     where(['display_prices.start_date <= ? and (display_prices.last_date >= ? or display_prices.last_date is null)', date, date])
   }
-  scope :vendors, :select => [:vendor_name, :m2m_vendor_id, :vendor_part_number, :last_date, :preferred_vendor], :group => [:vendor_name, :m2m_vendor_id, :vendor_part_number]
+  scope :vendors, lambda {
+    select(:vendor_name, :m2m_vendor_id, :vendor_part_number, :last_date, :preferred_vendor).
+      group(:vendor_name, :m2m_vendor_id, :vendor_part_number)
+  }
   def self.vendor_part_number_like(pn)
-    where(['display_prices.vendor_part_number like ?', "%#{pn}%"])
+    where('display_prices.vendor_part_number like ?', "%#{pn}%")
   end
-  scope :not_deleted, includes(:display).where(['displays.status_id != ?', Doogle::Status.deleted.id])
+  scope :not_deleted, lambda { includes(:display).where('displays.status_id != ?', Doogle::Status.deleted.id) }
   def self.created_after(date)
-    includes(:display).where(['displays.created_at > ?', date])
+    includes(:display).where('displays.created_at > ?', date)
   end
   def self.without_displays(displays)
-    includes(:display).where(['displays.id not in (?)', displays.map(&:id)])
+    includes(:display).where('displays.id not in (?)', displays.map(&:id))
   end
-  scope :active, where('display_prices.last_date is null')
+  scope :active, lambda { where('display_prices.last_date is null') }
 
   def self.uniq_vendor_names_like(txt)
     results = connection.select_rows <<-SQL
-      select distinct(display_prices.vendor_name) from display_prices 
+      select distinct(display_prices.vendor_name) from display_prices
       where display_prices.vendor_name like '%#{txt}%'
       order by display_prices.vendor_name
       limit 20
     SQL
     results.map(&:first)
   end
-  
+
   def vendor_part_number_and_revision
     [self.vendor_part_number, self.vendor_revision].select(&:present?).join(' &mdash; ').html_safe
   end

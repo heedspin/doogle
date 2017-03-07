@@ -45,8 +45,8 @@ class Doogle::SpecVersion < ActiveRecord::Base
 
   scope :version, lambda { |version| where(:version => version) }
   scope :latest, lambda { where(:status_id => Doogle::SpecVersionStatus.latest.id) }
-  scope :by_version_desc, :order => 'doogle_spec_versions.version desc'
-  scope :by_updated_at_desc, :order => 'doogle_spec_versions.updated_at desc'
+  scope :by_version_desc, lambda { order('doogle_spec_versions.version desc') }
+  scope :by_updated_at_desc, lambda { order('doogle_spec_versions.updated_at desc') }
   scope :not_deleted, lambda { where(['doogle_spec_versions.status_id != ?', Doogle::SpecVersionStatus.deleted.id]) }
 
   [ [:datasheet, ':display_type/:model_number/v:version/LXD-:model_number-datasheet.:extension'],
