@@ -1,5 +1,5 @@
 Rails.application.routes.draw do
-  namespace :doogle do 
+  namespace :doogle do
     resources :displays do
       collection do
         get 'next_model_number'
@@ -21,5 +21,5 @@ Rails.application.routes.draw do
     resources :vendor_names, :only => :index
   end
   resources :display_assets, :only => [ :show ]
-  match '/display_assets/', :controller => 'display_assets', :action => 'options', :constraints => {:method => 'OPTIONS'}
+  match '/display_assets/', :controller => 'display_assets', :action => 'options', :via => [:options]
 end
