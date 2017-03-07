@@ -1,3 +1,5 @@
+require "paperclip"
+
 Paperclip.interpolates :model_number do |attachment, style|
   attachment.instance.is_a?(Doogle::Display) ? attachment.instance.model_number : attachment.instance.display.model_number
 end
@@ -20,4 +22,3 @@ Paperclip.interpolates :s3_is_my_bitch_url do |attachment, style|
   options.push "asset=#{attachment.options[:asset_key]}"
   "/display_assets/#{model_number}?" + options.join('&')
 end
-
