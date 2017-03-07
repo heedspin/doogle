@@ -19,6 +19,7 @@ Gem::Specification.new do |s|
   s.add_dependency "rails", ">= 3.2.13", "< 6.0.0"
   s.add_dependency 'declarative_authorization', '0.5.7'
   s.add_dependency "acts_as_list", '0.2.0'
+  s.add_dependency "active_hash"
   s.add_dependency 'aws-sdk', '1.66' #, :require => 'aws/s3'
   s.add_dependency 'paperclip'
   # s.add_development_dependency "sqlite3"
