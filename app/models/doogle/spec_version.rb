@@ -43,15 +43,11 @@ class Doogle::SpecVersion < ActiveRecord::Base
   validates_presence_of :display_id
   validates_uniqueness_of :version, :scope => 'display_id'
 
-  scope :version, lambda { |version|
-    {
-      :conditions => { :version => version }
-    }
-  }
-  scope :latest, :conditions => { :status_id => Doogle::SpecVersionStatus.latest.id }
+  scope :version, lambda { |version| where(:version => version) }
+  scope :latest, lambda { where(:status_id => Doogle::SpecVersionStatus.latest.id) }
   scope :by_version_desc, :order => 'doogle_spec_versions.version desc'
   scope :by_updated_at_desc, :order => 'doogle_spec_versions.updated_at desc'
-  scope :not_deleted, where(['doogle_spec_versions.status_id != ?', Doogle::SpecVersionStatus.deleted.id])
+  scope :not_deleted, lambda { where(['doogle_spec_versions.status_id != ?', Doogle::SpecVersionStatus.deleted.id]) }
 
   [ [:datasheet, ':display_type/:model_number/v:version/LXD-:model_number-datasheet.:extension'],
     [:specification, ':display_type/:model_number/v:version/LXD-:model_number-spec.:extension'],
@@ -86,7 +82,7 @@ class Doogle::SpecVersion < ActiveRecord::Base
   def set_version
     if self.new_record?
       if self.has_attribute?(:version) and self.display_id # protect against scope.select(:column) error
-        self.version = (Doogle::SpecVersion.maximum(:version, :conditions => { :display_id => self.display_id }) || 0) + 1
+        self.version = (Doogle::SpecVersion.where(:display_id => display_id).maximum(:version) || 0) + 1
       end
     end
     if self.has_attribute?(:status_id)

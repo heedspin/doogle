@@ -134,7 +134,7 @@ class Doogle::Display < ApplicationModel
   has_many :interface_types, :through => :display_interface_types, :source => :interface_type
   belongs_to :item, :class_name => 'M2m::Item', :foreign_key => 'erp_id'
   belongs_to :previous_revision, :class_name => 'Doogle::Display', :foreign_key => 'previous_revision_id'
-  has_one :next_revision, :class_name => 'Doogle::Display', :foreign_key => 'previous_revision_id', :conditions => ['displays.status_id != ?', Doogle::Status.deleted.id]
+  has_one :next_revision, lambda { where('displays.status_id != ?', Doogle::Status.deleted.id) }, :class_name => 'Doogle::Display', :foreign_key => 'previous_revision_id'
   has_many :spec_versions, :class_name => 'Doogle::SpecVersion', :dependent => :destroy
   has_many :prices, :class_name => 'Doogle::DisplayPrice', :dependent => :destroy
   has_many :logs, :class_name => 'Doogle::DisplayLog'
@@ -161,7 +161,7 @@ class Doogle::Display < ApplicationModel
       Sales::Opportunity.xnumber(self.original_xnumber).first
     else
       nil
-    end  
+    end
   end
 
   def model_number_without_rev
@@ -188,78 +188,49 @@ class Doogle::Display < ApplicationModel
     if type_keys.include?('any')
       where({})
     else
-      {
-        :conditions => [ 'displays.type_key in (?)', type_keys ]
-      }
+      where('displays.type_key in (?)', type_keys)
     end
   }
   %w(multiplex_ratio resolution_x resolution_y type_key gamma_required).each do |key|
-    scope key, lambda { |v|
-      {
-        :conditions => { key => v }
-      }
-    }
+    scope key, lambda { |v| where(key => v) }
   end
-  scope :for_model, lambda { |model_number|
-    {
-      :conditions => { :model_number => model_number }
-    }
-  }
+  scope :for_model, lambda { |model_number| where(:model_number => model_number) }
   scope :by_model_number, :order => :model_number
   scope :by_resolution, :order => [ :resolution_x, :resolution_y ]
   scope :interface_types, lambda { |itypes|
-    {
-      :joins => :display_interface_types,
-      :conditions => [ 'display_interface_types.interface_type_id in (?)', itypes.map(&:id) ]
-    }
+    joins(:display_interface_types).where('display_interface_types.interface_type_id in (?)', itypes.map(&:id))
   }
   %w(why comments description colors source_model_number integrated_controller original_customer_name original_customer_part_number original_xnumber ctp_ic).each do |key|
-    scope key, lambda { |text|
-      {
-        :conditions => [ "LOWER(displays.#{key}) like ?", '%' + (text.strip.downcase || '') + '%' ]
-      }
-    }
+    scope key, lambda { |text| where("LOWER(displays.#{key}) like ?", '%' + (text.strip.downcase || '') + '%') }
   end
 
   scope :model_number, lambda { |txt|
     model_numbers = txt.split(/[ ,]/).select(&:present?).map { |m| "%#{m.strip.downcase}%" }
-    {
-      :conditions => [ model_numbers.map { |m| 'LOWER(displays.model_number) like ?' }.join(' OR '), *model_numbers ]
-    }
+    where(model_numbers.map { |m| 'LOWER(displays.model_number) like ?' }.join(' OR '), *model_numbers)
   }
 
-  scope :web, :conditions => { :publish_to_web => true }
+  scope :web, lambda { where(:publish_to_web => true) }
   %w(datasheet_public publish_to_web publish_to_erp).each do |key|
     self.class_eval <<-RUBY
-    scope :#{key}, lambda { |v|
-    {
-      :conditions => { :#{key} => v }
-                       }
-    }
+      scope :#{key}, lambda { |v| where(:#{key} => v) }
     RUBY
   end
   active_hash_setter(Doogle::StatusOption, :status_option)
   attr_accessor :status_option_id
   scope :status_option, lambda { |status_option|
-    {
-      :conditions => [ 'displays.status_id in (?)', status_option.status_ids ]
-    }
+    where('displays.status_id in (?)', status_option.status_ids)
   }
   # active_hash_setter(Doogle::TftDiagonalInOption, :tft_diagonal_in_option)
   attr_accessor :tft_diagonal_in_option_id
   scope :tft_diagonal_in_option, lambda { |option|
-    {
-      :conditions => { :module_diagonal_in => option.value }
-    }
+    where(:module_diagonal_in => option.value)
   }
   def tft_diagonal_in_option
     Doogle::TftDiagonalInOption.from_diagonal(self.tft_diagonal_in_option_id)
   end
   attr_accessor :oled_diagonal_in_option_id
   scope :oled_diagonal_in_option, lambda { |option|
-    {
-      :conditions => { :module_diagonal_in => option.value }
-    }
+    where(:module_diagonal_in => option.value)
   }
   def oled_diagonal_in_option
     Doogle::OledDiagonalInOption.from_diagonal(self.oled_diagonal_in_option_id)
@@ -272,7 +243,7 @@ class Doogle::Display < ApplicationModel
     end
   end
 
-  scope :standard, :conditions => { :standard_classification_id => Doogle::StandardClassification.standard.id }
+  scope :standard, lambda { where(:standard_classification_id => Doogle::StandardClassification.standard.id) }
   scope :on_master_list, where(:on_master_list => true)
 
   attr_accessor :search_vendor_id
@@ -286,7 +257,7 @@ class Doogle::Display < ApplicationModel
       where('displays.id in (select distinct display_id from display_prices where vendor_name = ?)', vendor_id)
     end
   }
-  
+
   def self.display_component_vendor_name(vendor_name)
     where(:display_component_vendor_name => vendor_name)
   end
@@ -402,21 +373,13 @@ class Doogle::Display < ApplicationModel
     attr_accessor :#{field.search_range_attribute}_id
     scope '#{field.search_range_attribute}', lambda { |range|
       if range.exact?
-        {
-          :conditions => { '#{field.key}' => range.exact }
-        }
+        where('#{field.key}' => range.exact)
       elsif range.no_max?
-        {
-          :conditions => [ 'displays.#{field.key} >= ?', range.min ]
-        }
+        where('displays.#{field.key} >= ?', range.min)
       elsif range.no_min?
-        {
-          :conditions => [ 'displays.#{field.key} <= ?', range.max ]
-        }
+        where('displays.#{field.key} <= ?', range.max)
       else
-        {
-          :conditions => [ 'displays.#{field.key} >= ? AND displays.#{field.key} <= ?', range.min, range.max ]
-        }
+        where('displays.#{field.key} >= ? AND displays.#{field.key} <= ?', range.min, range.max)
       end
     }
     RUBY
@@ -659,11 +622,11 @@ class Doogle::Display < ApplicationModel
     end
     @latest_vendors
   end
-  
+
   def preferred_vendor_price(date=nil)
     self.prices.active_on(date || Date.current).all.select(&:preferred_vendor).first
   end
-  
+
   def preferred_vendor(date=nil)
     if p = self.preferred_vendor_price(date)
       Doogle::DisplayVendor.new(p)
