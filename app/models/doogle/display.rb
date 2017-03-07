@@ -180,9 +180,9 @@ class Doogle::Display < ApplicationModel
     "type_key = '#{type_key}'"
   end
 
-  scope :not_deleted, where(['displays.status_id != ?', Doogle::Status.deleted.id])
-  scope :published, where(['displays.status_id = ?', Doogle::Status.published.id])
-  scope :draft, where(['displays.status_id = ?', Doogle::Status.draft.id])
+  scope :not_deleted, lambda { where(['displays.status_id != ?', Doogle::Status.deleted.id]) }
+  scope :published, lambda { where(['displays.status_id = ?', Doogle::Status.published.id]) }
+  scope :draft, lambda { where(['displays.status_id = ?', Doogle::Status.draft.id]) }
   scope :display_type, lambda { |*types|
     type_keys = types.flatten.map { |t| t.is_a?(Doogle::DisplayConfig) ? t.key.to_s : t.to_s }
     if type_keys.include?('any')
@@ -195,8 +195,8 @@ class Doogle::Display < ApplicationModel
     scope key, lambda { |v| where(key => v) }
   end
   scope :for_model, lambda { |model_number| where(:model_number => model_number) }
-  scope :by_model_number, :order => :model_number
-  scope :by_resolution, :order => [ :resolution_x, :resolution_y ]
+  scope :by_model_number, lambda { order(:model_number) }
+  scope :by_resolution, lambda { order([:resolution_x, :resolution_y]) }
   scope :interface_types, lambda { |itypes|
     joins(:display_interface_types).where('display_interface_types.interface_type_id in (?)', itypes.map(&:id))
   }
@@ -244,7 +244,7 @@ class Doogle::Display < ApplicationModel
   end
 
   scope :standard, lambda { where(:standard_classification_id => Doogle::StandardClassification.standard.id) }
-  scope :on_master_list, where(:on_master_list => true)
+  scope :on_master_list, lambda { where(:on_master_list => true) }
 
   attr_accessor :search_vendor_id
   # def vendor

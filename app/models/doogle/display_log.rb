@@ -24,7 +24,7 @@ class Doogle::DisplayLog < ApplicationModel
   belongs_to :opportunity, :class_name => 'Sales::Opportunity', :foreign_key => 'object_id'
   belongs_to :quote, :class_name => 'Sales::Quote', :foreign_key => 'object_id'
 
-  scope :by_date_desc, :order => 'display_logs.event_time desc'
+  scope :by_date_desc, lambda { order('display_logs.event_time desc') }
   scope :for_display, lambda { |display|
     display_id = display.is_a?(Doogle::Display) ? display.id : display
     where(display_id: display_id)
