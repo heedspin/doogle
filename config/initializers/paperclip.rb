@@ -20,4 +20,3 @@ Paperclip.interpolates :s3_is_my_bitch_url do |attachment, style|
   options.push "asset=#{attachment.options[:asset_key]}"
   "/display_assets/#{model_number}?" + options.join('&')
 end
-
