@@ -1,49 +1,50 @@
-class Doogle::DisplayResourcesController < ApplicationController
-  respond_to :json
-  skip_before_filter :require_login
-  skip_before_filter :verify_authenticity_token
+if Rails::VERSION::MAJOR < 5
+  class Doogle::DisplayResourcesController < ApplicationController
+    respond_to :json
+    skip_before_filter :require_login
+    skip_before_filter :verify_authenticity_token
 
-  def index
-    render :text => 'hello sync displays'
-  end
+    def index
+      render :text => 'hello sync displays'
+    end
 
-  def show
-    @display = Doogle::Display.find(params[:id])
-    respond_to do |format|
-      format.json do
-        render :json => @display.to_json
+    def show
+      @display = Doogle::Display.find(params[:id])
+      respond_to do |format|
+        format.json do
+          render :json => @display.to_json
+        end
       end
     end
-  end
 
-  def create
-    @display = build_object
-    if @display.save
-      render :json => @display
-      # redirect_to :controller => 'doogle/display_resources', :action => 'show', :id => @display.id
-    else
-      logger.error "Failed to create display #{@display.id}: " + @display.errors.full_messages.join("\n")
-      render :json => {:errors => @display.errors.full_messages}, :status => :unprocessable_entity
+    def create
+      @display = build_object
+      if @display.save
+        render :json => @display
+        # redirect_to :controller => 'doogle/display_resources', :action => 'show', :id => @display.id
+      else
+        logger.error "Failed to create display #{@display.id}: " + @display.errors.full_messages.join("\n")
+        render :json => {:errors => @display.errors.full_messages}, :status => :unprocessable_entity
+      end
     end
-  end
 
-  def update
-    @display = current_object
-    if @display.update_attributes(params[:display_resource])
-      render :json => @display
-    else
-      logger.error "Failed to update display #{@display.id}: " + @display.errors.full_messages.join("\n")
-      render :json => {:errors => @display.errors.full_messages}, :status => :unprocessable_entity
+    def update
+      @display = current_object
+      if @display.update_attributes(params[:display_resource])
+        render :json => @display
+      else
+        logger.error "Failed to update display #{@display.id}: " + @display.errors.full_messages.join("\n")
+        render :json => {:errors => @display.errors.full_messages}, :status => :unprocessable_entity
+      end
     end
-  end
 
-  def destroy
-    @display = current_object
-    @display.destroy
-    render :json => @display
-  end
+    def destroy
+      @display = current_object
+      @display.destroy
+      render :json => @display
+    end
 
-  protected
+    protected
 
     def model_class
       Doogle::Display
@@ -71,4 +72,5 @@ class Doogle::DisplayResourcesController < ApplicationController
       end
       @current_object
     end
+  end
 end

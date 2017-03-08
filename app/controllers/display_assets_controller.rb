@@ -1,66 +1,67 @@
-require 'menu_selected'
+if Rails::VERSION::MAJOR < 5
+  require 'menu_selected'
 
-class DisplayAssetsController < ApplicationController
-  include MenuSelected
-  skip_before_filter :require_login
-  before_filter :maybe_require_login, :only => :show
-  def maybe_require_login
-    if self.ms_office_request?
-      true # do not require login
-    else
-      logger.info 'Redirecting to login, user agent: ' + request.env['HTTP_USER_AGENT']
-      require_login
-    end
-  end
-  
-  def ms_office_request?
-    (user_agent = request.env['HTTP_USER_AGENT']) && (user_agent.include?('Excel') || user_agent.include?('ms-office'))
-  end
-  
-  def show
-    if self.ms_office_request?
-      # Convince Excel it's ok to send request to external browser (which must authenticate).
-      render :text => 'hello excel', :status => 200
-    else
-      @display = current_object
-      asset = params[:asset] || :datasheet
-      version = params[:version]
-      # Basic security check; make sure it's at least a field.
-      if Doogle::FieldConfig.for_key(asset).nil?
-        not_found
+  class DisplayAssetsController < ApplicationController
+    include MenuSelected
+    skip_before_filter :require_login
+    before_filter :maybe_require_login, :only => :show
+    def maybe_require_login
+      if self.ms_office_request?
+        true # do not require login
       else
-        spec = if version
-          @display.spec_versions.version(version).first
-        else
-          @display.latest_spec
-        end
-        if spec.nil?
+        logger.info 'Redirecting to login, user agent: ' + request.env['HTTP_USER_AGENT']
+        require_login
+      end
+    end
+
+    def ms_office_request?
+      (user_agent = request.env['HTTP_USER_AGENT']) && (user_agent.include?('Excel') || user_agent.include?('ms-office'))
+    end
+
+    def show
+      if self.ms_office_request?
+        # Convince Excel it's ok to send request to external browser (which must authenticate).
+        render :text => 'hello excel', :status => 200
+      else
+        @display = current_object
+        asset = params[:asset] || :datasheet
+        version = params[:version]
+        # Basic security check; make sure it's at least a field.
+        if Doogle::FieldConfig.for_key(asset).nil?
           not_found
         else
-          asset_is_public = spec.asset_public?(asset)
-          if asset_is_public or permitted_to?("read_#{asset}", :doogle_displays)
-            if attachment = spec.send(asset)
-              redirect_to attachment.expiring_url(300), :status => 307
-            else
-              not_found
-            end
+          spec = if version
+                   @display.spec_versions.version(version).first
+                 else
+                   @display.latest_spec
+                 end
+          if spec.nil?
+            not_found
           else
-            not_authorized
+            asset_is_public = spec.asset_public?(asset)
+            if asset_is_public or permitted_to?("read_#{asset}", :doogle_displays)
+              if attachment = spec.send(asset)
+                redirect_to attachment.expiring_url(300), :status => 307
+              else
+                not_found
+              end
+            else
+              not_authorized
+            end
           end
         end
       end
     end
-  end
 
-  skip_before_filter :require_login, :only => [:options]
-  def options
-    # logger.info request.env.select {|k,v| k.match("^HTTP.*")}.inspect
-    # logger.info request.env.select {|k,v| k.match(".*requested.*")}.inspect
-    headers['Access-Control-Allow-Methods'] = 'GET,HEAD,OPTIONS'
-    head :ok
-  end
+    skip_before_filter :require_login, :only => [:options]
+    def options
+      # logger.info request.env.select {|k,v| k.match("^HTTP.*")}.inspect
+      # logger.info request.env.select {|k,v| k.match(".*requested.*")}.inspect
+      headers['Access-Control-Allow-Methods'] = 'GET,HEAD,OPTIONS'
+      head :ok
+    end
 
-  protected
+    protected
 
     def not_found
       render :template => "errors/404", :status => 404
@@ -80,4 +81,5 @@ class DisplayAssetsController < ApplicationController
       end
       @current_object
     end
+  end
 end
