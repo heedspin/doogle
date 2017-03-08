@@ -24,4 +24,5 @@ Gem::Specification.new do |s|
   s.add_dependency 'paperclip'
   s.add_dependency 'spreadsheet', '0.6.8'
   s.add_dependency 'responders'
+  s.add_dependency 'activeresource'
 end
