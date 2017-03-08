@@ -22,5 +22,5 @@ Gem::Specification.new do |s|
   s.add_dependency "active_hash"
   s.add_dependency 'aws-sdk', '1.66' #, :require => 'aws/s3'
   s.add_dependency 'paperclip'
-  # s.add_development_dependency "sqlite3"
+  s.add_dependency 'spreadsheet', '0.6.8'
 end
