@@ -1,4 +1,5 @@
 require 'menu_selected'
+require 'responders'
 
 # declarative_authorization calls hide_action, which doesn't exist
 # in Rails 5. So, monkeypatch it for Rails 5. It also immediately inserts itself
@@ -20,9 +21,15 @@ class ActionController::Base
   end
 end
 
+class Doogle::ApplicationResponder < ActionController::Responder
+  include Responders::FlashResponder
+  include Responders::HttpCacheResponder
+end
+
 require 'declarative_authorization'
 
 class Doogle::DoogleController < ApplicationController
+  self.responder = Doogle::ApplicationResponder
   filter_access_to :all
   include MenuSelected
   include Authorization::AuthorizationInController
