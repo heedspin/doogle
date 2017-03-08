@@ -1,5 +1,6 @@
 class Doogle::DisplayResourcesController < ApplicationController
   respond_to :json
+  before_filter :require_login
   skip_before_filter :require_login
   skip_before_filter :verify_authenticity_token
 
