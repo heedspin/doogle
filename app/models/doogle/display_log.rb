@@ -27,7 +27,7 @@ class Doogle::DisplayLog < ApplicationModel
   scope :by_date_desc, lambda { order('display_logs.event_time desc') }
   scope :for_display, lambda { |display|
     display_id = display.is_a?(Doogle::Display) ? display.id : display
-    where(display_id: display_id)
+    where(:display_id => display_id)
   }
   scope :with_object_id, lambda { |oid|
     where(:object_id => oid)

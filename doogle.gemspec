@@ -24,5 +24,5 @@ Gem::Specification.new do |s|
   # Paperclip 5 drops support for aws-sdk 1 and requires aws-sdk 2.0 or later
   s.add_dependency 'paperclip', '< 5'
   s.add_dependency 'activeresource'
-  s.add_dependency 'spreadsheet', '0.6.8'
+  # s.add_dependency 'spreadsheet', '0.6.8'
 end

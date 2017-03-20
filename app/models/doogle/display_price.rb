@@ -60,7 +60,7 @@ class Doogle::DisplayPrice < Doogle::Base
     where(['display_prices.start_date <= ? and (display_prices.last_date >= ? or display_prices.last_date is null)', date, date])
   }
   scope :vendors, lambda {
-    select(:vendor_name, :m2m_vendor_id, :vendor_part_number, :last_date, :preferred_vendor).
+    select([:vendor_name, :m2m_vendor_id, :vendor_part_number, :last_date, :preferred_vendor]).
       group(:vendor_name, :m2m_vendor_id, :vendor_part_number)
   }
   def self.vendor_part_number_like(pn)
