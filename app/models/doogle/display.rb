@@ -134,10 +134,17 @@ class Doogle::Display < ApplicationModel
   has_many :interface_types, :through => :display_interface_types, :source => :interface_type
   belongs_to :item, :class_name => 'M2m::Item', :foreign_key => 'erp_id'
   belongs_to :previous_revision, :class_name => 'Doogle::Display', :foreign_key => 'previous_revision_id'
-  has_one :next_revision, lambda { where('displays.status_id != ?', Doogle::Status.deleted.id) }, :class_name => 'Doogle::Display', :foreign_key => 'previous_revision_id'
   has_many :spec_versions, :class_name => 'Doogle::SpecVersion', :dependent => :destroy
   has_many :prices, :class_name => 'Doogle::DisplayPrice', :dependent => :destroy
   has_many :logs, :class_name => 'Doogle::DisplayLog'
+
+if Rails::VERSION::MAJOR < 5
+  def next_revision
+    Doogle::Display.not_deleted.find_by_previous_revision_id(self.id)
+  end
+else
+  has_one :next_revision, lambda { where('displays.status_id != ?', Doogle::Status.deleted.id) }, :class_name => 'Doogle::Display', :foreign_key => 'previous_revision_id'
+end
 
   [ [:datasheet, ':display_type/:model_number/LXD-:model_number-datasheet.:extension'],
     [:specification, ':display_type/:model_number/LXD-:model_number-spec.:extension'],
