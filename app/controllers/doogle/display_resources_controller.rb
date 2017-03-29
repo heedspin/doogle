@@ -1,7 +1,13 @@
 class Doogle::DisplayResourcesController < ApplicationController
   include ActionController::MimeResponds
 
+if Rails::VERSION::MAJOR < 5
+  # respond_to :json
+  skip_before_filter :require_login
+  skip_before_filter :verify_authenticity_token
+else
   skip_before_action :verify_authenticity_token
+end
 
   def index
     render :text => 'hello sync displays'
@@ -59,7 +65,11 @@ class Doogle::DisplayResourcesController < ApplicationController
     'display_resource'
   end
 
+if Rails::VERSION::MAJOR < 5
+  before_filter :require_api_key
+else
   before_action :require_api_key
+end
   def require_api_key
     unless (params[:api_key] == AppConfig.doogle_api_key)
       logger.error "Submitted api_key != #{AppConfig.doogle_api_key}"
