@@ -61,6 +61,10 @@ class Doogle::WebSynchronizer
   end
 
   def error(job, exception)
-    Airbrake.notify(exception)
+    if defined?(Honeybadger)
+      Honeybadger.notify(exception)
+    else
+      Airbrake.notify(exception)
+    end
   end
 end
