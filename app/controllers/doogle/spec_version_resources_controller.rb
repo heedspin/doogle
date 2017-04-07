@@ -66,7 +66,7 @@ else
 end
   def require_api_key
     unless (params[:api_key] == AppConfig.doogle_api_key)
-      not_authorized
+      render :json => {}, :status => 403
     end
     true
   end
