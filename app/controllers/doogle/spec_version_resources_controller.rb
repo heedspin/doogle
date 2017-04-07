@@ -1,7 +1,12 @@
 class Doogle::SpecVersionResourcesController < ApplicationController
   include ActionController::MimeResponds
 
+if Rails::VERSION::MAJOR < 5
+  skip_before_filter :require_login
+  skip_before_filter :verify_authenticity_token
+else
   skip_before_action :verify_authenticity_token
+end
 
   def show
     @spec_version = Doogle::SpecVersion.find(params[:id])
@@ -54,10 +59,14 @@ class Doogle::SpecVersionResourcesController < ApplicationController
     'spec_version'
   end
 
+if Rails::VERSION::MAJOR < 5
   before_filter :require_api_key
+else
+  before_action :require_api_key
+end
   def require_api_key
     unless (params[:api_key] == AppConfig.doogle_api_key)
-      not_authorized
+      render :json => {}, :status => 403
     end
     true
   end

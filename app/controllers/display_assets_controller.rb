@@ -46,7 +46,7 @@ if Rails::VERSION::MAJOR < 5
                 not_found
               end
             else
-              not_authorized
+              render :json => {}, :status => 403
             end
           end
         end
@@ -65,10 +65,6 @@ if Rails::VERSION::MAJOR < 5
 
     def not_found
       render :template => "errors/404", :status => 404
-    end
-
-    def not_authorized
-      render :template => "errors/403", :status => 403
     end
 
     def current_object
