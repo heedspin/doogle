@@ -72,7 +72,7 @@ if Rails::VERSION::MAJOR < 5
         @display.status = Doogle::Status.published
       else
         @display = build_object
-        @display.status ||= Doogle::Status.draft
+        @display.status ||= Doogle::Status.published
         @display.on_master_list = @display.publish_to_web = @display.publish_to_erp = false
       end
     end
