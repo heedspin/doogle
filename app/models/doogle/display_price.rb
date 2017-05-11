@@ -164,6 +164,18 @@ class Doogle::DisplayPrice < Doogle::Base
     true
   end
 
+  validate :unique_vendor_part_number
+  def unique_vendor_part_number
+    return unless self.vendor_part_number.present?
+    scope = Doogle::DisplayPrice.where(:vendor_part_number => self.vendor_part_number).where(['display_prices.display_id != ?', self.display_id])
+    if self.id.present?
+      scope = scope.where(['id != ?', self.id])
+    end
+    if already_has_vendor_pn = scope.first
+      self.errors.add(:vendor_part_number, "Vendor part number taken by #{already_has_vendor_pn.display.model_number}")
+    end
+  end
+
   # validate :check_source_model_number
   # def check_source_model_number
   #   return unless self.source_model_number.present?
