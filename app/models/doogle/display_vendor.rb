@@ -5,7 +5,7 @@ class Doogle::DisplayVendor
     '000258' => 'MIT',
     '000173' => 'RIT',
     '000336' => 'ETD',
-    '000139' => 'NT',
+    '000445' => 'ETD Top',
     '000088' => 'Jiya',
     '000104' => 'Jiya LF',
     '000139' => 'Nely',
@@ -15,7 +15,8 @@ class Doogle::DisplayVendor
     '000389' => 'URT',
     '000014' => 'Ampire',
     '000304' => 'Winsonic',
-    '000412' => 'DI'
+    '000412' => 'DI',
+    '000459' => 'Yes'
   }
   
   attr_accessor :m2m_vendor, :vendor_name, :short_name, :vendor_part_number, :last_date, :preferred_vendor
