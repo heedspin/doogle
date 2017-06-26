@@ -9,7 +9,7 @@ class Doogle::TftDiagonalInOption < ActiveHash::Base
     'tft_displays'
   end
   
-  # Doogle::TftDiagonalOption.all
+  # Doogle::TftDiagonalInOption.all
   def self.all
     results = Doogle::Display.connection.select_rows <<-SQL
     select distinct(module_diagonal_in) as diagonal

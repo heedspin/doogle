@@ -390,6 +390,10 @@ class Doogle::FieldConfig
     config['search_as']
   end
 
+  def edit_as
+    config['edit_as']
+  end
+
   def units
     @units ||= config['units']
   end

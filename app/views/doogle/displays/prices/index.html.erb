@@ -13,55 +13,57 @@
 
 <% else %>
 <table class="data">
-	<thead>
-		<tr>
-			<th>Vendor</th>
-			<th>Vendor Part Number</th>
-			<th>Preferred</th>
-			<th>Start Date</th>
-			<th>Last Date</th>
-			<th>Quantity</th>
-			<th>Cost</th>
-			<th>Notes</th>
-		</tr>
-	</thead>
-	<tbody>
-		<% @prices.each do |p| %>
-		<tr>
-			<td>
-				<% if p.m2m_vendor %>
-				<%= link_to p.vendor_name, vendor_url(p.m2m_vendor) %>
-				<% else %>
-				<%= p.vendor_name %>
-				<% end %>
-			</td>
-			<td><%= p.vendor_part_number_and_revision %></td>
-			<td><%= p.preferred_vendor ? 'X' : '' %></td>
-			<td><%= p.start_date.to_s(:number_date) %></td>
-			<td><%= p.last_date.try(:to_s, :number_date) %></td>
-			<% level = p.levels_used.first %>
-			<td><%= cm level.try(:quantity) %></td>
-			<td><%= cm level.try(:cost), :dollars %></td>
-			<td rowspan="<%= p.levels_used.size %>"><%= simple_format p.notes %></td>
-			<% if permitted_to? :manage, :doogle_display_prices %>
-			<td>
-				<%= link_to 'Edit', edit_doogle_display_price_url(@display, p) %>
-			</td>
-			<% end %>
-		</tr>
-			<% if extra_levels = p.levels_used[1..-1] %>
-			<% extra_levels.each do |level| %>
-			<tr>
-				<% if level == extra_levels.first %>
-				<td colspan="5" rowspan="<%= extra_levels.size %>"></td>
-				<% end %>
-				<td><%= cm level.quantity %></td>
-				<td><%= cm level.cost, :dollars %></td>
-			</tr>
-			<% end %>
-			<% end %>
-		<% end %>
-	</tbody>
+  <thead>
+    <tr>
+      <th>Vendor</th>
+      <th>Vendor Part Number</th>
+      <th>Preferred</th>
+      <th>Start Date</th>
+      <th>Last Date</th>
+      <th>Quantity</th>
+      <th>Cost</th>
+      <th>Notes</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @prices.each do |p| %>
+    <tr>
+      <td>
+        <% if p.m2m_vendor %>
+        <%= link_to p.vendor_name, vendor_url(p.m2m_vendor) %>
+        <% else %>
+        <%= p.vendor_name %>
+        <% end %>
+      </td>
+      <td><%= p.vendor_part_number_and_revision %></td>
+      <td><%= p.preferred_vendor ? 'X' : '' %></td>
+      <td><%= p.start_date.to_s(:number_date) %></td>
+      <td><%= p.last_date.try(:to_s, :number_date) %></td>
+      <% level = p.levels_used.first %>
+      <td><%= cm level.try(:quantity) %></td>
+      <td><%= cm level.try(:cost), :dollars %></td>
+      <td rowspan="<%= p.levels_used.size %>"><%= simple_format p.notes %></td>
+      <% if permitted_to? :manage, :doogle_display_prices %>
+      <td>
+        <%= link_to 'Edit', edit_doogle_display_price_url(@display, p) %>
+      </td>
+      <% end %>
+    </tr>
+      <% if extra_levels = p.levels_used[1..-1] %>
+      <% extra_levels.each do |level| %>
+      <tr>
+        <% if level == extra_levels.first %>
+        <td colspan="5" rowspan="<%= extra_levels.size %>"></td>
+        <% end %>
+        <td><%= cm level.quantity %></td>
+        <td>
+          <%= cm level.cost, :dollars %>
+        </td>
+      </tr>
+      <% end %>
+      <% end %>
+    <% end %>
+  </tbody>
 </table>
 <% end %>
 <p><%= link_to 'New Vendor', new_doogle_display_price_url(@display) %></p>

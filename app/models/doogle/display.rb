@@ -146,22 +146,22 @@ else
   has_one :next_revision, lambda { where('displays.status_id != ?', Doogle::Status.deleted.id) }, :class_name => 'Doogle::Display', :foreign_key => 'previous_revision_id'
 end
 
-  [ [:datasheet, ':display_type/:model_number/LXD-:model_number-datasheet.:extension'],
-    [:specification, ':display_type/:model_number/LXD-:model_number-spec.:extension'],
-    [:source_specification, ':display_type/:model_number/non-public-:model_number-spec.:extension'],
-    [:drawing, ':display_type/:model_number/LXD-:model_number-drawing-:style.:extension', {:thumbnail => '100>', :medium => '400>', :large => '600>'}]
-  ].each do |key, path, image_styles|
-    options = { :storage => :s3,
-                :s3_credentials => { :access_key_id => AppConfig.doogle_access_key_id,
-                                     :secret_access_key => AppConfig.doogle_secret_access_key },
-                :url => ':s3_is_my_bitch_url',
-                :bucket => AppConfig.doogle_bucket,
-                :s3_permissions => 'authenticated-read',
-                :path => path,
-                :asset_key => key }
-    options[:styles] = image_styles if image_styles
-    has_attached_file key, options
-  end
+  # [ [:datasheet, ':display_type/:model_number/LXD-:model_number-datasheet.:extension'],
+  #   [:specification, ':display_type/:model_number/LXD-:model_number-spec.:extension'],
+  #   [:source_specification, ':display_type/:model_number/non-public-:model_number-spec.:extension'],
+  #   [:drawing, ':display_type/:model_number/LXD-:model_number-drawing-:style.:extension', {:thumbnail => '100>', :medium => '400>', :large => '600>'}]
+  # ].each do |key, path, image_styles|
+  #   options = { :storage => :s3,
+  #               :s3_credentials => { :access_key_id => AppConfig.doogle_access_key_id,
+  #                                    :secret_access_key => AppConfig.doogle_secret_access_key },
+  #               :url => ':s3_is_my_bitch_url',
+  #               :bucket => AppConfig.doogle_bucket,
+  #               :s3_permissions => 'authenticated-read',
+  #               :path => path,
+  #               :asset_key => key }
+  #   options[:styles] = image_styles if image_styles
+  #   has_attached_file key, options
+  # end
 
   def original_opportunity
     if self.original_xnumber.present?
@@ -591,6 +591,27 @@ end
     end
   end
 
+  # Returns all revisions (connected via previous_revision_id) in order.
+  def all_revisions
+    result = []
+    display_id = self.id
+    while display_id
+      if display = Doogle::Display.find_by_previous_revision_id(display_id)
+        result.push display
+        display_id = display.id
+      else
+        display_id = nil
+      end
+    end
+    result.unshift self
+    display = self.previous_revision
+    while display
+      result.unshift display
+      display = display.previous_revision
+    end
+    result
+  end
+
   def web_sort_key
     case self.type_key
     when 'tft_displays'
@@ -615,7 +636,7 @@ end
   end
 
   def vendors
-    @vendors ||= self.prices.vendors.all.map { |p| Doogle::DisplayVendor.new(p) }
+    @vendors ||= self.prices.vendors.map { |p| Doogle::DisplayVendor.new(p) }
   end
 
   def latest_vendors

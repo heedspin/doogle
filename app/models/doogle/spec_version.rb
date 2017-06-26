@@ -52,18 +52,20 @@ class Doogle::SpecVersion < ActiveRecord::Base
   [ [:datasheet, ':display_type/:model_number/v:version/LXD-:model_number-datasheet.:extension'],
     [:specification, ':display_type/:model_number/v:version/LXD-:model_number-spec.:extension'],
     [:source_specification, ':display_type/:model_number/v:version/non-public-:model_number-spec.:extension'],
-    [:drawing, ':display_type/:model_number/v:version/LXD-:model_number-drawing-:style.:extension', {:thumbnail => '100>', :medium => '400>', :large => '600>'}]
+    [:drawing, ':display_type/:model_number/v:version/LXD-:model_number-drawing-:style.:extension']
   ].each do |key, path, image_styles|
     options = { :storage => :s3,
                 :s3_credentials => { :access_key_id => AppConfig.doogle_access_key_id,
                                      :secret_access_key => AppConfig.doogle_secret_access_key },
                 :url => ':s3_is_my_bitch_url',
+                # :use_timestamp => false,
                 :bucket => AppConfig.doogle_bucket,
                 :s3_permissions => 'authenticated-read',
                 :path => path,
                 :asset_key => key }
     options[:styles] = image_styles if image_styles
     has_attached_file key, options
+    validates_attachment_content_type key, content_type: /pdf/
   end
 
   def asset_public?(key)
@@ -74,7 +76,8 @@ class Doogle::SpecVersion < ActiveRecord::Base
   before_create :unset_latest
   def unset_latest
     if self.status.try(:latest?)
-      connection.execute "update #{self.class.table_name} set status_id = #{Doogle::SpecVersionStatus.previous.id} where status_id = #{Doogle::SpecVersionStatus.latest.id} and display_id = #{self.display_id}"
+      Doogle::SpecVersion.where(display_id: self.display_id, status_id: Doogle::SpecVersionStatus.latest.id).
+      update_all(status_id: Doogle::SpecVersionStatus.previous.id)
     end
   end
 

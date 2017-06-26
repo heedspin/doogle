@@ -61,7 +61,7 @@ class Doogle::DisplayPrice < Doogle::Base
   }
   scope :vendors, lambda {
     select([:vendor_name, :m2m_vendor_id, :vendor_part_number, :last_date, :preferred_vendor]).
-      group(:vendor_name, :m2m_vendor_id, :vendor_part_number)
+      group(:vendor_name, :m2m_vendor_id, :vendor_part_number, :last_date, :preferred_vendor)
   }
   def self.vendor_part_number_like(pn)
     where('display_prices.vendor_part_number like ?', "%#{pn}%")
@@ -92,7 +92,9 @@ class Doogle::DisplayPrice < Doogle::Base
   after_save :unset_preferred_vendor
   def unset_preferred_vendor
     if self.preferred_vendor
-      Doogle::DisplayPrice.update_all({:preferred_vendor => false}, ['display_prices.display_id = ? and display_prices.id != ? and display_prices.preferred_vendor = true', self.display_id, self.id])
+      Doogle::DisplayPrice.
+      where(['display_prices.display_id = ? and display_prices.id != ? and display_prices.preferred_vendor = true', self.display_id, self.id]).
+      update_all(preferred_vendor: false)
     end
     true
   end
@@ -108,9 +110,13 @@ class Doogle::DisplayPrice < Doogle::Base
   after_save :set_last_dates
   def set_last_dates
     if self.last_date
-      self.class.update_all({:last_date => self.start_date.advance(:days => -1)}, ["display_prices.id != ? and display_prices.display_id = ? and display_prices.last_date is null and display_prices.start_date < ? and display_prices.vendor_name = ?", self.id, self.display_id, self.last_date, self.vendor_name])
+      Doogle::DisplayPrice.
+      where(["display_prices.id != ? and display_prices.display_id = ? and display_prices.last_date is null and display_prices.start_date < ? and display_prices.vendor_name = ?", self.id, self.display_id, self.last_date, self.vendor_name]).
+      update_all(last_date: self.start_date.advance(:days => -1))
     else
-      self.class.update_all({:last_date => self.start_date.advance(:days => -1)}, ["display_prices.id != ? and display_prices.display_id = ? and display_prices.last_date is null and display_prices.vendor_name = ?", self.id, self.display_id, self.vendor_name])
+      Doogle::DisplayPrice.
+      where(["display_prices.id != ? and display_prices.display_id = ? and display_prices.last_date is null and display_prices.vendor_name = ?", self.id, self.display_id, self.vendor_name]).
+      update_all(last_date: self.start_date.advance(:days => -1))
     end
     true
   end
@@ -167,10 +173,7 @@ class Doogle::DisplayPrice < Doogle::Base
   validate :unique_vendor_part_number
   def unique_vendor_part_number
     return unless self.vendor_part_number.present?
-    scope = Doogle::DisplayPrice.where(:vendor_part_number => self.vendor_part_number).where(['display_prices.display_id != ?', self.display_id])
-    if self.id.present?
-      scope = scope.where(['id != ?', self.id])
-    end
+    scope = Doogle::DisplayPrice.includes(:display).where(:vendor_part_number => self.vendor_part_number).where(['display_prices.display_id not in (?)', self.display.all_revisions.map(&:id)])
     if already_has_vendor_pn = scope.first
       self.errors.add(:vendor_part_number, "Vendor part number taken by #{already_has_vendor_pn.display.model_number}")
     end

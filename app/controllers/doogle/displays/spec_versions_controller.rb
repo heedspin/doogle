@@ -32,7 +32,7 @@ if Rails::VERSION::MAJOR < 5
       @display = parent_object
       @spec_version = current_object
       @spec_version.updated_by = current_user
-      if @spec_version.update_attributes(params[model_name])
+      if @spec_version.update_attributes(spec_version_params)
         @spec_version.maybe_sync_to_web
         redirect_to doogle_display_spec_versions_url(@display)
       else
@@ -41,10 +41,6 @@ if Rails::VERSION::MAJOR < 5
     end
 
     protected
-
-      def model_name
-        :spec_version
-      end
 
       def current_object
         @current_object ||= Doogle::SpecVersion.find(params[:id])
@@ -55,7 +51,11 @@ if Rails::VERSION::MAJOR < 5
       end
 
       def build_object
-        @current_object ||= parent_object.spec_versions.build(params[model_name])
+        @current_object ||= parent_object.spec_versions.build(spec_version_params)
+      end
+
+      def spec_version_params
+        result = params.fetch(:spec_version, nil).try(:permit!)
       end
 
   end

@@ -20,6 +20,6 @@ Rails.application.routes.draw do
     resources :spec_versions, :only => :index
     resources :vendor_names, :only => :index
   end
-  resources :display_assets, :only => [ :show ]
+  get '/display_assets/:model_number/:version/:asset', to: 'display_assets#show'
   match '/display_assets/', :controller => 'display_assets', :action => 'options', :via => [:options]
 end

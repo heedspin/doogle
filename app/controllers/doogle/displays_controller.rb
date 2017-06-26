@@ -4,7 +4,7 @@ if Rails::VERSION::MAJOR < 5
   class Doogle::DisplaysController < Doogle::DoogleController
 
     def index
-      search_params = params[:search]
+      search_params = params.permit!.fetch(:search, nil)
       @search = Doogle::Display.new(search_params)
       unless @search.status_option_id.present?
         @search.status_option_id = Doogle::StatusOption.draft_and_published.id
@@ -103,7 +103,7 @@ if Rails::VERSION::MAJOR < 5
     def update
       @display = current_object
 
-      if @display.update_attributes(params[:display])
+      if @display.update_attributes(params.require(:display).permit!)
         @display.sync_to_erp!
         @display.maybe_sync_to_web
         flash[:notice] = 'Display was successfully updated.'
@@ -162,7 +162,7 @@ if Rails::VERSION::MAJOR < 5
 
     def build_object
       if @current_object.nil?
-        @current_object = Doogle::Display.new(params[:display])
+        @current_object = Doogle::Display.new(params.require(:display).permit!)
         @current_object.current_user = current_user
         @current_object.type_key ||= Doogle::DisplayConfig.all.first.key
       end

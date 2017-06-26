@@ -83,6 +83,8 @@ display_fields: &display_fields
       search_as: string
       web: false
     - key: colors
+      search_as: string # Otherwise formtastic uses a color picker
+      edit_as: string # Otherwise formtastic uses a color picker
     - key: backlight_type
       belongs_to: true
     - key: resolution

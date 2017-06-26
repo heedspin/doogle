@@ -46,7 +46,7 @@ if Rails::VERSION::MAJOR < 5
     def update
       @display = parent_object
       @price = current_object
-      if @price.update_attributes(params[model_name])
+      if @price.update_attributes(params.require(:doogle_display_price).permit!)
         redirect_to doogle_display_prices_url(@display)
       else
         render :action => 'edit'
@@ -85,10 +85,6 @@ if Rails::VERSION::MAJOR < 5
 
     protected
 
-      def model_name
-        :doogle_display_price
-      end
-
       def current_object
         if @current_object.nil?
           @current_object = Doogle::DisplayPrice.find(params[:id])
@@ -103,7 +99,7 @@ if Rails::VERSION::MAJOR < 5
 
       def build_object
         if @current_object.nil?
-          @current_object = parent_object.prices.build(params[model_name])
+          @current_object = parent_object.prices.build(params.require(:doogle_display_price).permit!)
           @current_object.current_user = current_user
         end
         @current_object

@@ -23,7 +23,7 @@ if Rails::VERSION::MAJOR < 5
         # Convince Excel it's ok to send request to external browser (which must authenticate).
         render :text => 'hello excel', :status => 200
       else
-        @display = current_object
+        @display = Doogle::Display.find_by_model_number(params[:model_number]) || (raise ActiveRecord::RecordNotFound)
         asset = params[:asset] || :datasheet
         version = params[:version]
         # Basic security check; make sure it's at least a field.
@@ -53,7 +53,6 @@ if Rails::VERSION::MAJOR < 5
       end
     end
 
-    skip_before_filter :require_login, :only => [:options]
     def options
       # logger.info request.env.select {|k,v| k.match("^HTTP.*")}.inspect
       # logger.info request.env.select {|k,v| k.match(".*requested.*")}.inspect
@@ -65,17 +64,6 @@ if Rails::VERSION::MAJOR < 5
 
     def not_found
       render :template => "errors/404", :status => 404
-    end
-
-    def current_object
-      if @current_object.nil?
-        if params[:id].to_i.to_s == params[:id].to_s
-          @current_object = Doogle::Display.find(params[:id])
-        else
-          @current_object = Doogle::Display.find_by_model_number(params[:id]) || (raise ActiveRecord::RecordNotFound)
-        end
-      end
-      @current_object
     end
   end
 end
