@@ -208,12 +208,12 @@ end
     joins(:display_interface_types).where('display_interface_types.interface_type_id in (?)', itypes.map(&:id))
   }
   %w(why comments description colors source_model_number integrated_controller original_customer_name original_customer_part_number original_xnumber ctp_ic).each do |key|
-    scope key, lambda { |text| where("LOWER(displays.#{key}) like ?", '%' + (text.strip.downcase || '') + '%') }
+    scope key, lambda { |text| where("displays.#{key} ilike ?", '%' + (text.strip || '') + '%') }
   end
 
   scope :model_number, lambda { |txt|
-    model_numbers = txt.split(/[ ,]/).select(&:present?).map { |m| "%#{m.strip.downcase}%" }
-    where(model_numbers.map { |m| 'LOWER(displays.model_number) like ?' }.join(' OR '), *model_numbers)
+    model_numbers = txt.split(/[ ,]/).select(&:present?).map { |m| "%#{m.strip}%" }
+    where(model_numbers.map { |m| 'displays.model_number ilike ?' }.join(' OR '), *model_numbers)
   }
 
   scope :web, lambda { where(:publish_to_web => true) }
@@ -289,8 +289,8 @@ end
 
   attr_accessor :vendor_part_number
   scope :vendor_part_number, lambda { |txt|
-    vendor_part_numbers = txt.split(/[ ,]/).select(&:present?).map { |m| "%#{m.strip.downcase}%" }
-    conditions = vendor_part_numbers.map { |m| 'LOWER(vendor_part_number) like ?' }.join(' OR ')
+    vendor_part_numbers = txt.split(/[ ,]/).select(&:present?).map { |m| "%#{m.strip}%" }
+    conditions = vendor_part_numbers.map { |m| 'vendor_part_number ilike ?' }.join(' OR ')
     where(["displays.id in (select distinct display_id from display_prices where #{conditions})", *vendor_part_numbers])
   }
 

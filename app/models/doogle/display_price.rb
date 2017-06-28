@@ -64,7 +64,7 @@ class Doogle::DisplayPrice < Doogle::Base
       group(:vendor_name, :m2m_vendor_id, :vendor_part_number, :last_date, :preferred_vendor)
   }
   def self.vendor_part_number_like(pn)
-    where('display_prices.vendor_part_number like ?', "%#{pn}%")
+    where('display_prices.vendor_part_number ilike ?', "%#{pn}%")
   end
   scope :not_deleted, lambda { includes(:display).where('displays.status_id != ?', Doogle::Status.deleted.id) }
   def self.created_after(date)
@@ -78,7 +78,7 @@ class Doogle::DisplayPrice < Doogle::Base
   def self.uniq_vendor_names_like(txt)
     results = connection.select_rows <<-SQL
       select distinct(display_prices.vendor_name) from display_prices
-      where display_prices.vendor_name like '%#{txt}%'
+      where display_prices.vendor_name ilike '%#{txt}%'
       order by display_prices.vendor_name
       limit 20
     SQL
