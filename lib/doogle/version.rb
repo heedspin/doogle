@@ -1,3 +1,3 @@
 module Doogle
-  VERSION = '10.0.4'
+  VERSION = '10.0.5'
 end

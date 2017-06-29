@@ -63,7 +63,7 @@ if Rails::VERSION::MAJOR < 5
     end
 
     def build_object
-      @current_object ||= parent_object.logs.build(params.require(:doogle_display_log).permit!)
+      @current_object ||= parent_object.logs.build(params.fetch(:doogle_display_log, nil).try(:permit!))
     end
 
     def current_object
