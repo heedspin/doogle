@@ -99,7 +99,7 @@ if Rails::VERSION::MAJOR < 5
 
       def build_object
         if @current_object.nil?
-          @current_object = parent_object.prices.build(params.require(:doogle_display_price).permit!)
+          @current_object = parent_object.prices.build(params.fetch(:doogle_display_price, nil).try(:permit!))
           @current_object.current_user = current_user
         end
         @current_object
