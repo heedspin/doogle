@@ -30,7 +30,7 @@ class Doogle::DisplayLog < ApplicationModel
     where(:display_id => display_id)
   }
   scope :with_object_id, lambda { |oid|
-    where(:object_id => oid)
+    where(:object_id => oid.to_s)
   }
   scope :log_type, lambda { |*log_types|
     if log_types.size == 1
