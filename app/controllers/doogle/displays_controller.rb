@@ -162,7 +162,7 @@ if Rails::VERSION::MAJOR < 5
 
     def build_object
       if @current_object.nil?
-        @current_object = Doogle::Display.new(params.require(:display).permit!)
+        @current_object = Doogle::Display.new(params.fetch(:display, nil).try(:permit!))
         @current_object.current_user = current_user
         @current_object.type_key ||= Doogle::DisplayConfig.all.first.key
       end
