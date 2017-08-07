@@ -1,12 +1,17 @@
 require 'plutolib/to_xls'
 
+# 00 3 * * * /var/www/lxdhub/script/runner.sh 'Doogle::MasterListExport.new.delay.to_xls'
 class Doogle::MasterListExport
   include Plutolib::ToXls
-  
-  def xls_filename
-    "LXD_Master_List.xls"
+
+  def to_xls(export_file=nil)
+    if export_file.nil?
+      basedir = Rails.env.development? ? Rails.root : AppConfig.sales_dropbox_root
+      export_file = File.join(basedir, 'LXD_Master_List.xls')
+    end
+    super(export_file)
   end
-  
+    
   def xls_each_sheet(&block)
     [['tft_displays', 'TFTs'], ['oled_displays', 'OLED Graph'], ['oled_character_modules', 'OLED Char'], ['segment_glass_displays', 'Segment Glass'], ['graphic_glass_displays', 'Graphic Glass'], ['graphic_module_displays', 'Graphic Modules'], ['character_module_displays', 'Character Module'], ['accessories', 'Accessories'], ['shutter', 'Shutters']].each do |type_key, sheet_name|
       display_type = Doogle::DisplayConfig.find_by_key(type_key)
