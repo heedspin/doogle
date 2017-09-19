@@ -663,6 +663,10 @@ end
     end
   end
 
+  def base_model_number
+    Doogle::DisplayConfig.base_model_number(self.model_number)
+  end
+
   protected
 
     after_create :log_create

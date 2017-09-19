@@ -217,6 +217,22 @@ class Doogle::DisplayConfig
     end
   end
 
+  def self.base_model_number(model_number)
+    prefix, number, revision = self.model_number_parts(model_number)
+    "#{prefix}#{number}"
+  end
+
+  def self.model_number_parts(model_number)
+    if model_number =~ /^(\w)(\d+)(\w)?/
+      prefix = $1
+      number = $2
+      revision = $3
+      [prefix, number, revision]
+    else
+      nil
+    end
+  end
+
   def method_missing(mid, *args)
     if config.member?(mid.to_s)
       config[mid.to_s]
