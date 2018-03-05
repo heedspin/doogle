@@ -25,6 +25,7 @@ class Doogle::InterfaceType < ApplicationModel
     {:id => 11, :name => 'MPU'},
     {:id => 12, :name => 'Serial'},
     {:id => 13, :name => 'eDP'},
-    {:id => 14, :name => 'USB'}
+    {:id => 14, :name => 'USB'},
+    {:id => 15, :name => 'HDMI'}
   ]
 end
