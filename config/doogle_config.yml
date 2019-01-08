@@ -341,10 +341,10 @@ display_types: &display_types
 
     - key: oled_character_modules
       name: OLED Character Module
-      fields: status, display_type, model_number, search_vendor, vendor_part_number, description, previous_revision_id, erp_id, publish_to_web, on_master_list, oled_diagonal_in, module_dimensions, character_resolution, colors, active_area, interface_types, why, comments, standard_classification, touch_panel_type, ctp_ic, datasheet, specification, drawing, original_customer_name, original_customer_part_number, original_xnumber, sql_query
+      fields: status, display_type, model_number, search_vendor, vendor_part_number, description, previous_revision_id, erp_id, publish_to_web, on_master_list, oled_diagonal_in, module_dimensions, character_resolution, colors, active_area, interface_types, integrated_controller, why, comments, standard_classification, touch_panel_type, ctp_ic, datasheet, specification, drawing, original_customer_name, original_customer_part_number, original_xnumber, sql_query
       default_search_fields: display_type, model_number, search_vendor, character_resolution, module_dimensions
       web_list: model_number, oled_diagonal_in, module_dimensions, character_resolution, colors, active_area, interface_types
-      master_list: display_type, model_number, search_vendor, vendor_part_number, description, oled_diagonal_in, module_dimensions, character_resolution, colors, active_area, interface_types, why, comments, standard_classification, touch_panel_type, ctp_ic, datasheet, specification, publish_to_web, drawing, original_customer_name, original_xnumber
+      master_list: display_type, model_number, search_vendor, vendor_part_number, description, oled_diagonal_in, module_dimensions, character_resolution, colors, active_area, interface_types, integrated_controller, why, comments, standard_classification, touch_panel_type, ctp_ic, datasheet, specification, publish_to_web, drawing, original_customer_name, original_xnumber
       m2m_group_code: OLEDS
       m2m_product_class: OLEDS
       model_number_prefix: L
