@@ -43,7 +43,7 @@
 
 require 'plutolib/logger_utils'
 
-class Doogle::DisplayPrice < Doogle::Base
+class Doogle::DisplayPrice < ActiveRecord::Base
   include Plutolib::LoggerUtils
   belongs_to :display, :class_name => 'Doogle::Display'
   belongs_to :m2m_vendor, :class_name => 'M2m::Vendor', :primary_key => 'fvendno'

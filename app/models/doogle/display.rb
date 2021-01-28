@@ -108,7 +108,7 @@ require 'plutolib/active_hash_setter'
 require 'acts_as_list'
 require 'doogle/web_synchronizer'
 
-class Doogle::Display < ApplicationModel
+class Doogle::Display < ActiveRecord::Base
   validates_uniqueness_of :model_number
   validates_presence_of :type_key, :status
 

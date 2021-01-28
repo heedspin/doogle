@@ -16,7 +16,7 @@
 
 require 'active_hash'
 
-class Doogle::DisplayLog < ApplicationModel
+class Doogle::DisplayLog < ActiveRecord::Base
   extend ActiveHash::Associations::ActiveRecordExtensions
   belongs_to :display, :class_name => 'Doogle::Display'
   belongs_to :user

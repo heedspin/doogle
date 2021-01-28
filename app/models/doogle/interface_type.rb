@@ -8,7 +8,7 @@
 
 require 'static_model'
 
-class Doogle::InterfaceType < ApplicationModel
+class Doogle::InterfaceType < ActiveRecord::Base
   self.table_name = 'doogle_interface_types'
   include StaticModel
   self.data = [

@@ -7,7 +7,7 @@
 #  interface_type_id :integer
 #
 
-class Doogle::DisplayInterfaceType < ApplicationModel
+class Doogle::DisplayInterfaceType < ActiveRecord::Base
   belongs_to :display, :class_name => 'Doogle::Display'
   belongs_to :interface_type, :class_name => 'Doogle::InterfaceType'
 end
